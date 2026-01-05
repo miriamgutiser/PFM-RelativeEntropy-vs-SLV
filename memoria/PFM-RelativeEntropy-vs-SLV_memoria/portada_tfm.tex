@@ -1,0 +1,193 @@
+
+\documentclass[12pt]{book}
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+%                       Paquetes y librerias                            %
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amsfonts,amssymb,amsthm,latexsym,mathrsfs,pdfsync,color,graphicx}
+\usepackage[english,spanish,es-noquoting]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{epstopdf}
+\usepackage{changepage}
+
+\usepackage[fixlanguage]{babelbib}
+    \bibliographystyle{plain}
+\usepackage{url} % necesario para \url{...} en el .bib
+
+
+\geometry{bindingoffset=2cm}
+\geometry{textwidth=390pt}
+
+
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+%    Definicion de entornos y numeracion de teoremas, definiciones...   %
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+\newtheorem{teor}{Teorema}[chapter]
+%\newtheorem{prop}[teor]{Proposición} % al ponerlo así considera que el contador es comun para los teoremas y las proposiciones
+
+%\theoremstyle{definition}
+
+%\theoremstyle{remark}
+
+
+% Declaracion de operadores
+%\DeclareMathOperator{\dive}{\textrm{div}}
+
+% Decimal con punto
+\spanishdecimal{.}
+
+
+
+
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+%                               Portada                                 %
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+%     Los datos de la portada se cubren en el cuerpo del documento      %
+%     como argumentos del comando \portada descrito a continuacion      %
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+\newcommand{\portada}[7]{
+%\newcommand{\portada}[4]{
+\thispagestyle{empty}
+
+\vspace*{-2cm}
+\begin{center}
+\begin{minipage}{6cm}
+		\includegraphics[width=5cm]{logo_m2i}
+	\end{minipage}\hspace{0.2cm}	
+\end{center}
+\begin{adjustwidth}{-2.5cm}{-2.5cm}
+    \begin{minipage}{2.5cm}
+    \vspace{0.5cm}		
+    \includegraphics[width=2cm]{logo_ux}
+	\end{minipage} \hspace{0.2cm}
+	\begin{minipage}{3.92cm}
+		\vspace{0.5cm}
+		\includegraphics[width=3.92cm]{logo_udc}
+	\end{minipage}\hspace{0.2cm}
+	\begin{minipage}{3.52cm}
+		\vspace{0.8cm}
+		\includegraphics[width=3.52cm]{logo_uvigo}
+	\end{minipage}\hspace{0.2cm}
+	\begin{minipage}{4.3cm}
+		\vspace{0.15cm}
+		\includegraphics[width=4.3cm]{logo_UC3M}
+	\end{minipage}\hspace{0.2cm}
+	\begin{minipage}{2.22cm}
+		\vspace{-0.5275cm}
+		\includegraphics[width=2.22cm]{logo_UPM}
+	\end{minipage}
+\end{adjustwidth}
+
+
+\vspace{0.9cm}
+\begin{center}
+\bf
+Máster en Matemática Industrial
+
+\vspace{0.3cm}
+Curso -- 2025-26
+
+\vspace{2.3cm}
+\large Proyecto Fin de Máster
+
+
+\vspace{0.9cm}
+{\Huge{\textbf{ #1 }}
+\par}
+
+\vspace{1.8cm}
+{\Large #2 }
+\end{center}
+
+
+\vspace{4.8cm}
+\hspace{-1.2cm}
+\begin{minipage}{0.6\linewidth}
+\begin{tabular}{ll}
+\textbf{Fecha presentación:} &  #6 \\
+\textbf{Tutor académico:}&  #3\\
+\textbf{Empresa:} & #4  \\%[0.5cm]
+\textbf{Tutor empresa: }& #7 \\
+& \includegraphics[width=0.8\textwidth]{#5}
+\end{tabular}
+\end{minipage}
+
+\enlargethispage{5cm} {\pagestyle{empty}\cleardoublepage }}
+
+
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+%                               Resumen                                 %
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+% La ruta del fichero que contiene el resumen se cubre en el cuerpo del %
+%documento como argumentos del comando \resumen descrito a continuacion %
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+\newcommand{\resumen}[1]{
+
+\vspace*{3cm}
+\noindent {\LARGE\bfseries Resumen}\par
+\vspace*{2cm}
+
+\input{#1}
+
+\cleardoublepage }
+
+
+
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+% %                   Comienzo del documento                          % %
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+\begin{document}
+\frontmatter
+
+
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+%                             Portada                                   %
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+\portada{Stochastic Local Volatility vs Relative Entropy}{Miriam Gutiérrez Serrano}{Carlos Vázquez Cendón (UDC)}{Banco Santander}{Banco_Santander_Logotipo.png}{01/07/2025}{ Manuel Menéndez Sánchez}
+% El ultimo argumento debe incluir la ruta del fichero del logo de
+% la empresa. Si no se desea añadir comentar las lineas 83 y 131
+% del codigo y descomentar la 84
+
+
+% Reinicio del contador de paginas
+\setcounter{page}{1}
+
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+%                             Indice                                    %
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+\tableofcontents
+
+\cleardoublepage
+
+
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+%                             Resumen                                   %
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+\addcontentsline{toc}{chapter}{Resumen}
+\markboth{Resumen}{ }
+\resumen{ruta_fichero_resumen}
+% El argumento debe incluir la ruta del .tex del resumen
+
+
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+%                       Cuerpo del documento                            %
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+\mainmatter
+\input{main}
+
+
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+%                          Bibliografia                                 %
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+\nocite{*} %Imprime todas las entradas del .bib aunque no estén citadas
+\bibliography{referencias}
+
+
+
+\end{document}
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
