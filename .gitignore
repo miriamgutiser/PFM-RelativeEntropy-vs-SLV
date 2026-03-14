@@ -9,3 +9,7 @@
 *.fdb_latexmk
 *.synctex.gz
 *.pdfsync
+*.egg-info/
+__pycache__/
+.vscode/
+.venv/
