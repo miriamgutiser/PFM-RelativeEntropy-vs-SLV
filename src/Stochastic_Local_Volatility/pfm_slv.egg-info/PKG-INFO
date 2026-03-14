@@ -1,0 +1,8 @@
+Metadata-Version: 2.4
+Name: pfm-slv
+Version: 0.1.0
+Summary: Relative Entropy vs Stochastic Local Volatility
+Requires-Python: >=3.9
+Requires-Dist: numpy
+Requires-Dist: scipy
+Requires-Dist: matplotlib
