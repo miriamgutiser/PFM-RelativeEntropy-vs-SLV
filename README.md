@@ -7,12 +7,11 @@ y modelos de Volatilidad Estocástica–Local aplicados a la modelización y val
 
 ## Estructura del repositorio
 
-- `docs/`: documentación facilitada
+- `docs/`: documentación del proyecto y artículos científicos de referencia.
 - `src/`: código fuente 
 - `data/`: conjuntos de datos utilizados en el trabajo
 - `results/`: resultados numéricos, gráficos y tablas
 - `meetings/`: actas y notas de reuniones de seguimiento
-- `references/`: artículos científicos y material bibliográfico de referencia
 
 ## Instalación
 
