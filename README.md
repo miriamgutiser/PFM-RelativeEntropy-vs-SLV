@@ -22,7 +22,7 @@ El código fuente está organizado como un paquete Python instalable. Para ejecu
 - Python 3.9 o superior
 - `pip` (incluido con Python)
 
-Las dependencias del proyecto (`numpy`, `scipy`, `matplotlib`) se instalan automáticamente.
+Las dependencias del proyecto (`numpy`, `scipy`, `matplotlib`,...) se instalan automáticamente.
 
 ### Pasos
 
