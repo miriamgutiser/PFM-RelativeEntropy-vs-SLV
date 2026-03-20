@@ -29,7 +29,7 @@ from volatilidad_estocastica.Heston_model import chf_heston
 
 
 # ============================================================
-# 1. DATOS DE MERCADO (Tabla 8.1 del libro)
+# 1. DATOS DE MERCADO 
 #    Volatilidades del libro en porcentajes.
 # ============================================================
 
