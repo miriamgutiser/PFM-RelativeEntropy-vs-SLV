@@ -16,17 +16,10 @@ Tres modos de calibración:
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import os
-import sys
 
 from dataclasses import dataclass
 from scipy.optimize import minimize, brentq
 
-# ---- path setup (mismo patrón que HestonGoodGuessOfInitial.py) ----
-current_dir = os.path.dirname(os.path.abspath(__file__))
-project_root = os.path.abspath(os.path.join(current_dir, ".."))
-if project_root not in sys.path:
-    sys.path.append(project_root)
 
 # ---- project imports ----
 from core.COS_method import CallPutOptionPriceCOSMthd
@@ -37,7 +30,7 @@ from volatilidad_estocastica.Heston_model import chf_heston
 
 # ============================================================
 # 1. DATOS DE MERCADO (Tabla 8.1 del libro)
-#    Las volatilidades del libro están en porcentajes.
+#    Volatilidades del libro en porcentajes.
 # ============================================================
 
 def load_market_surface():
@@ -136,7 +129,7 @@ def _heston_call_price_COS(S0, K, T, r, p: HestonParams, N=5000, L=5):
 def _implied_vol_silent(price, S0, K, T, r):
     """
     Calcula la volatilidad implícita BS usando brentq (root-finding robusto)
-    con BS_Call_Put_Option_Price del proyecto.
+    con BS_Call_Put_Option_Price del proyecto. Con el método de Newthon-Raphson no converge. 
     
     Args:
         price (float): precio de la call
@@ -306,13 +299,12 @@ def objective_term_structure_atm(x, S0, strikes, maturities, r, vol_market, fix_
     p = unpack_params(x, fix_kappa=fix_kappa)       # Desempaqueta los parámetros
     idx_K = np.argmin(np.abs(strikes - S0))         # Busca el strike más cercano a ATM
 
-    print(f"Strike ATM seleccionado: {strikes[idx_K]}")
     # Calcula las volatilidades del modelo ATM usando la fórmula de Heston(CF)
     model = heston_surface_iv(S0, [strikes[idx_K]], maturities, r, p).reshape(-1)
-    print(f"Volatilidad del modelo ATM (8 vencimientos): {model}")
+    # print(f"Volatilidad del modelo ATM (8 vencimientos): {model}")
     # Extrae de la tabla real del mercado toda la columna correspondiente a ese strike ATM
     market = vol_market[:, idx_K]
-    print(f"Volatilidad del mercado ATM (8 vencimientos): {market}")
+    # print(f"Volatilidad del mercado ATM (8 vencimientos): {market}")
     return np.sqrt(np.sum((model - market)**2))
 
 
@@ -473,8 +465,6 @@ def compare_market_vs_model(strikes, maturities, vol_market, vol_model, title):
     fig.suptitle(title)
     plt.tight_layout()
     plt.show()
-    plt.tight_layout()
-    plt.show()
 
 def plot_calibrated_surface(strikes, maturities, vol_surface, S0, mode, title):
     """
@@ -578,7 +568,7 @@ def main():
     plot_calibrated_surface(strikes, maturities, vol_surf, S0, "surface", "Heston calibrado a toda la superficie")
 
     # Comparaciones
-    plot_surface(strikes, maturities, vol_market, "Superficie de volatilidad del mercado (Tabla 8.1)")
+    plot_surface(strikes, maturities, vol_market, "Superficie de volatilidad del mercado")
     compare_market_vs_model(strikes, maturities, vol_market, vol_surf, "Mercado vs Heston (calibración superficie completa)")
 
 
