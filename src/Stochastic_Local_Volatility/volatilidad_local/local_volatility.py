@@ -13,8 +13,8 @@ Funciones incluidas:
 """
 
 import numpy as np
-from core.diferencias_finitas import central_diff, central_diff2
-from core.hagan_implied_volatility import HaganImpliedVolatility
+from Stochastic_Local_Volatility.core.diferencias_finitas import central_diff, central_diff2
+from Stochastic_Local_Volatility.core.hagan_implied_volatility import HaganImpliedVolatility
 
 def LocalVarianceBasedOnSABR(s0,frwd,r,alpha,beta,rho,volvol):
     """

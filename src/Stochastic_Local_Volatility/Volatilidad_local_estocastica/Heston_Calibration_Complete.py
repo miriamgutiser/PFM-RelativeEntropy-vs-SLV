@@ -22,10 +22,10 @@ from scipy.optimize import minimize, brentq
 
 
 # ---- project imports ----
-from core.COS_method import CallPutOptionPriceCOSMthd
-from core.pricing_Black_Scholes import BS_Call_Put_Option_Price
-from core.types import OptionType
-from volatilidad_estocastica.Heston_model import chf_heston
+from Stochastic_Local_Volatility.core.COS_method import CallPutOptionPriceCOSMthd
+from Stochastic_Local_Volatility.core.pricing_Black_Scholes import BS_Call_Put_Option_Price
+from common.types import OptionType
+from Stochastic_Local_Volatility.volatilidad_estocastica.Heston_model import chf_heston
 
 
 # ============================================================

@@ -16,8 +16,8 @@ Se generan curvas σ_impl(K,T) variando individualmente:
 
 import numpy as np
 import matplotlib.pyplot as plt
-from core.hagan_implied_volatility import HaganImpliedVolatility
-from core.types import OptionType
+from Stochastic_Local_Volatility.core.hagan_implied_volatility import HaganImpliedVolatility
+from common.types import OptionType
 # Parameters for Hagan's SABR approximation formula
 
 CP    = OptionType.CALL

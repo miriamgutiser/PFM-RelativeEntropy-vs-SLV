@@ -14,9 +14,9 @@ Finalmente, se visualizan los resultados mediante gráficos de dispersión y con
 import numpy as np
 import matplotlib.pyplot as plt
 
-from core.types import OptionType
-from volatilidad_estocastica.Heston_model import ChFHestonModel, CIR_Sample, GeneratePathsHestonAES
-from volatilidad_estocastica.Heston_model2D import ChFHeston2D, ksi, COSMethod2DHeston
+from common.types import OptionType
+from Stochastic_Local_Volatility.volatilidad_estocastica.Heston_model import ChFHestonModel, CIR_Sample, GeneratePathsHestonAES
+from Stochastic_Local_Volatility.volatilidad_estocastica.Heston_model2D import ChFHeston2D, ksi, COSMethod2DHeston
 
 
 def getEVBinMethod(S, v, NoOfBins):

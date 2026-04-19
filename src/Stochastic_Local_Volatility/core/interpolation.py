@@ -28,8 +28,8 @@ import scipy.optimize as optimize
 from scipy.optimize import brentq, fsolve
 from scipy.stats import norm
 
-from core.pricing_Black_Scholes import BS_Call_Put_Option_Price,BS_Call_Put_Option_Price_tau
-from core.types import OptionType
+from Stochastic_Local_Volatility.core.pricing_Black_Scholes import BS_Call_Put_Option_Price,BS_Call_Put_Option_Price_tau
+from common.types import OptionType
 
 def interpolate_along_path(time_grid, s_grid, surface, t_path, s_path, fill_value=np.nan):
     """

@@ -11,13 +11,13 @@ from scipy.interpolate import RegularGridInterpolator
 import warnings
 warnings.filterwarnings('ignore')
 
-from core.types import OptionType
-from core.COS_method import CallPutOptionPriceCOSMthd, Carr_Madan_Call
-from core.pricing_Black_Scholes import BS_Call_Put_Option_Price
-from core.interpolation import ImpliedVolatility_Vectorized
-from core.monteCarlo import MCprice
-from volatilidad_estocastica.Heston_model import ChFHestonModel, CIR_Sample
-from Volatilidad_local_estocastica.SLV_bin_method import getEVBinMethod
+from common.types import OptionType
+from Stochastic_Local_Volatility.core.COS_method import CallPutOptionPriceCOSMthd, Carr_Madan_Call
+from Stochastic_Local_Volatility.core.pricing_Black_Scholes import BS_Call_Put_Option_Price
+from Stochastic_Local_Volatility.core.interpolation import ImpliedVolatility_Vectorized
+from Stochastic_Local_Volatility.core.monteCarlo import MCprice
+from Stochastic_Local_Volatility.volatilidad_estocastica.Heston_model import ChFHestonModel, CIR_Sample
+from Stochastic_Local_Volatility.Volatilidad_local_estocastica.SLV_bin_method import getEVBinMethod
 
 i = 1j
 

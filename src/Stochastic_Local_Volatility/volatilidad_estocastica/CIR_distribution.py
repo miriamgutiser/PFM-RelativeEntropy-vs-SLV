@@ -37,7 +37,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.stats as st
 
-from core.processes import FellerCondition,CIR_PDF_CDF
+from Stochastic_Local_Volatility.core.processes import FellerCondition,CIR_PDF_CDF
 
 # Global variables 
 

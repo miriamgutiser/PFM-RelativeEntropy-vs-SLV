@@ -9,10 +9,10 @@ Black- Scholes implied volatility function
 
 import numpy as np
 import scipy.stats as st
-from core.types import OptionType
-from core.pricing_Black_Scholes import BS_Call_Put_Option_Price, BS_Vega, BS_Call_Put_Option_Price_tau, BS_Vega_tau
+from common.types import OptionType
+from Stochastic_Local_Volatility.core.pricing_Black_Scholes import BS_Call_Put_Option_Price, BS_Vega, BS_Call_Put_Option_Price_tau, BS_Vega_tau
 
-def ImpliedVolatility(CP,S_0,K,sigma,t,T,r):
+def ImpliedVolatility(CP,S_0,K,sigma,t,T,r,V_market):
     """
     Cálculo de la volatilidad implícita mediante el método de Newton–Raphson.
 
@@ -27,6 +27,7 @@ def ImpliedVolatility(CP,S_0,K,sigma,t,T,r):
         t (float): tiempo actual
         T (float): tiempo hasta vencimiento
         r (float): tipo de interés libre de riesgo
+        V_market (float): precio de mercado de la opción
 
     Returns:
         float: Volatilidad implícita que iguala el precio del modelo
@@ -59,10 +60,10 @@ def ImpliedVolatility(CP,S_0,K,sigma,t,T,r):
 
 
 
-def ImpliedVolatility_tau(CP,S_0,K,sigma,tau,r):
+def ImpliedVolatility_tau(CP,S_0,K,sigma,tau,r,V_market):
     """
     Cálculo de la volatilidad implícita mediante el método de Newton–Raphson.
-
+    
     Esta función determina la volatilidad implícita sigma_impl tal que el precio
     teórico de Black–Scholes coincida con el precio observado en mercado
     (V_market).
@@ -74,6 +75,7 @@ def ImpliedVolatility_tau(CP,S_0,K,sigma,tau,r):
         t (float): tiempo actual
         T (float): tiempo hasta vencimiento
         r (float): tipo de interés libre de riesgo
+        V_market (float): precio de mercado de la opción
 
     Returns:
         float: Volatilidad implícita que iguala el precio del modelo

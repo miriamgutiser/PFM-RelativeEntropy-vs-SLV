@@ -10,13 +10,13 @@ GBM path and corresponding Greeks
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.stats as st
-from core.types import OptionType
+from common.types import OptionType
 
 from mpl_toolkits import mplot3d
 from scipy.interpolate import RegularGridInterpolator
-from core.pricing_Black_Scholes import  BS_Call_Put_Option_Price, BS_Delta, BS_Gamma, BS_Vega
-from core.interpolation import interpolate_along_path
-from core.processes import GeneratePathsGBMEuler
+from Stochastic_Local_Volatility.core.pricing_Black_Scholes import  BS_Call_Put_Option_Price, BS_Delta, BS_Gamma, BS_Vega
+from Stochastic_Local_Volatility.core.interpolation import interpolate_along_path
+from Stochastic_Local_Volatility.core.processes import GeneratePathsGBMEuler
 
 
 def StockPathAndGreeks():

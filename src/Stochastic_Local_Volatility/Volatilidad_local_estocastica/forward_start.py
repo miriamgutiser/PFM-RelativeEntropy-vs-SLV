@@ -12,8 +12,8 @@ import numpy as np
 from scipy.stats import norm
 from scipy.optimize import fsolve
 
-from core.COS_method import CallPutCoefficients
-from core.types import OptionType
+from Stochastic_Local_Volatility.core.COS_method import CallPutCoefficients
+from common.types import OptionType
 
 
 def ChFHestonForward(u, T_1, T_2, kappa, vBar, gamma, rho, v0, r):

@@ -18,12 +18,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.stats as st
 import scipy.optimize as optimize
-from core.interpolation import ImpliedVolatility
-from core.hagan_implied_volatility import HaganImpliedVolatility
-from core.pricing_Black_Scholes import BS_Call_Put_Option_Price
-from core.monteCarlo import EUOptionPriceFromMCPaths
-from core.types import OptionType
-from volatilidad_local.local_volatility import LocalVarianceBasedOnSABR
+from Stochastic_Local_Volatility.core.interpolation import ImpliedVolatility
+from Stochastic_Local_Volatility.core.hagan_implied_volatility import HaganImpliedVolatility
+from Stochastic_Local_Volatility.core.pricing_Black_Scholes import BS_Call_Put_Option_Price
+from Stochastic_Local_Volatility.core.monteCarlo import EUOptionPriceFromMCPaths
+from common.types import OptionType
+from Stochastic_Local_Volatility.volatilidad_local.local_volatility import LocalVarianceBasedOnSABR
 
 def mainCalculation():
 

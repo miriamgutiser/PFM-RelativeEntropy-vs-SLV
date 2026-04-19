@@ -14,8 +14,9 @@ con respecto al strike K, es decir,  dV_c/dK, d^2V_c/dK^2.
 
 import numpy as np
 import matplotlib.pyplot as plt
-from core.pricing_Black_Scholes import BS_Call_Put_Option_Price
-from core.diferencias_finitas import central_diff, central_diff2
+from common.types import OptionType
+from Stochastic_Local_Volatility.core.pricing_Black_Scholes import BS_Call_Put_Option_Price
+from Stochastic_Local_Volatility.core.diferencias_finitas import central_diff, central_diff2
 
 def dCdK(S_0, K, sigma, t, T, r, h = 1e-4):
     """
@@ -35,7 +36,8 @@ def dCdK(S_0, K, sigma, t, T, r, h = 1e-4):
                     Devuelve array incluso si K es escalar.
     """
     K = np.array(K).reshape([len(K),1])
-    C = lambda k: BS_Call_Put_Option_Price("c",S_0,k,sigma,t,T,r) 
+    CP = OptionType
+    C = lambda k: BS_Call_Put_Option_Price(CP,S_0,k,sigma,t,T,r) 
     return central_diff2(C, K, h)
 
 
@@ -58,7 +60,8 @@ def d2CdK2(S_0, K, sigma, t, T, r, h = 1e-4):
                     Devuelve array incluso si K es escalar.
     """
     K = np.array(K).reshape([len(K),1])
-    C = lambda k: BS_Call_Put_Option_Price("c", S_0, k, sigma, t, T, r) 
+    CP = OptionType.CALL
+    C = lambda k: BS_Call_Put_Option_Price(CP, S_0, k, sigma, t, T, r) 
     return central_diff2(C, K, h)
 
 
@@ -75,9 +78,10 @@ def Call_dCdK_d2CdK2():
     r = 0.05
     sigma = 0.4
     T = 1.001
+    CP = OptionType.CALL
 
     # Function pointers
-    CallOpt = lambda t, K: BS_Call_Put_Option_Price("c", s0, K, sigma, t, T, r)
+    CallOpt = lambda t, K: BS_Call_Put_Option_Price(CP, s0, K, sigma, t, T, r)
     dCdKOpt = lambda t, K: dCdK(s0, K, sigma, t, T, r)
     d2CdK2Opt = lambda t, K: d2CdK2(s0, K, sigma, t, T, r)
 
@@ -134,12 +138,12 @@ def Call_dCdK_d2CdK2():
     ax2.grid(True)
     ax2.set_xlim(0.0, float(T))
     ax2.set_ylim(0.0, float(np.max(KGrid)))
-    ax2.set_zlim(float(np.min(dCdKM)), 0.0)      # MATLAB: axis(... min(min(dCdKM)) 0)
+    ax2.set_zlim(float(np.min(dCdKM)), 0.0)     
     ax2.set_xlabel("t")
     ax2.set_ylabel("K")
     ax2.set_zlabel("dC / dK")
     #ax2.view_init(elev=25, azim=)
-    ax2.view_init(elev=37.2, azim=-40)  # MATLAB: view([-21.1 37.2])
+    ax2.view_init(elev=37.2, azim=-40)  
 
     # --- Plot 3: d2C/dK2 surface (mesh) ---
     fig3 = plt.figure(3)

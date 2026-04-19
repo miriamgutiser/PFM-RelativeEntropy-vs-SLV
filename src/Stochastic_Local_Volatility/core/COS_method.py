@@ -1,4 +1,4 @@
-from core.types import OptionType
+from common.types import OptionType
 
 import numpy as np
 from scipy.interpolate import interp1d
@@ -27,8 +27,7 @@ def CallPutOptionPriceCOSMthd(cf,CP,S0,r,tau,K,N,L):
         np.ndarray: Precio(s) de la opción correspondiente(s) al (los) precio(s) de ejercicio
     """
 
-    if not isinstance(K, np.ndarray):
-        K = np.array(K).reshape([len(K),1])
+    K = np.asarray(K, dtype=float).reshape(-1, 1)
     
     # Assigning i=sqrt(-1)
 
@@ -85,9 +84,18 @@ def Chi_Psi(a, b, c, d, k):
     chi = 1.0 / (1.0 + np.power((k * np.pi / (b - a)) , 2.0)) 
     expr1 = np.cos(k * np.pi * (d - a)/(b - a)) * np.exp(d)  - np.cos(k * np.pi 
                   * (c - a) / (b - a)) * np.exp(c)
-    expr2 = k * np.pi / (b - a) * np.sin(k * np.pi * 
-                        (d - a) / (b - a))   - k * np.pi / (b - a) * np.sin(k 
-                        * np.pi * (c - a) / (b - a)) * np.exp(c)
+    expr2 = (
+        k
+        * np.pi
+        / (b - a)
+        * np.sin(k * np.pi * (d - a) / (b - a))
+        * np.exp(d)
+        - k
+        * np.pi
+        / (b - a)
+        * np.sin(k * np.pi * (c - a) / (b - a))
+        * np.exp(c)
+    )
     chi = chi * (expr1 + expr2)
     
     value = {"chi":chi,"psi":psi }

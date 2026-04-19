@@ -18,7 +18,7 @@ Notas:
 import enum
 import numpy as np
 import scipy.stats as st
-from core.types import OptionType
+from common.types import OptionType
 
 def _d1_d2(S_0,K,sigma,t,T,r):
     """

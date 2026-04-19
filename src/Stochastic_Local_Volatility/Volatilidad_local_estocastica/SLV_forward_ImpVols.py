@@ -20,14 +20,13 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # ---- Core project imports ----
-from core.monteCarlo import MCprice
-from core.COS_method import Carr_Madan_Call
-from core.interpolation import ImpliedVolatility_Vectorized
-from core.types import OptionType
-
-from volatilidad_estocastica.Heston_model import chf_heston, CIR_Sample
-from Volatilidad_local_estocastica.SLV_bin_method import getEVBinMethod
-from Volatilidad_local_estocastica.forward_start import (
+from Stochastic_Local_Volatility.core.monteCarlo import MCprice
+from Stochastic_Local_Volatility.core.COS_method import Carr_Madan_Call
+from Stochastic_Local_Volatility.core.interpolation import ImpliedVolatility_Vectorized
+from common.types import OptionType
+from Stochastic_Local_Volatility.volatilidad_estocastica.Heston_model import chf_heston, CIR_Sample
+from Stochastic_Local_Volatility.Volatilidad_local_estocastica.SLV_bin_method import getEVBinMethod
+from Stochastic_Local_Volatility.Volatilidad_local_estocastica.forward_start import (
     ChFHestonForward,
     CallPutOptionPriceCOSMthd_FrwdStart,
     BS_Call_Option_Price_FrwdStart,

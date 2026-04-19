@@ -17,7 +17,7 @@ Notas:
 
 
 import numpy as np
-from core.types import OptionType
+from common.types import OptionType
 
 
 def EUOptionPriceFromMCPaths(CP,S,K,T,r):
@@ -47,24 +47,29 @@ def EUOptionPriceFromMCPaths(CP,S,K,T,r):
         raise ValueError("OptionType debe ser CALL o PUT")
 
 
-def MCprice(Kvec, Smat, T, r):
+def MCprice(Kvec, Smat, T, r, CP=OptionType.CALL):
     """
-    Calcula el precio de opciones europeas tipo call mediante Monte Carlo a partir de una matriz de precios 
-    simulados (Smat) y un vector de strikes (Kvec).
+    Calcula el precio de opciones europeas mediante Monte Carlo a partir de
+    simulaciones finales del subyacente y un vector de strikes.
     
     Args:
         Kvec (array_like): Vector de strikes (precios de ejercicio) para las opciones.
         Smat (array_like): Vector o matriz de precios finales del activo subyacente simulados por Monte Carlo.
         T (float): Tiempo hasta vencimiento de las opciones (en años).
         r (float): Tasa de interés libre de riesgo (continua).
+        CP (OptionType): Tipo de opción. Por defecto CALL.
     
     Returns:
-        ndarray: Vector de precios de opciones call, uno por cada strike en Kvec.
-                 Cada precio se calcula como E[max(S_T - K, 0)] * exp(-r*T).
+        ndarray: Vector de precios de opciones, uno por strike en Kvec.
     """
     Kvec = np.asarray(Kvec).flatten()
     val = np.zeros(len(Kvec))
     for i in range(len(Kvec)):
-        payoff = np.maximum(Smat - Kvec[i], 0)
+        if CP == OptionType.CALL:
+            payoff = np.maximum(Smat - Kvec[i], 0.0)
+        elif CP == OptionType.PUT:
+            payoff = np.maximum(Kvec[i] - Smat, 0.0)
+        else:
+            raise ValueError("OptionType debe ser CALL o PUT")
         val[i] = np.exp(-r*T) * np.mean(payoff)
     return val

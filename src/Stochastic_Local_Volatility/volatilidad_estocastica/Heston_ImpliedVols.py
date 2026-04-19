@@ -1,16 +1,16 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from volatilidad_estocastica.Heston_model import chf_heston
+from Stochastic_Local_Volatility.volatilidad_estocastica.Heston_model import chf_heston
 
 from scipy.optimize import fsolve
 from scipy.stats import norm
 import warnings
 warnings.filterwarnings('ignore')
 
-from core.COS_method import CallPutOptionPriceCOSMthd
-from core.interpolation import ImpliedVolatility
-from core.types import OptionType
+from Stochastic_Local_Volatility.core.COS_method import CallPutOptionPriceCOSMthd
+from Stochastic_Local_Volatility.core.interpolation import ImpliedVolatility
+from common.types import OptionType
 
 def heston_model_implied_vols():
     """Main function to analyze Heston model implied volatilities"""
