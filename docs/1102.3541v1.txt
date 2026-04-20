@@ -1,0 +1,601 @@
+                                                                                                                                             1
+
+
+
+
+          Weighted Monte Carlo: Calibrating the Smile
+             and Preserving Martingale Condition
+                                                           A. Elices1, E. Giménez2
+
+
+                                                                                 The conceptual idea of the Weighted Monte Carlo is very
+   Abstract—Weighted Monte Carlo prices exotic options                        simple. An initial set of paths is generated. These paths can
+calibrating the probabilities of previously generated paths by a              incorporate any desired feature of the underlying process such
+regular Monte Carlo to fit a set of option premiums. When only                as mean reverting stochastic volatility, different regimes of
+vanilla call and put options and forward prices are considered, the
+Martingale condition might not be preserved. This paper shows
+                                                                              volatility, volatility correlated with the underlying process or
+that this is indeed the case and overcomes the problem by adding              even jumps. For a regular Monte Carlo, all these paths will
+additional synthetic options. A robust, fast and easy-to-implement            have the same probability. The Weighted Monte Carlo
+calibration algorithm is presented. The results are illustrated with          modifies the probability of each path to replicate the prices of
+a geometric cliquet option which shows how the price impact can               the options of the smile at different maturities. As the number
+be significant.                                                               of degrees of freedom is fantastic (as many as the number of
+                                                                              paths), it is clear that to fit a few option prices, an infinite
+  Index Terms—Smile, Skew, Weighted Monte Carlo, Local
+volatility, stochastic volatility.                                            number of solutions must exist in the absence of arbitrage.
+                                                                              From all those, the solution chosen is such that the posterior
+                          I. INTRODUCTION                                     distribution is as close as possible to the prior in a certain
+                                                                              sense. This solution is found solving an optimisation problem
+   Taking into account the smile effect to price exotic
+                                                                              under as many constraints as option prices to fit.
+derivatives is an issue of major concern for both traders and
+                                                                                 The main drawback of this method is that when several
+practitioners as the impact of this effect in price and hedging
+                                                                              maturities are simulated and the smile effect is steep, the
+can be very significant. Under efficient market hypothesis,
+                                                                              probability distribution at each maturity after calibration may
+skew and smile on the vanilla option market can be explained
+                                                                              be significantly different from the original one. The method
+either by the fact that volatility is not constant or because the
+                                                                              has no control over the resulting price process after calibration
+asset price process might have jumps.
+                                                                              if no additional action is taken. In particular, the martingale
+   There have been many proposals for asset price processes to
+                                                                              property may not be satisfied. The main contribution of this
+capture the above-mentioned effects. [Merton, 1976] deduced
+                                                                              paper overcomes this problem by introducing additional
+the risk neutral partial integro-differential equation that a
+                                                                              constraints which force the conditional martingale condition to
+derivative product should follow under the assumption of a
+                                                                              be satisfied. This is the only property that all processes must
+jump diffusion process with constant volatility. He also found
+                                                                              share for consistent pricing. Another contribution of this paper
+the analytical solution for a call option. [Dupire, 1994]
+                                                                              is a robust, fast and easy to implement solution algorithm for
+proposed a model based on the assumption that the volatility of
+                                                                              the optimisation problem. This algorithm allows handling a
+the asset is a deterministic function of time and price. This
+                                                                              considerable number of constraints (the geometric cliquet
+model has no general analytical solution for call options.
+                                                                              example of section IV has 215 constraints).
+   [Heston, 1993] found the analytical solution for a call option
+                                                                                 Section II reviews the calibration method and presents a
+assuming that the volatility follows the continuous version of a
+                                                                              robust, fast and easy-to-implement algorithm to find the
+GARCH process. Other proposals for stochastic volatility
+                                                                              solution. Section III presents the formulation of the additional
+models can be found in [Hull and White, 1987], [Stein, 1991]
+                                                                              constraints to force the conditional martingale property of the
+and [Hagan et al, 2002]. Other authors have focused on
+                                                                              underlying process. Section IV presents an example of a
+providing no-arbitrage pricing models that might not have an
+                                                                              geometric cliquet option which is considerably undervalued
+explicit expression of the asset price process but are able to
+                                                                              when the martingale condition is not enforced (about 160 basis
+replicate a broad set of traded options. The implied tree by
+                                                                              points). This conclusion is very much in agreement with trader
+[Derman and Kani, 1994] and the weighted Monte Carlo by
+                                                                              experience and market pricing. Section V presents the
+[Avellaneda et al, 2001] belong to this category.
+                                                                              conclusions of the paper.
+  1
+     Model Validation Group, Area of Methodology, División General de
+Riesgos, Santander, Ciudad Financiera Santander, Avda. Cantabria s/n, 28660
+Boadilla del Monte, Spain, aelices@gruposantander.com.
+   2
+     Model Development Group, Front Office, Caixabank, Av. Diagonal, 621-
+629 T.I. P13, Barcelona, Spain, eduard.gimenez.f@lacaixa.es.
+                                                                                                                                                                         2
+
+                    II. REVIEW OF THE METHOD                                 This optimisation problem can be solved using lagrange
+                                                                           multipliers (see [Bertsekas, 1999]) as the min-max problem of
+A. Formulation of the problem                                              equation (8) (same notation as [Avellaneda et al, 2001]).
+   Pricing an european option Π using Monte Carlo involves                                                N
+                                                                                                                   v                    
+the simulation of v underlying paths according to the                               min max − D(p / q) + ∑ λ j  ∑ pi g i , j − C j     (8)
+                                                                                      λ  p 
+hypothesis considered, the calculation of the discounted                                                  j =1   i =1                 
+payoffs at maturity ( g i ) and the calculation of the price                  The solution of the maximization problem has been
+according to equation (1).                                                 extensively studied by [Cover and Thomas, 1991]. For a given
+                                1 v                                        set of λ j the optimal probability is given by equation (9). The
+                                   ∑ gi
+                                    Πg =
+                                v i =1
+                                                               (1)
+                                                                   normalisation constant Z ensures the probabilities to sum up 1.
+   The prices of the call and put options at different strikes and              1         N                          ν     N           
+                                                                         pi =        exp ∑ g ij λ j  with Z(λ ) = ∑ exp ∑ g ij λ j  (9)
+maturities will in general not be reproduced from the paths                   Z (λ )      j =1                      i =1   j =1        
+generated. The weighted Monte Carlo produces a set of                If these probabilities are replaced in equation (8), the
+probabilities pi close to qi = 1 / v in a certain sense providing resulting optimisation problem is given by equation (10).
+a new price for Π as shown in equation (2).                        Appendix A provides the detail of the calculations.
+                                              v                                                                                                   N
+                                    Π g = ∑ g i pi                   (2)                   min W (λ ) where W(λ ) = ln Z (λ ) − ∑ λ j C j                           (10)
+                                             i =1                                            λ
+                                                                                                                                                 j =1
+   The “distance” between two distributions p and q is defined                At any minimum, the gradient must equal zero. Equation
+using the relative entropy (although strictly speaking the                 (11) details the calculation of the gradient and shows that the
+relative entropy is not a distance) as defined in equation (3):            expected values of the discounted payoffs with respect to the
+                                  ν      p                               posterior probability distribution p equal the desired option
+                     D(p / q) = ∑ pi ln i                   (3)
+                                 i=1      qi                             prices Ck .
+   When the probabilities of the prior distribution are equal,                        ∂W (λ )     1 ∂Z ( λ )
+                                                                                              =              − Ck = 0
+equation (3) reduces to equation (4).                                                  ∂λk      Z (λ ) ∂λk
+                                                    ν                                                                                                                (11)
+                       D(p / q) = ln v + ∑ pi ln pi                                         1 ν                N           
+                                                                     (4)              =          ∑    gik exp ∑ g ij λ j  − Ck = E p (g k ) − Ck = 0
+                                                    i=1                                   Z (λ ) i =1          j =1        
+   Equation (5) presents a matrix of discounted payoffs for the    It is shown in [Avellaneda et al, 2001] that when market
+N securities to which the model will be calibrated. Each prices are consistent, this minimum exists and it is unique.
+column is a security and the rows are the discounted payoffs
+for each path. This set of instruments includes the payoffs of B. Solution algorithm
+the smile options (calls and puts) for different maturities, the   This section presents the algorithm to find λ such that
+forward prices at each maturity (the simulation of the paths at W (λ ) is minimized. To achieve a robust, fast and easy to
+each maturity) and the additional constraints presented in implement algorithm, an iterative method based on the second
+section III.
+                                                                 order Taylor approximation of W (λ ) around an initial point λˆ
+        g1,1 g1, 2 ⋯ g1, N                                is used. Equation (12) shows this second order approximation.
+                                                                                                              1
+        g 2,1 g 2, 2    g 2, N                                       W (λ ) ≈ W ( λˆ ) + ∇ λW (λˆ )(λ − λˆ ) + (λ − λˆ ) T J (λ − λˆ ) (12)
+        ⋮                        = (g   g   ⋯ g   )    (5)                                                     2
+                 ⋮ ⋱       ⋮          1   2     N
+                                                          The matrix J is the jacobian (second derivatives with respect to
+       g                       
+        v ,1 g v , 2 ⋯ g v , N                             λi ) and it turns out to be the covariance matrix with respect to
+  The market prices of these securities are C1 to C N . The the probability p of the securities g i to calibrate (see appendix
+whole purpose of the calibration is to find a set of pi so that A). Equation (13) shows a general element J ab of the jacobian
+equation (6) is satisfied.                                      and equation (14) shows the gradient and the vector (λ − λˆ ) .
+                   v
+
+                  ∑pg
+                  i =1
+                         i   i, j   = Cj ,          j =1 ⋯ N         (6)
+                                                                           J ab =
+                                                                                    ∂W ( λ )                         v                  v            v            
+                                                                                             = Cov p (g a , g b ) = ∑ g aj g bj p j −  ∑ g aj p j  ∑ g bj p j 
+                                                                                    ∂λa ∂λb                         j =1                j =1         j =1         
+  Equation (7) shows the formulation of the optimisation
+                                                                                                                        (13)
+problem to get the posterior probabilities pi .
+                                                                                               E (g1 ) − C1 p          λ1 − λˆ1 
+                                           ν                                                                                  
+              min D (p / q) = min ln v + ∑ pi ln pi                          ∇ λW ( λ ) = 
+                                                                                        ˆ              ⋮          λ−λ =
+                                                                                                                     ˆ       ⋮      (14)
+               p               p
+                                          i=1                                                p                              
+                                                                     (7)
+                                                                                                E (g N ) − C N 
+                                                                                                                         λ − λN 
+                                                                                                                                ˆ
+                               v
+                                                                                                                         N        
+           Subject to        ∑
+                             i =1
+                                  pi g i , j = C j ,      j =1 ⋯ N
+                                                                             The minimization of the second order approximation is a
+                                                                                                                                          3
+
+quadratic programming problem which has an analytic                   different strikes and same price), the algorithm does not
+solution. Equation (15) shows the optimality conditions of this       converge. The only way to solve this problem is to remove
+problem. They are obtained setting to zero the gradient vector        usually illiquid products which may be mispriced.
+of equation (12).                                                        The partial solution of step 6 can differ significantly from
+                    ∇ W (λˆ ) + J (λ − λˆ ) = 0           (15)        the solution of the previous step. This is an undesirable effect
+                        λ
+                                                                      as the second order approximation of the previous step may no
+  The partial solution of the second order approximation is
+                                                                      longer be valid. Therefore, a standard under-relaxed Newton
+given by equation (16). This partial solution will not be in
+                                                                      update is introduced by a step shortening factor α and the
+general the solution that minimizes W ( λ ) . However, it
+                                                                      partial solution (17) is replaced by equation (18). This factor is
+provides a point where we can create another second order             set initially to 0.01 and is multiplied by two after each iteration
+approximation and start an iteration process which eventually         until α = 1 .
+will reach the exact solution. This iteration process will finish
+when the gradient (11) equals zero. Namely, when the prices of                                λ = λˆ - αJ −1∇ W ( λˆ )
+                                                                                                          λ                          (18)
+the securities to which the model is calibrated are satisfied.         It has been seen that the condition number of the jacobian
+                                                                    can increase significantly when the shortening factor is too
+                        λ = λˆ - J −1∇ λW (λˆ )                (16)
+                                                                    high. Therefore, the step is divided by 5 when the condition
+   As the jacobian is a covariance matrix, it is semi-positive number increases by a factor greater than 10 from one iteration
+definite and there is always a minimum ( W (λ ) increases with to the following.
+local variations of λ around λˆ ). This condition will hold for C. Formulation of the problem using weighted least-squares
+any point where we do the second order approximation. This
+                                                                       The formulation in section II.A calibrates exactly to the
+means that the optimisation problem is convex and has a
+                                                                    desired products. When products are mispriced due to low
+minimum.
+                                                                    liquidity or wide bid-ask spreads, the algorithm may not
+   The steps of the algorithm could be summarised as follows:
+                                                                    converge well and these products should be removed.
+1. Simulate v paths at different maturities with a regular
+                                                                    Therefore, it may be better not to fit the products exactly but to
+     Monte Carlo which introduces the particular hypothesis
+                                                                    minimize the sum of weighted least-squares of equation (19),
+     for the underlying process (e.g. stochastic volatility).
+2. Calculate the prices C k of the call and put options of the                             1 N 1
+                                                                                     χ ω2 = ∑
+                                                                                           2 j =1 ω j
+                                                                                                        (
+                                                                                                      E p (g j ) − C j
+                                                                                                                       2
+                                                                                                                         )       (19)
+     smile at different maturities using the market volatilities.
+3. Calculate the discounted payoffs of all these instruments where ω j are positive weights. Now, what is minimized is
+     for each of the simulated paths (the matrix g ij ).            equation (20) without constraints.
+4.   Fix the initial value for the lagrange multipliers λˆ equal to                                [
+                                                                                              min D (q / p) + χ ω2
+                                                                                               p
+                                                                                                                     ]                 (20)
+     zero. According to equation (9), this corresponds to an
+     initial posterior distribution with probabilities equal to          Minimizing (20) with respect to p, is equivalent to
+     each other.                                                      minimizing (21) with respect to λ . The proof of this can be
+5.   Calculate the gradient vector and jacobian according to          found in [Avellaneda et al, 2001] and will be omitted here. If
+     equations (13) and (14) where the probabilities have             the equation (21) is compared with equation (10), the
+     previously been calculated with equation (9).                    difference between exact and weighted least squares fitting is
+6.   Calculate the optimum for the second order approximation         the term after W ( λ ) in (21).
+     using equation (16).                                                                                                1 N
+7.   Go to step 5 until the gradient is close enough to zero.                  min H (λ ) where H (λ ) = W (λ ) +
+                                                                                 λ
+                                                                                                                           ∑ ω j λ2j
+                                                                                                                         2 j =1
+                                                                                                                                       (21)
+   There are a few practical tips which should be considered in     Equations (22) and (23) show the minor changes of gradient
+order to get this algorithm working. When very out of the and jacobian for weighted least squares fitting.
+money smile products are considered, the vector g k of
+                                                                                     ∂H (λ )
+discounted payoffs will have zeros in most entries. This means                               = E p (g a ) − C a + ω a λ a        (22)
+                                                                                      ∂λa
+that the covariance of this product with itself or any other
+                                                                                      ∂H (λ )
+products will be very low and the jacobian matrix will be ill                 J ab =          = Cov p (g a , g b ) + ω a 1{a =b} (23)
+conditioned (it will have a row and column of almost zero                             ∂λa ∂λb
+entries). These products should be removed from the                 The modified jacobian is the covariance matrix plus a
+calibration. The products considered in the smile are out of the diagonal matrix with the weights of each product. Now it is
+money calls for strikes over the forward and out of the money much better conditioned, as there is no row or column with
+puts for strikes below the forward. This allows a symmetric zero entries. The solution algorithm is the same as section II.B.
+removal of out of the money products (for very low maturities,
+only a small window of smile options with strikes around the               III. FORCING THE MARTINGALE CONDITION
+forward will be calibrated). In addition, when there are            The resulting price process will be feasible for pricing exotic
+arbitrage opportunities in the market (e.g. a call and a put with
+                                                                                                                                                                                                         4
+
+derivatives if it satisfies two conditions: it reproduces the                                              IV. CASE STUDY
+prices of traded derivatives, and it is a martingale. The                            The weighted least squares calibration method has been
+calibration fulfils the first condition but the second will not in applied to a geometric cliquet option with payoff (29), where C
+general be satisfied. In particular, given the continuously is a cap set to 1.1, the value date is Jul 21st 2005, the dates t
+                                                                                                                                                    1
+compounded risk free rate rt and dividend rate qt from
+                                                                                  to t6 are Nov 2nd 2005 to 2010 and t7 is Oct 25th 2011.
+present time to time t, equation (24) shows the process that
+must be a martingale.                                                                                       7        St      
+                                                                                                           
+                            − ( rt − qt ) t                                                      Π = max 0, ∏ min j , C  − 1              (29)
+                                                                                                            j =2     St     
+                                                                                                                       j −1  
+                      St e                   ~ Martingale                    (24)
+                                                                                                                 
+   Equation (25) shows the martingale condition between two
+                                                                                     The underlying is the Spanish IBEX index with spot
+maturities ( t1 and t 2 ), where I t represents the information up
+                                                           1                      price S 0 = 10007 . The risk free and dividend rates are
+to time t1 .                                                                      respectively 2.95% and 3% (they have been set constant for
+                  E St2 e   [
+                          − ( r2 − q 2 ) t 2
+                                              I t1 = S t1 e    ]
+                                                            − ( r1 − q1 ) t1
+                                                                             (25) simplicity), the least squares weights for all constraints are 10
+                                                                                                                                                    -7
+
+
+   To verify this condition within the Monte Carlo and the volatility surface is presented in Table 1.
+                                                                                                                                           TABLE 1: VOLATILITY SURFACE.
+environment, it is necessary to consider the paths which go                                                        K\Mat   0.08y   0.25y   0.50y   0.75y     1y      2y      3y      4y      5y      10y
+                                                                                                                    6505     35.86   30.38   25.21   24.04   22.91   22.33   22.82   23.37   23.80    24.55
+through a window W at t1 as shown in Fig. 1.                                                                        7005     31.86   27.38   23.26   22.39   21.41   21.33   21.77   22.37   22.90    24.00
+                                                                                                                    7505     27.86   24.38   21.31   20.74   20.01   20.33   20.77   21.37   22.00    23.45
+                                                                                                                    8006     23.86   21.38   19.41   19.09   18.61   19.33   19.77   20.37   21.10    22.90
+                                                                                                                    8506     19.86   18.38   17.51   17.44   17.31   18.33   18.77   19.47   20.30    22.35
+                                                                                                                    9006     16.16   15.63   15.61   15.79   15.91   17.33   17.77   18.57   19.50    21.80
+             S                                                                                                      9507     12.77   13.27   13.81   14.20   14.67   16.43   16.87   17.77   18.75    21.30
+                                                                                                                   10007     10.42   11.37   12.21   12.89   13.53   15.53   15.97   16.97   18.05    20.80
+                                                                                                                   10507     10.02   10.31   11.13   11.79   12.46   14.68   15.17   16.17   17.35    20.30
+                                                                                                                   11008     11.00   10.03   10.65   10.97   11.71   13.88   14.47   15.47   16.70    19.85
+                                      W                                                                            11508     13.00    9.98   10.50   10.47   11.21   13.28   13.87   14.77   16.05    19.45
+                                                                                                                   12008     15.50   10.08   10.40   10.07   10.71   12.68   13.27   14.17   15.45    19.10
+                                                                                                                   12509     18.50   10.48   10.40    9.87   10.31   12.18   12.87   13.77   14.85    18.80
+                                                                                                                   13009     21.50   10.98   10.50    9.77    9.91   11.68   12.47   13.37   14.25    18.50
+                                                                                                                   13509     24.50   11.58   10.80    9.67    9.61   11.38   12.07   12.97   13.85    18.35
+
+                                                                                                                     The paths were generated with a regular Monte Carlo with
+                                             t1                                       t2                          at-the-money-forward (ATMF) deterministic volatility (the
+                                                                                                                  volatility level is interpolated in Table 1 using the forward at
+                                                  Fig. 1
+                                                                                                                  each maturity). The smile has been fitted to the seven
+  If small enough windows are considered equation (25) can
+                                                                                                                  maturities of the cliquet option and the martingale condition
+be understood as equation (26). Equation (27) shows this
+                                                                                                                  has been imposed on windows starting on 0.35 times the spot
+condition applied to the Monte Carlo paths. Only the paths
+                                                                                                                  up to 2.25 at each pair of consecutive maturities. The width is
+which go through window W are considered. S j ,t1 and S j ,t 2
+                                                                                                                  the distance between consecutive strikes of matrix in Table 1.
+are the prices of path j at times t1 and t 2 and F (⋅) is the                                                     Windows outside this matrix use the last upper and lower
+forward price of the underlying.                                                                                  window width. From 346 constraints ( 15 ⋅ 7 = 105 smile
+     [
+   E S t e −( r − q ) t S t ∈ W and I t = E S t e − ( r − q ) t S t ∈ W (26)
+         2
+             2      2   2
+                                1                      1
+                                                           ] [         1
+                                                                                 1    1       1
+                                                                                                   1
+                                                                                                       ]          options, 39 ⋅ 6 = 234 martingale conditions and 7 forwards)
+                                                                                                                  131 were removed (the 5 upper and 4 lower options of the
+                                            F (St )                          pj
+                ∑ } S                           1
+                                                     − S j ,t                                    =0       (27)   smile at the first maturity, the upper smile option of the second
+                                                                        ∑ p}
+                                    j ,t 2
+              {                              F (St )                                                              maturity and the rest were out of the money martingale
+                                                                   1
+                 j S j ,t1 ∈W                                                           h
+                                                                       {
+                                                  2
+                                                                           h S h ,t1 ∈W                           conditions). All option prices were fitted with a precision
+   Therefore, it is possible to create a synthetic security with                                                  better than 10-5 (errors less than a tenth of a basis point). The
+zero price and discounted payoffs as shown in equation (28).                                                      total number of paths is 20000. The algorithm converges after
+                        F ( S t1 )                                                                              14 iterations.
+        h j =  S j ,t 2            − S j ,t1  1{S j ,t ∈W } j = 1 ⋯ v (28)                                                                   TABLE 2: PRICE RESULTS
+                        F ( S t2 )                    1
+                                                                                                                                   ATMF             SML t1 to t6      SML t1 to t6 Mtgl
+                                                                                                                                    0.0332               0.0387               0.0547
+   The narrower the windows are, the more precise the
+                                                                                                                     Table 2 compares three prices. The first one corresponds to
+martingale condition is enforced. However, narrower windows
+                                                                                                                  the regular Monte Carlo with ATMF volatility (all paths have
+imply more simulations and constraints, increasing
+                                                                                                                  the same probability). The last two prices correspond to the
+significantly the computation time. The trade-off chosen is to
+                                                                                                                  weighted Monte Carlo fitting the smile at every maturity
+use the windows defined by the strikes of the options of the
+                                                                                                                  without imposing the martingale condition and imposing it. All
+smile. Additional windows up and down the highest and lowest
+                                                                                                                  prices are calculated with the same paths only changing the
+strike of the smile are also considered with the similar widths.
+                                                                                                                  path probabilities according to the calibration. Enforcing the
+These additional windows go up to two standard deviations up
+                                                                                                                  martingale condition makes a big difference: the option is
+and down from the current spot level. These standard
+                                                                                                                  160bp (basis points) more expensive. This is in agreement with
+deviations are considered for the last maturity with ATMF (at-
+                                                                                                                  trader experience and market pricing. Fig. 2 presents the
+the-money-forward) volatility.
+                                                                                                                  distribution of the underlying at t 4 and shows how the
+                                                                                                                                                                                                                                                                  5
+
+distribution is skewed to lower values (the left queue is the paths which finish below 1.2 times the spot have the same
+considerably bigger than the right one).                           probabilities with and without martingale condition. These
+               Cumulative probability distribution at t4           paths correspond to decreasing paths which do not contribute
+        1
+                                                       WMC         to the payoff. The paths which finish above 1.2 times the spot
+                                                       LogNormal
+      0.8                                                          change significantly their probabilities with and without the
+                               Cumulative probability
+
+
+
+
+                                                                   martingale condition. Fig. 3 (left) shows that paths whose spot
+      0.6
+                                                                   is between 0.7 and 1.2 are more likely to go up and above 1.2
+      0.4
+                                                                   are more likely to go down. Therefore, it is clear from the
+                                                                   martingale mismatches of Fig. 3 (left) that zigzagging paths are
+      0.2                                                          over weighted (otherwise the plot would be flat). These
+                                                                   zigzagging paths do not contribute significantly to the payoff
+        0
+         0      0.5        1        1.5         2
+                      Underlying in per unit of spot
+                                                         2.5     3 (very negative returns decrease the payoff and very positive
+                                                                   returns do not compensate as they are capped). Therefore, the
+             Fig. 2: Cumulative probability distribution at t4.
+                                                                   price of the option reduces. When the martingale condition is
+   To explain the difference in price, consider Fig. 3 with the
+                                                                   enforced, these zigzagging paths reduce their probabilities as
+martingale condition mismatches with martingale constraints
+                                                                   they are responsible for the distortion of the martingale
+(right plot) and without them (left plot). They correspond to
+                                                                   condition and allow other paying paths to increase their
+the period t 4 to t 5 (the rest of the periods look very similar).
+                                                                   probabilities, rising the price of the option.
+The horizontal axis has the levels of the martingale windows               Distribution of non−paying paths at t            Distribution of paying paths at t                                                       7                                    7
+
+and the vertical axis shows equation (27) both in per unit of the       1
+                                                                                                          WMC MTGL
+                                                                                                                       1
+                                                                                                                                                         WMC MTGL
+                                                                                                          WMC                                            WMC
+spot. The dotted line corresponds to the regular Monte Carlo          0.8                                            0.8
+                                                                                                                                                                                       Cumulative probability
+
+
+
+
+                                                                                                                                                                                                                             Cumulative probability
+(RMC) and the solid line to the weighted Monte Carlo                  0.6                                            0.6
+
+(WMC). Both plots show that the RMC reasonably satisfies the
+                                                                      0.4                                            0.4
+martingale condition (the mismatches are below 2%). The left
+                                                                      0.2                                            0.2
+plot shows that the WMC without martingale constraints does
+not satisfy the condition. The underlying process is a super-           0
+                                                                         0 0.5        1      1.5      2       2.5  3
+                                                                                                                       0
+                                                                                                                        0 0.5      1        1.5      2        2.5 3
+                                                                               Underlying in per unit of spot                 Underlying in per unit of spot
+martingale at t 4 for levels between 0.7 to 1.2 of the spot and a
+                                                                                                                                                                                      Fig. 4:Cumulative unconditioned probability distribution of non-paying (left)
+sub-martingale outside them. The right plot clearly satisfies the                                                                                                                                             and paying paths (right).
+condition because it is enforced.
+                                 Martingale condition of Regular and Weighted Monte Carlo
+                                 0.1
+                                                                                                                           Martingale condition of Regular and Weighted Monte Carlo
+                                                                                                                           0.1
+                                                                                                                                                                                                                  V. CONCLUSIONS
+                                                                               WMC                                                                                       WMC
+                                                                               RMC
+                                                                                           When the weighted Monte Carlo is calibrated to several                        RMC
+Per unit martingale mismatch
+
+
+
+
+                                                                                            Per unit martingale mismatch
+
+
+
+
+                               0.05                                                                                        0.05
+                                                                                        maturities with steep smiles, the resulting underlying process
+      0                                            0                                    after calibration may not be a martingale. For certain type of
+                                                                                        path dependent options this may have a big impact in price.
+  −0.05                                        −0.05
+           Without Margingale Constrains                 With Margingale Constrains        A simple solution to overcome this problem is presented. It
+   −0.1                                         −0.1
+                                                                                        consists  of adding additional constraints to the problem.
+      0.5                1               1.5       0.5                 1            1.5
+               Per unit window level                         Per unit window level
+                                                                                           A new robust, fast and easy-to-implement calibration
+   Fig. 3:Martingale condition mismatches from t4 to t5 without forcing the             algorithm is proposed. It can cope with a significant number of
+                          condition (left) and forcing it (right).                      constraints.
+   At first sight it seems reasonable to think that the option                             The improved method is applied to a well-known geometric
+should be more expensive for the left plot of Fig. 3, as more cliquet option with a big impact in price also in agreement with
+likely underlying values around the spot would have a higher trader and market experience.
+expected value (higher return). To prove that this perception is
+false, Fig. 4 shows the cumulative probability distributions of                                                  VI. APPENDIX A
+non-paying (left) and paying (right) paths at t 7 when the
+martingale condition is (WMC MTGL) and is not (WMC) A. Derivation of the optimisation problem
+enforced. A paying path is a path for which equation (29) is                               This section derives the final optimisation problem of
+different from zero.                                                                    equation (10) when the probabilities of equation (9) are
+   These distributions are not conditional and therefore about replaced in (8).
+70% of the paths do not contribute to the payoff whereas about                                                                                 
+                                                                                              max − D(p / q) + ∑ λ j  ∑ pi g i , j − C j  
+                                                                                                                   N         v
+30% indeed do. The right plot of Fig. 4 shows that all the min                            λ  p                                               
+paying paths of the weighted Monte Carlo where the                                                              j =1    i =1                 
+martingale condition is enforced (solid line) have higher                                                ν             N
+                                                                                                                                 v                  
+probabilities than when it is not (dotted line). That is why the = min                          − lnν − ∑ pi ln pi + ∑ λ j  ∑ pi g i , j − C j  
+                                                                                            λ                                                      
+price is significantly higher. The left plot of Fig. 4 shows that                                       i =1          j =1      i =1               
+                                                                                                                                                                          6
+
+
+       ν                        v
+                                               N      v               N          [Hagan et al, 2002] P. S. Hagan, D. Kumar, A. S. Lesniewski and D. E.
+= min − ∑ pi  − ln Z (λ ) + ∑ pi g i , j  +∑ λ j ∑ pi g i , j − ∑ λ j C j      Woodward, “Managing smile risk”, WILMOTT Magazine, pp. 84-108,
+       i =1                                  j =1 i =1                              September 2002 (available at: http://www.princeton.edu/~sircar/
+   λ
+                                i =1                                  j =1            sabrall.pdf).
+                ν     ν       v          N     v             N        [Heston, 1993] S. Heston, “A closed form solution for options with stochastic
+= min ln Z (λ ) pi −
+   λ 
+                            ∑      ∑ ∑
+                           pi gi, j λ j + λ j           ∑ ∑
+                                                   pi gi, j − λ j C j 
+                                                                            ∑
+                                                                             volatility with applications to bond and currency options”, Review of
+                                                                             Financial Studies, No. 6, pp. 327-343, 1993.
+               i =1  i =1   i =1        j =1 i =1           j =1     
+                                                                                            [Hull and White, 1987] J. Hull, A. White, “The pricing of options on assets
+                                                                                                 with stochastic volatility”, Journal of Finance, No. 42, pp. 281-300,
+                ν     ν N                      N v                      N                      1987.
+= min ln Z (λ ) pi −
+   λ 
+                            ∑      ∑∑
+                                pi gi, j λ j +         ∑∑                    ∑
+                                                         pi gi , j λ j − λ jC j 
+                                                                                
+                                                                                            [Stein, 1991] E. Stein, J. Stein, “Stock price distributions with stochastic
+                                                                                                 volatility: an analytic approach”, Review of Financial Studies, No. 4, pp.
+               i =1  i =1 j =1                j =1 i =1                j =1                    727-752.
+                    N                                                                     [Merton, 1976] R. Merton, “Option Pricing when the Underlying Stock
+= min ln Z (λ ) − ∑ λ j C j                                                                  Returns are Discontinuous”, Journal of Financial Economics 3, pp. 125-
+  λ
+                   j =1                                                                        144, 1976.
+                                                            N
+= min W (λ )                where W(λ ) = ln Z (λ ) − ∑ λ j C j                    (30)     The authors want to thank R. Ordovás and other member of the area for their
+      λ
+                                                           j =1                             helpful comments.
+
+B. Derivation of the Jacobian                                                               A. Elices earned a PhD in Power Systems engineering at Pontificia Comillas
+  The Jacobian is the matrix of second derivatives. Equation                                University (Madrid, Spain) and a Masters in Financial Mathematics in the
+(31) shows the element at the row u and column v of this                                    University of Chicago. He is a senior quant team member in the Model
+                                                                                            Validation group of the Risk Department at Santander in Madrid after
+matrix.                                                                                     working in a hedge fund in New York.
+           J uv =
+                    ∂W ( λ )
+                             =
+                    ∂λu ∂λv ∂λv
+                               ∂
+                                       (
+                                 E p (g u ) − C u =)∂E p (g u )
+                                                      ∂λv
+                                                                = Cov p (g u , g v ) (31)   E. Giménez earned a Masters in Artificial Intelligence at Institut
+                                                                                            d'Investigació en Intel.ligència Artificial –(IIIA-CSIC, Barcelona, Spain) and a
+  The derivative of W ( λ ) with respect to λu is given by                                  Masters in Financial Mathematics at Grupo Analistas (Madrid, Spain). He is a
+                                                                                            senior quant team member in the Model Development Group of Caixabank
+equation (11) and equation (32) presents the derivative of the                              after working in the Model Validation Group of Santander and in the
+expected value of a general payoff vector h.                                                consulting division at Grupo Analistas.
+
+ ∂E p (h)    ∂  ν          
+          =      ∑ pi hi 
+  ∂λu       ∂λu  i =1      
+     ∂  1 ν               N            
+=                 ∑    exp ∑ g ij λ j hi 
+    ∂λu  Z (λ ) i =1      j =1         
+                                             
+
+      − 1 ∂Z (λ ) ν       N                  1 ν           N           
+=                ∑
+    Z ( λ ) ∂λu i =1
+           2
+                     exp ∑ g ij λ j hi +        ∑
+                                             Z (λ ) i=1
+                                                        exp ∑ g ij λ j hi g iu
+                          j =1                             j =1        
+     −1 ∂Z (λ ) ν            ν
+=              ∑
+    Z (λ ) ∂λu i =1
+                    pi hi + ∑ pi hi g iu
+                            i =1
+
+
+     v                v            v
+= ∑ ph g hu ∑ pi hi + ∑ pi hi g iu
+    h =1             i =1         i =1
+
+= E p (g u ) E p (h) − E p (g u h) = Cov p (g u , h)                               (32)
+
+                                       VII. REFERENCES
+[Avellaneda et al, 2001] M. Avellaneda, C. Friedman, R. Buff, and N.
+      Granchamp. Weighted Monte-Carlo: A new technique for calibrating
+      asset-pricing models”, International Journal of Theoretical and Applied
+      Finance, Vol 4, No 1, pp. 91-119, 2001 (available at http://
+      www.math.nyu.edu/faculty/avellane /Papers.html).
+[Bertsekas, 1999] Dimitri P. Bertsekas, “Nonlinear Programming”, Athena
+      Scientific, 2nd edition, 1999.
+[Britten and Neuberger, 2000] M. Britten-Jones, A. Neuberger, “Option
+      Prices, Implied Price Processes, and Stochastic Volatility”, The journal
+      of Finance, Vol. 55, No. 2, April 2000.
+[Cover and Thomas, 1991] Thomas M. Cover, Joy A. Thomas, “Elements of
+      Information Theory”, John Wiley & Sons, 1991.
+[Derman and Kani, 1994] E. Derman, I. Kani, “Riding on the smile”, Risk
+      No. 7, pp. 32-29, 1994.
+[Dupire, 1994] B. Dupire, “Pricing with a smile”, Risk No. 7, pp. 18-20,
+      1994.
+
