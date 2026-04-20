@@ -11,7 +11,7 @@ donde g_i es el payoff descontado de la opción en la trayectoria i.
 
 Se comparan los precios obtenidos con:
 - pesos calibrados q_i  (WMC),
-- pesos uniformes 1/N   (Monte Carlo clásico).
+- pesos previos p_i     (Monte Carlo bajo la medida previa).
 """
 
 from __future__ import annotations
@@ -24,10 +24,8 @@ import numpy as np
 from common.types import OptionType
 from Entropia_Relativa.data_loader import (
     BENCHMARK_OPTIONS,
-    S0,
     T,
     K,
-    r,
 )
 from Entropia_Relativa.gbm_prior_paths import pathwise_discounted_payoff
 from Entropia_Relativa.python_variable_io import load_python_variables_module
@@ -63,10 +61,28 @@ class PricingResult:
     is_benchmark: bool
 
 
+@dataclass(frozen=True)
+class CalibrationMetadata:
+    """
+    Metadata relevante de la calibración exportada.
+    """
+
+    calibration_mode: str
+    n_constraints: int | None
+    n_option_constraints: int | None
+    n_forward_constraints: int | None
+    n_martingale_constraints: int | None
+    max_abs_error_total: float | None
+    max_abs_error_options: float | None
+    max_abs_error_forwards: float | None
+    max_abs_error_martingale: float | None
+    has_extended_metadata: bool
+
+
 def load_simulation_and_weights(
     prior_path: Path,
     calibration_path: Path,
-) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, CalibrationMetadata]:
     """
     Carga las trayectorias simuladas y los pesos calibrados.
 
@@ -75,19 +91,41 @@ def load_simulation_and_weights(
             - path_matrix (N x n_times): precios simulados en cada fecha,
             - times: vector de tiempos,
             - pesos_posteriores: pesos calibrados q_i,
-            - pesos_prior: pesos uniformes 1/N.
+            - pesos_prior: pesos previos p_i,
+            - metadata de calibración.
     """
     prior_data = load_python_variables_module(prior_path)
     path_matrix = np.asarray(prior_data.path_matrix, dtype=float)
     times = np.asarray(prior_data.times, dtype=float)
+    if hasattr(prior_data, "prior_weights"):
+        pesos_prior = np.asarray(prior_data.prior_weights, dtype=float)
+    else:
+        n_paths = path_matrix.shape[0]
+        pesos_prior = np.full(n_paths, 1.0 / n_paths, dtype=float)
 
     calibration_data = load_python_variables_module(calibration_path)
     pesos_posteriores = np.asarray(calibration_data.pesos_posteriores, dtype=float)
 
-    n_paths = path_matrix.shape[0]
-    pesos_prior = np.full(n_paths, 1.0 / n_paths, dtype=float)
+    metadata = CalibrationMetadata(
+        calibration_mode=getattr(calibration_data, "modo_calibracion", "desconocido"),
+        n_constraints=getattr(calibration_data, "n_constraints", None),
+        n_option_constraints=getattr(calibration_data, "n_option_constraints", None),
+        n_forward_constraints=getattr(calibration_data, "n_forward_constraints", None),
+        n_martingale_constraints=getattr(
+            calibration_data, "n_martingale_constraints", None
+        ),
+        max_abs_error_total=getattr(calibration_data, "max_abs_error_total", None),
+        max_abs_error_options=getattr(calibration_data, "max_abs_error_options", None),
+        max_abs_error_forwards=getattr(
+            calibration_data, "max_abs_error_forwards", None
+        ),
+        max_abs_error_martingale=getattr(
+            calibration_data, "max_abs_error_martingale", None
+        ),
+        has_extended_metadata=hasattr(calibration_data, "modo_calibracion"),
+    )
 
-    return path_matrix, times, pesos_posteriores, pesos_prior
+    return path_matrix, times, pesos_posteriores, pesos_prior, metadata
 
 
 def price_option_with_weights(
@@ -172,6 +210,39 @@ def price_options_grid(
     return results
 
 
+def _format_optional_float(value: float | None) -> str:
+    if value is None:
+        return "n/d"
+    return f"{value:.2e}"
+
+
+def _format_optional_int(value: int | None) -> str:
+    if value is None:
+        return "n/d"
+    return str(value)
+
+
+def _format_calibration_summary(metadata: CalibrationMetadata) -> str:
+    lines = [
+        f"Modo calibracion: {metadata.calibration_mode}",
+        (
+            "Restricciones: "
+            f"total={_format_optional_int(metadata.n_constraints)}, "
+            f"opciones={_format_optional_int(metadata.n_option_constraints)}, "
+            f"forwards={_format_optional_int(metadata.n_forward_constraints)}, "
+            f"martingala={_format_optional_int(metadata.n_martingale_constraints)}"
+        ),
+        (
+            "Errores calibracion: "
+            f"total={_format_optional_float(metadata.max_abs_error_total)}, "
+            f"opciones={_format_optional_float(metadata.max_abs_error_options)}, "
+            f"forwards={_format_optional_float(metadata.max_abs_error_forwards)}, "
+            f"martingala={_format_optional_float(metadata.max_abs_error_martingale)}"
+        ),
+    ]
+    return "\n".join(lines)
+
+
 def _format_pricing_table(
     results: list[PricingResult],
     benchmark_prices_market: dict[tuple[float, float], float] | None = None,
@@ -184,11 +255,11 @@ def _format_pricing_table(
     show_market = benchmark_prices_market is not None
     header = (
         f"{'Tipo':<6} {'Strike':>8} {'Vencimiento':>12} "
-        f"{'Precio WMC':>14} {'Precio MC':>14} "
+        f"{'Precio WMC':>14} {'Precio Prior':>14} "
     )
     if show_market:
-        header += f"{'Precio Mkt':>14} {'WMC-Mkt':>12} "
-    header += f"{'WMC-MC':>12}"
+        header += f"{'Precio Mkt':>14} {'|WMC-Mkt|':>12} "
+    header += f"{'|WMC-Prior|':>12}"
     lines.append(header)
     lines.append("-" * len(header))
 
@@ -198,7 +269,7 @@ def _format_pricing_table(
             lines.append("")
         current_maturity = res.maturity
 
-        diff_mc = res.price_wmc - res.price_mc
+        diff_mc = abs(res.price_wmc - res.price_mc)
         tipo = "CALL" if res.CP == OptionType.CALL else "PUT"
 
         line = (
@@ -210,7 +281,7 @@ def _format_pricing_table(
                 (res.strike, res.maturity), None
             )
             if market_price is not None:
-                diff_mkt = res.price_wmc - market_price
+                diff_mkt = abs(res.price_wmc - market_price)
                 line += f"{market_price:>14.{DISPLAY_DECIMALS}f} {diff_mkt:>12.2e} "
             else:
                 line += f"{'---':>14} {'---':>12} "
@@ -220,16 +291,9 @@ def _format_pricing_table(
     return "\n".join(lines)
 
 
-# Strikes fuera de muestra: interpolados entre los benchmarks, no usados en calibración
-OOS_STRIKES = np.array([90.0, 110.0], dtype=float)
-
-
 def main() -> None:
-    # Malla completa: strikes benchmark + strikes fuera de muestra, ordenados
-    all_strikes = np.sort(np.unique(np.concatenate([K, OOS_STRIKES])))
-
     config = PricingConfig(
-        pricing_strikes=all_strikes,
+        pricing_strikes=K,
         pricing_maturities=T,
         option_type=OptionType.CALL,
     )
@@ -238,7 +302,13 @@ def main() -> None:
     prior_path = base_dir / config.prior_filename
     calibration_path = base_dir / config.calibration_filename
 
-    path_matrix, times, pesos_posteriores, pesos_prior = load_simulation_and_weights(
+    (
+        path_matrix,
+        times,
+        pesos_posteriores,
+        pesos_prior,
+        calibration_metadata,
+    ) = load_simulation_and_weights(
         prior_path=prior_path,
         calibration_path=calibration_path,
     )
@@ -246,8 +316,23 @@ def main() -> None:
     n_paths = path_matrix.shape[0]
     print(f"Trayectorias cargadas: {n_paths}")
     print(f"Suma pesos calibrados: {np.sum(pesos_posteriores):.10f}")
-    print(f"Suma pesos uniformes:  {np.sum(pesos_prior):.10f}")
-    print(f"Strikes fuera de muestra (OOS): {OOS_STRIKES.tolist()}")
+    print(f"Suma pesos previos:    {np.sum(pesos_prior):.10f}")
+    print(_format_calibration_summary(calibration_metadata))
+    if (
+        calibration_metadata.n_martingale_constraints is not None
+        and calibration_metadata.n_martingale_constraints == 0
+    ):
+        print(
+            "Aviso: esta calibracion no incluye restricciones de martingala. "
+            "Si los resultados te parecen poco consistentes, recalibra "
+            "con martingala activada."
+        )
+    if not calibration_metadata.has_extended_metadata:
+        print(
+            "Aviso: el fichero de calibracion parece antiguo y no expone "
+            "metadata del nuevo esquema. Conviene regenerarlo antes de "
+            "interpretar resultados."
+        )
     print()
 
     results = price_options_grid(
@@ -274,23 +359,6 @@ def main() -> None:
                 error = abs(res.price_wmc - market_price)
                 max_error = max(max_error, error)
         print(f"\nMax |error| WMC vs Market (benchmarks)    = {max_error:.2e}")
-
-    # --- Resumen fuera de muestra ---
-    oos_results = [
-        res for res in results if res.strike in OOS_STRIKES
-    ]
-    if oos_results:
-        print("\n--- Fuera de muestra (OOS): WMC vs MC clásico ---")
-        print(f"{'Strike':>8} {'Vencim.':>10} {'WMC':>14} {'MC':>14} {'WMC-MC':>12}")
-        print("-" * 62)
-        for res in oos_results:
-            diff = res.price_wmc - res.price_mc
-            print(
-                f"{res.strike:>8.1f} {res.maturity:>10.4f} "
-                f"{res.price_wmc:>14.{DISPLAY_DECIMALS}f} "
-                f"{res.price_mc:>14.{DISPLAY_DECIMALS}f} "
-                f"{diff:>12.{DISPLAY_DECIMALS}f}"
-            )
 
 
 if __name__ == "__main__":

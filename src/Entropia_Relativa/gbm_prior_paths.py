@@ -19,6 +19,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 import numpy as np
+from scipy.optimize import brentq
 
 from common.types import OptionType
 from Entropia_Relativa.data_loader import (
@@ -26,10 +27,19 @@ from Entropia_Relativa.data_loader import (
     S0,
     T,
     BenchmarkOption,
+    include_spot_column,
+    n_paths,
     q,
     r,
+    seed,
+    sigma_prior,
+    use_antithetic,
+    use_atmf_term_structure_prior,
 )
 from Entropia_Relativa.python_variable_io import export_python_variables_module
+from Stochastic_Local_Volatility.core.pricing_Black_Scholes import (
+    BS_Call_Put_Option_Price_tau,
+)
 
 
 DISPLAY_DECIMALS = 7
@@ -41,11 +51,12 @@ class PriorGBMConfig:
     Configuración de la simulación bajo la medida previa.
     """
 
-    n_paths: int = 20000
-    sigma: float = 0.20
-    seed: int = 12345
-    use_antithetic: bool = True
-    include_spot_column: bool = True
+    n_paths: int = n_paths
+    sigma: float = sigma_prior
+    use_atmf_term_structure: bool = use_atmf_term_structure_prior
+    seed: int = seed
+    use_antithetic: bool = use_antithetic
+    include_spot_column: bool = include_spot_column
     export_results: bool = True
     export_filename: str = "gbm_prior_simulation_results.py"
 
@@ -105,6 +116,90 @@ def _normal_draws(
     return rng.standard_normal((n_paths, n_steps))
 
 
+def _implied_vol_from_market_price(
+    CP: OptionType,
+    market_price: float,
+    strike: float,
+    maturity: float,
+    fallback_sigma: float,
+) -> float:
+    intrinsic = max(
+        S0 * np.exp(-q * maturity) - strike * np.exp(-r * maturity),
+        0.0,
+    ) if CP == OptionType.CALL else max(
+        strike * np.exp(-r * maturity) - S0 * np.exp(-q * maturity),
+        0.0,
+    )
+    safe_price = max(float(market_price), float(intrinsic) + 1e-12)
+
+    def objective(vol: float) -> float:
+        price = BS_Call_Put_Option_Price_tau(
+            CP=CP,
+            S_0=float(S0),
+            K=float(strike),
+            sigma=float(vol),
+            tau=float(maturity),
+            r=float(r),
+        )
+        return float(price - safe_price)
+
+    try:
+        return float(brentq(objective, 1e-8, 5.0, maxiter=500))
+    except ValueError:
+        return float(fallback_sigma)
+
+
+def _infer_total_variance_curve_from_benchmarks(
+    benchmarks: list[BenchmarkOption],
+    fallback_sigma: float,
+) -> tuple[np.ndarray, np.ndarray]:
+    benchmark_times = np.array(sorted({float(b.maturity) for b in benchmarks}), dtype=float)
+    total_variances = np.empty_like(benchmark_times)
+
+    for idx, maturity in enumerate(benchmark_times):
+        benchmarks_at_maturity = [
+            benchmark for benchmark in benchmarks if np.isclose(benchmark.maturity, maturity)
+        ]
+        forward = float(S0 * np.exp((r - q) * maturity))
+        atmf_benchmark = min(
+            benchmarks_at_maturity,
+            key=lambda benchmark: abs(float(benchmark.strike) - forward),
+        )
+        implied_vol = _implied_vol_from_market_price(
+            CP=atmf_benchmark.CP,
+            market_price=atmf_benchmark.market_price,
+            strike=atmf_benchmark.strike,
+            maturity=maturity,
+            fallback_sigma=fallback_sigma,
+        )
+        total_variances[idx] = float(implied_vol * implied_vol * maturity)
+
+    total_variances = np.maximum.accumulate(total_variances)
+    return benchmark_times, total_variances
+
+
+def _interval_sigmas_from_atmf_curve(
+    observation_times: np.ndarray,
+    benchmarks: list[BenchmarkOption],
+    fallback_sigma: float,
+) -> np.ndarray:
+    benchmark_times, total_variances = _infer_total_variance_curve_from_benchmarks(
+        benchmarks=benchmarks,
+        fallback_sigma=fallback_sigma,
+    )
+    total_variance_observations = np.interp(
+        observation_times,
+        benchmark_times,
+        total_variances,
+    )
+    dt = np.diff(np.concatenate(([0.0], observation_times)))
+    interval_variances = np.diff(
+        np.concatenate(([0.0], total_variance_observations))
+    ) / dt
+    interval_variances = np.maximum(interval_variances, 0.0)
+    return np.sqrt(interval_variances)
+
+
 def simulate_gbm_prior_paths(
     config: PriorGBMConfig,
     times: np.ndarray | None = None,
@@ -132,8 +227,17 @@ def simulate_gbm_prior_paths(
         use_antithetic=config.use_antithetic,
     )                                                           # Números aleatorios estándar para la simulación    
 
-    drift = (r - q - 0.5 * config.sigma * config.sigma) * dt    # Deriva del GBM risk-neutral (mu)
-    diffusion = config.sigma * np.sqrt(dt)                      # Componente de difusión del GBM (sigma * sqrt(dt))
+    if config.use_atmf_term_structure:
+        interval_sigmas = _interval_sigmas_from_atmf_curve(
+            observation_times=observation_times,
+            benchmarks=BENCHMARK_OPTIONS,
+            fallback_sigma=config.sigma,
+        )
+    else:
+        interval_sigmas = np.full(observation_times.size, config.sigma, dtype=float)
+
+    drift = (r - q - 0.5 * interval_sigmas * interval_sigmas) * dt
+    diffusion = interval_sigmas * np.sqrt(dt)
     log_increments = drift[None, :] + diffusion[None, :] * z    # Incrementos logarítmicos para cada trayectoria y paso de tiempo
     log_paths = np.cumsum(log_increments, axis=1)               # Trayectorias logarítmicas acumuladas (log(S_t / S0))
     simulated_prices = S0 * np.exp(log_paths)          # Trayectorias simuladas de precios (S_t = S0 * exp(log(S_t / S0)))      
@@ -277,7 +381,7 @@ def _format_array_preview(x: np.ndarray, n_cols: int = 4) -> str:
 
 def main() -> None:
     config = PriorGBMConfig(
-        n_paths=20000,
+        n_paths=500,
         sigma=0.20,
         seed=12345,
         use_antithetic=True,

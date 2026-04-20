@@ -708,7 +708,7 @@ def print_params(
         objective_value (float): Valor alcanzado por la función objetivo.
 
     Returns:
-        None: Esta función solo imprime información en consola.
+        None: Esta función solo imprime.
     """
     sep = "=" * 60
     print(sep)
@@ -731,7 +731,7 @@ def print_configuration(config: CalibrationConfig, K: np.ndarray) -> None:
         K (np.ndarray): Strikes seleccionados para la calibración.
 
     Returns:
-        None: Esta función solo imprime información en consola.
+        None: Esta función solo imprime.
     """
     strike_text = ", ".join(f"{k:.1f}" for k in K)
     print("=" * 60)
@@ -740,8 +740,6 @@ def print_configuration(config: CalibrationConfig, K: np.ndarray) -> None:
     print(f"  Strikes seleccionados   : {strike_text}")
     print(f"  Tipo de opción (CP)     : {option_type_label(config.CP)}")
     print(f"  Objetivo calibración    : {config.calibration_target}")
-    print(f"  kappa                   : calibrado (libre)")
-    print(f"  Condición de Feller     : impuesta (2κθ ≥ σ²)")
     print()
 
 
