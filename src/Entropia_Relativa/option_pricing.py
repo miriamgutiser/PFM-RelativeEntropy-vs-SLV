@@ -255,7 +255,7 @@ def _format_pricing_table(
     show_market = benchmark_prices_market is not None
     header = (
         f"{'Tipo':<6} {'Strike':>8} {'Vencimiento':>12} "
-        f"{'Precio WMC':>14} {'Precio Prior':>14} "
+        f"{'Precio WMC':>14} {'Precio MC':>14} "
     )
     if show_market:
         header += f"{'Precio Mkt':>14} {'|WMC-Mkt|':>12} "

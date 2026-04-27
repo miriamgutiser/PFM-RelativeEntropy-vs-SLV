@@ -15,10 +15,11 @@ import numpy as np
 
 
 def _numpy_dtype_literal(dtype: np.dtype[Any]) -> str:
-    dtype_name = np.dtype(dtype).name
+    numpy_dtype = np.dtype(dtype)
+    dtype_name = numpy_dtype.name
     if hasattr(np, dtype_name):
         return f"np.{dtype_name}"
-    return f"np.dtype({dtype_name!r})"
+    return f"np.dtype({numpy_dtype.str!r})"
 
 
 def _python_literal(value: Any) -> str:

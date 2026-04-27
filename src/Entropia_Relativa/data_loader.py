@@ -27,8 +27,8 @@ DISPLAY_DECIMALS = 7
 
 
 # Parametros globales editables del metodo
-n_paths = 20000
-sigma_prior = 0.20
+n_paths = 100000
+sigma_prior = 0.50   # Respaldo por si falla la extracción de alguna volatilidad ATMF de los benchmarks. 
 #True: prior con curva de volatilidad por vencimiento, False: Prior GBM con volatilidad constante
 use_atmf_term_structure_prior = True
 seed = 12345
@@ -97,26 +97,58 @@ CP = OptionType.CALL
 
 # MATURITY_LABELS = ["1w", "1m", "6m", "1y", "2y", "5y", "8y", "10y"]
 # T = np.array([1.0 / 52.0, 1.0 / 12.0, 0.5, 1.0, 2.0, 5.0, 8.0, 10.0], dtype=float)
-# K = np.array([40.0, 60.0, 80.0, 100.0, 120.0, 140.0], dtype=float)
+# MATURITY_LABELS = ["1w", "1m", "6m", "1y", "2y", "5y"]
+# T = np.array([1.0 / 52.0, 1.0 / 12.0, 0.5, 1.0, 2.0, 5.0], dtype=float)
 MATURITY_LABELS = ["1w", "1m", "6m", "1y", "2y", "5y"]
 T = np.array([1.0 / 52.0, 1.0 / 12.0, 0.5, 1.0, 2.0, 5.0], dtype=float)
-K = np.array([100.0, 120.0, 140.0], dtype=float)
+T_TOTAL = np.array([1.0 / 52.0, 1.0 / 12.0, 0.5, 1.0, 2.0, 5.0, 8.0, 10.0], dtype=float)
+MATURITY_LABELS_TOTAL = ["1w", "1m", "6m", "1y", "2y", "5y", "8y", "10y"]
+K_OTM = np.array([100.0, 120.0, 140.0], dtype=float)
+K_ITM = np.array([40.0, 60.0, 80.0, 100.0], dtype=float)
+K_TOTAL = np.array([40.0, 60.0, 80.0, 100.0, 120.0, 140.0], dtype=float)
 
 # Filas: vencimientos en el orden de T.
 # Columnas: strikes en el orden de K.
-TARGET_OPTION_PRICES = np.array(
+# Precios de mercado benchmark originales - ITM
+TARGET_OPTION_PRICES_ITM = np.array(
     [
-        [0.3688735, 0.0000000, 0.0000000],
-        [0.7372565, 0.0000000, 0.0000000],
-        [1.5783534, 0.0003602, 0.0000004],
-        [2.1976425, 0.0092500, 0.0002104],
-        [3.2306143, 0.0607294, 0.0052822],
-        [5.7249901, 0.3915454, 0.0590638],
-
+    [60.0000000, 40.0000000, 20.0000000, 0.2229867],
+    [60.0000000, 40.0000000, 20.0000000, 0.4884929],  # 1m
+    [60.0000000, 40.0000001, 20.0013072, 1.4919262],  # 6m
+    [60.0000000, 40.0000812, 20.0290388, 2.3806541],  # 1y
+    [60.0000112, 40.0034200, 20.1898050, 3.7155644],  # 2y
+    [60.0008991, 40.0571122, 20.9392436, 6.3445809]   # 5y
     ],
     dtype=float,
 )
+# Precios de mercado benchmark originales - OTM
+TARGET_OPTION_PRICES_OTM = np.array([
+    [0.2229867, 0.0000000, 0.0000000],  # 1w
+    [0.4884929, 0.0000000, 0.0000000],  # 1m
+    [1.4919262, 0.0000002, 0.0000000],  # 6m
+    [2.3806541, 0.0001825, 0.0000000],  # 1y
+    [3.7155644, 0.0172554, 0.0000102],  # 2y
+    [6.3445809, 0.6680989, 0.0185347],  # 5y
 
+    
+])
+
+# Precios de mercado benchmark obitenido con el modelo de Heston SLV
+precios_heston_cos = np.array([
+    [60.0000000, 40.0000000, 20.0000000, 0.2229867, 0.0000000, 0.0000000],  # 1w
+    [60.0000000, 40.0000000, 20.0000000, 0.4884929, 0.0000000, 0.0000000],  # 1m
+    [60.0000000, 40.0000001, 20.0013072, 1.4919262, 0.0000002, 0.0000000],  # 6m
+    [60.0000000, 40.0000812, 20.0290388, 2.3806541, 0.0001825, 0.0000000],  # 1y
+    [60.0000112, 40.0034200, 20.1898050, 3.7155644, 0.0172554, 0.0000102],  # 2y
+    [60.0008991, 40.0571122, 20.9392436, 6.3445809, 0.6680989, 0.0185347],  # 5y
+    [60.0046127, 40.1726274, 21.7713243, 8.1977730, 1.8153020, 0.2155480],  # 8y
+    [60.0096787, 40.2797724, 22.3227411, 9.2308144, 2.6101659, 0.4855687]   # 10y
+])
+
+TARGET_OPTION_PRICES = precios_heston_cos
+K = K_TOTAL
+MATURITY_LABELS = MATURITY_LABELS_TOTAL
+T = T_TOTAL
 
 def _validate_benchmark_data() -> None:
     if len(MATURITY_LABELS) != len(T):
@@ -237,6 +269,10 @@ def _export_prior_results(
     export_python_variables_module(
         module_path=export_path,
         variables={
+            "K": K,
+            "T": T,
+            "maturity_labels": np.array(MATURITY_LABELS, dtype=str),
+            "target_option_prices": TARGET_OPTION_PRICES,
             "times": prior_result.times,
             "path_matrix": prior_result.path_matrix,
             "discounted_payoff_matrix": prior_result.discounted_payoff_matrix,
@@ -311,6 +347,10 @@ def _export_calibration_results(
     export_python_variables_module(
         module_path=export_path,
         variables={
+            "K": K,
+            "T": T,
+            "maturity_labels": np.array(MATURITY_LABELS, dtype=str),
+            "target_option_prices": TARGET_OPTION_PRICES,
             "lambdas": calibration_result.lambdas,
             "pesos_posteriores": calibration_result.pesos_posteriores,
             "precios_modelo": calibration_result.precios_modelo,
@@ -507,8 +547,8 @@ def run_from_cli(argv: list[str] | None = None) -> tuple[Path, Path]:
 
 def main() -> None:
 
-    print(format_benchmark_summary())
-    print()
+    # print(format_benchmark_summary())
+    # print()
     run_from_cli()
 
 
