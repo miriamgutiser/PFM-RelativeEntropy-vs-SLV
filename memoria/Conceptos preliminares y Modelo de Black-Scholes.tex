@@ -1,0 +1,476 @@
+\chapter[Conceptos preliminares y Black--Scholes]{Conceptos preliminares y modelo de Black--Scholes}
+
+En este capítulo vamos a introducir los conceptos teóricos que serán necesarios a lo largo del trabajo. El objetivo es fijar el marco probabilístico y financiero común en el que ambos modelos se formulan. En particular, partiremos de las nociones básicas de mercado financiero, ausencia de arbitraje y valoración neutral al riesgo, para después presentar el modelo de Black--Scholes y explicar por qué sus hipótesis no son suficientes para reproducir los precios observados en mercado.\medskip
+
+La notación utilizada seguirá principalmente \cite{DanielArrietaPresentation}. Para la formulación del modelo de Black--Scholes y la metodología de cobertura dinámica tomaremos como referencia \cite{CarlosVazquezMAT}. Asimismo, para la interpretación del cambio de medida, la valoración mediante esperanzas y la motivación de los modelos de volatilidad local estocástica se tendrá en cuenta \cite{oosterlee2021modelos}.\medskip
+
+\section{Conceptos preliminares}
+
+Consideramos un espacio de probabilidad filtrado
+\[
+(\Omega,\mathcal{F},\{\mathcal{F}_t\}_{t\geq 0},\mathbb{P}),
+\]
+donde \(\Omega\) representa el conjunto de posibles estados del mercado, \(\mathcal{F}\) es una \(\sigma\)-álgebra, \(\mathbb{P}\) es la medida de probabilidad real, y \(\{\mathcal{F}_t\}_{t\geq 0}\) es una filtración que recoge la información disponible hasta cada instante \(t\).
+
+En este contexto, los precios de los activos financieros se modelan mediante procesos estocásticos adaptados a la filtración. Esto significa que, en cada instante de tiempo, el precio observado solo depende de la información disponible hasta ese momento. Una noción especialmente importante en valoración financiera es la de martingala. La siguiente noción será fundamental para formular la valoración sin arbitraje.
+
+\begin{definition}
+\label{def:martingala}
+Un proceso estocástico \(\{X(t)\}_{t\geq 0}\) se dice martingala respecto de la filtración \(\{\mathcal{F}_t\}_{t\geq 0}\) y de la medida \(\mathbb{P}\) si es adaptado, integrable, y verifica
+\[
+\mathbb{E}^{\mathbb{P}}\left[X(T)\mid \mathcal{F}_t\right]=X(t),
+\qquad t\leq T.
+\]
+\end{definition}
+
+Intuitivamente, una martingala representa un proceso cuyo valor actual es la mejor predicción de su valor futuro, teniendo en cuenta la información disponible. En valoración financiera esta propiedad aparece de forma natural al estudiar precios descontados bajo una medida de probabilidad adecuada.
+
+Consideramos ahora un mercado financiero formado por \(M+1\) activos. Denotaremos por
+\[
+S^{(0)}(t),S^{(1)}(t),\ldots,S^{(M)}(t)
+\]
+los procesos de precios correspondientes. El activo \(S^{(0)}(t)\) suele representar la cuenta bancaria libre de riesgo y se toma como numerario. Lo denotaremos por
+\[
+N(t):=S^{(0)}(t).
+\]
+El numerario permite expresar los precios en unidades relativas. Así, en lugar de estudiar directamente \(S^{(m)}(t)\), se consideran los precios descontados
+\[
+\frac{S^{(m)}(t)}{N(t)}, \qquad m=1,\ldots,M.
+\]
+
+Introducimos ahora las estrategias de inversión, que describen cómo se reparte la cartera entre los distintos activos del mercado.
+
+\begin{definition}
+\label{def:estrategia-inversion}
+Una estrategia de inversión es una familia de procesos
+\[
+h(t)=\left(h^{(0)}(t),h^{(1)}(t),\ldots,h^{(M)}(t)\right),
+\]
+donde \(h^{(m)}(t)\) representa el número de unidades del activo \(S^{(m)}(t)\) mantenidas en cartera en el instante \(t\). El valor de la cartera viene dado por
+\[
+V(t)=h^{(0)}(t)S^{(0)}(t)+\sum_{m=1}^{M}h^{(m)}(t)S^{(m)}(t).
+\]
+Diremos que la cartera es autofinanciada si sus variaciones de valor proceden únicamente de los cambios en los precios de los activos que la componen, sin aportaciones ni retiradas externas de capital.
+\end{definition}
+
+La hipótesis fundamental sobre la que se construye la valoración de derivados es la ausencia de arbitraje. De forma intuitiva, una oportunidad de arbitraje es una estrategia que permite obtener un beneficio sin asumir riesgo y sin realizar una inversión inicial neta. La existencia de arbitraje indicaría una inconsistencia en los precios del mercado. Formalicemos esta idea mediante la siguiente definición.
+
+\begin{definition}
+\label{def:oportunidad-arbitraje}
+Una oportunidad de arbitraje es una cartera autofinanciada que verifica alguna de las siguientes condiciones:
+\[
+V(0)<0,\qquad V(T)\geq 0,
+\]
+o bien
+\[
+V(0)=0,\qquad V(T)\geq 0,\qquad 
+\mathbb{P}(V(T)>0)>0.
+\]
+\end{definition}
+
+La primera situación representa un beneficio inicial sin coste futuro. La segunda describe una estrategia sin inversión inicial, sin posibilidad de pérdida y con probabilidad positiva de ganancia.
+
+Los activos derivados se incorporan a este marco como contratos cuyo valor depende de uno o varios activos subyacentes.
+
+\begin{definition}
+\label{def:derivado}
+Un derivado con vencimiento \(T\) es un contrato financiero cuyo pago final es una variable aleatoria \(H\), medible respecto de \(\mathcal{F}_T\). En muchos casos puede escribirse como
+\[
+H=g(S(T)),
+\]
+donde \(S(T)\) representa el valor del subyacente en el vencimiento.
+\end{definition}
+
+Por ejemplo, el payoff de una opción call europea con strike \(K\) es
+\[
+H=\max\{S(T)-K,0\},
+\]
+mientras que el payoff de una opción put europea es
+\[
+H=\max\{K-S(T),0\}.
+\]
+
+El siguiente resultado resume la relación entre ausencia de arbitraje y existencia de una medida de valoración.
+
+\begin{theorem}[Primer Teorema Fundamental de Valoración Financiera]
+\label{th:primer-teorema-fundamental}
+Un mercado financiero está libre de arbitraje si y solo si existe una medida de probabilidad \(\mathbb{Q}\), equivalente a \(\mathbb{P}\), bajo la cual los precios expresados en unidades del numerario son martingalas. Es decir,
+\[
+\frac{S^{(m)}(t)}{N(t)}
+=
+\mathbb{E}^{\mathbb{Q}}\left[
+\frac{S^{(m)}(T)}{N(T)}
+\mid \mathcal{F}_t
+\right],
+\qquad m=1,\ldots,M,\quad t\leq T.
+\]
+\end{theorem}
+
+La medida \(\mathbb{Q}\) se denomina medida martingala equivalente. Cuando el numerario es la cuenta bancaria libre de riesgo, esta medida recibe el nombre de medida neutral al riesgo.
+
+Como consecuencia, si \(H\) es el pago de un derivado en el vencimiento \(T\), su precio en el instante \(t\) viene dado por
+\[
+V(t)
+=
+N(t)\,
+\mathbb{E}^{\mathbb{Q}}\left[
+\frac{H}{N(T)}
+\mid \mathcal{F}_t
+\right].
+\]
+En particular, si el tipo de interés libre de riesgo \(r\) es constante y el numerario es \(N(t)=e^{rt}\), entonces
+\[
+V(t)
+=
+e^{-r(T-t)}
+\mathbb{E}^{\mathbb{Q}}\left[
+H\mid \mathcal{F}_t
+\right].
+\]
+
+Este resultado es fundamental porque permite interpretar la valoración de derivados como un problema de cálculo de esperanzas bajo una medida adecuada. Sin embargo, el teorema anterior no garantiza que dicha medida sea única. Para ello es necesario introducir la noción de mercado completo.
+
+\begin{definition}
+\label{def:derivado-replicable}
+Un derivado con pago \(H\) se dice replicable si existe una cartera autofinanciada \(V\) tal que
+\[
+V(T)=H.
+\]
+Un mercado se dice completo si todo derivado puede ser replicado mediante una cartera autofinanciada.
+\end{definition}
+
+Así, la relación entre completitud del mercado y unicidad de la medida de valoración queda recogida en el siguiente resulDtado.
+
+\begin{theorem}[Segundo Teorema Fundamental de Valoración Financiera]
+\label{th:segundo-teorema-fundamental}
+Supongamos que el mercado está libre de arbitraje. Entonces, el mercado es completo si y solo si existe una única medida martingala equivalente.
+\end{theorem}
+
+%REVISAR SI ES CIERTO CUANDO VICTOR TE PASE EL LIBRO SI LA DEMOSTRACIÓN ESTA EN EL LIBRO Y EN ESAS PÁGINAS
+Una demostración de estos dos últimos resultados se pueden encontrar en \cite[pp.92--98]{Capinski2012}. \medskip
+
+Por tanto, en un mercado completo, el precio de cualquier derivado replicable queda determinado de forma única por ausencia de arbitraje. En cambio, en un mercado incompleto pueden existir varias medidas martingala equivalentes y, en consecuencia, distintos precios compatibles con ausencia de arbitraje para un mismo derivado no replicable.
+
+Para formalizar el paso de una medida de probabilidad a otra, introducimos primero la noción de continuidad absoluta.
+
+\begin{definition}
+\label{def:continuidad-absoluta}
+Sean \((\Omega,\mathcal{F})\) un espacio medible y \(\mathbb{P}\), \(\mathbb{Q}\) dos medidas de probabilidad sobre dicho espacio. Diremos que \(\mathbb{Q}\) es absolutamente continua respecto de \(\mathbb{P}\), y escribiremos \(\mathbb{Q}\ll \mathbb{P}\), si para todo \(A\in\mathcal{F}\) se cumple que
+\[
+\mathbb{P}(A)=0, \quad \text{entonces} \quad \mathbb{Q}(A)=0.
+\]
+Si \(\mathbb{Q}\ll \mathbb{P}\) y \(\mathbb{P}\ll \mathbb{Q}\), diremos que ambas medidas son equivalentes.
+\end{definition}
+
+Si \(\mathbb{Q}\ll \mathbb{P}\), el teorema de Radon--Nikodym garantiza la existencia de una variable aleatoria no negativa, denotada por
+\[
+\frac{d\mathbb{Q}}{d\mathbb{P}},
+\]
+tal que, para todo \(A\in\mathcal{F}\),
+\begin{equation}
+\label{eq:radon-nikodym}
+\mathbb{Q}(A)
+=
+\int_A \frac{d\mathbb{Q}}{d\mathbb{P}}\,d\mathbb{P}.
+\end{equation}
+A esta variable aleatoria se le denomina derivada de Radon--Nikodym de \(\mathbb{Q}\) respecto de \(\mathbb{P}\). Además, permite expresar esperanzas bajo la medida \(\mathbb{Q}\) en términos de esperanzas bajo la medida \(\mathbb{P}\). En particular, para una variable aleatoria integrable \(X\), se tiene
+\[
+\mathbb{E}^{\mathbb{Q}}[X]
+=
+\mathbb{E}^{\mathbb{P}}
+\left[
+X\frac{d\mathbb{Q}}{d\mathbb{P}}
+\right].
+\]
+
+En el contexto de procesos estocásticos continuos, el resultado que describe cómo cambia la dinámica de un proceso al realizar un cambio de medida es el teorema de Cameron--Martin--Girsanov.
+
+\begin{theorem}[Teorema de Cameron--Martin--Girsanov]
+\label{th:girsanov}
+Sea \(W(t)\) un movimiento browniano bajo la medida \(\mathbb{P}\), y sea \(\gamma(t)\) un proceso \(\mathcal{F}\)-previsible que satisface
+\[
+\mathbb{E}^{\mathbb{P}}
+\left[
+\exp\left(
+\frac{1}{2}\int_0^T \gamma^2(t)\,dt
+\right)
+\right]
+<\infty.
+\]
+Entonces existe una medida \(\mathbb{Q}\), equivalente a \(\mathbb{P}\), tal que
+\[
+\frac{d\mathbb{Q}}{d\mathbb{P}}
+=
+\exp\left(
+-\int_0^T \gamma(t)\,dW(t)
+-
+\frac{1}{2}\int_0^T \gamma^2(t)\,dt
+\right),
+\]
+y el proceso
+\[
+\widetilde{W}(t)
+=
+W(t)
++
+\int_0^t \gamma(s)\,ds
+\]
+es un movimiento browniano bajo \(\mathbb{Q}\).
+\end{theorem}
+
+El teorema anterior muestra que un cambio de medida permite transformar un movimiento browniano bajo \(\mathbb{P}\) en un movimiento browniano bajo \(\mathbb{Q}\), incorporando un término de deriva. Esta idea resulta fundamental en valoración financiera, ya que permite pasar de una medida real o histórica a una medida neutral al riesgo.
+
+Para verlo de forma más explícita, supongamos que \(X\) es un proceso de Itô dado por
+\[
+dX(t)
+=
+\mu(t)\,dt+\sigma(t)\,dW(t),
+\]
+donde \(W\) es un movimiento browniano bajo \(\mathbb{P}\). Supongamos que queremos encontrar una medida \(\mathbb{Q}\) bajo la cual la deriva del proceso sea \(\nu(t)\,dt\) en lugar de \(\mu(t)\,dt\). Entonces podemos reescribir
+\[
+dX(t)
+=
+\sigma(t)
+\left(
+dW(t)
++
+\frac{\mu(t)-\nu(t)}{\sigma(t)}\,dt
+\right)
++
+\nu(t)\,dt.
+\]
+Si definimos
+\[
+\gamma(t)
+:=
+\frac{\mu(t)-\nu(t)}{\sigma(t)},
+\]
+y si \(\gamma\) satisface la condición de integrabilidad del teorema de Cameron--Martin--Girsanov, entonces existe una medida \(\mathbb{Q}\) tal que
+\[
+\widetilde{W}(t)
+=
+W(t)
++
+\int_0^t
+\frac{\mu(s)-\nu(s)}{\sigma(s)}\,ds
+\]
+es un movimiento browniano bajo \(\mathbb{Q}\). Por tanto, bajo la nueva medida, el proceso \(X\) puede escribirse como
+\[
+dX(t)
+=
+\nu(t)\,dt+\sigma(t)\,d\widetilde{W}(t).
+\]
+
+Esta discusión será importante en el desarrollo posterior del trabajo. Por una parte, justifica el paso de una medida real a una medida neutral al riesgo en modelos como Black--Scholes. Por otra parte, permite interpretar la metodología de Entropía Relativa Mínima como un procedimiento de selección de medida en un mercado incompleto. En este último caso, el cambio de medida no se construye modificando directamente la deriva de una ecuación diferencial estocástica, sino ajustando los pesos asignados a las trayectorias simuladas. Así, entre todas las medidas que reproducen determinadas restricciones de mercado, se escoge aquella que se mantiene más próxima a una medida previa.
+
+El modelo de Black--Scholes constituye el ejemplo clásico en el que estas ideas se concretan de forma explícita. Bajo sus hipótesis, el mercado es completo y la medida neutral al riesgo es única, lo que permite obtener una fórmula cerrada para el precio de opciones europeas. Sin embargo, como veremos a continuación, sus supuestos también introducen limitaciones importantes que motivan el estudio de modelos más flexibles.
+
+\section{El modelo de Black--Scholes y sus limitaciones}
+
+El modelo de Black--Scholes constituye uno de los pilares de la valoración moderna de derivados. Su importancia no reside únicamente en la fórmula cerrada que proporciona para opciones europeas, sino también en la interpretación financiera basada en la cobertura dinámica. Bajo sus hipótesis, el precio de una opción se obtiene construyendo una cartera autofinanciada que replica exactamente el payoff final del derivado.
+
+Consideramos un mercado formado por una cuenta bancaria libre de riesgo \(B(t)\) y un activo con riesgo \(S(t)\). La cuenta bancaria evoluciona según
+\[
+dB(t)=rB(t)\,dt,
+\]
+donde \(r\) es el tipo de interés libre de riesgo. Por otra parte, el activo subyacente sigue, bajo la medida \(\mathbb{P}\), la dinámica
+\[
+dS(t)=\mu S(t)\,dt+\sigma S(t)\,dW^{\mathbb{P}}(t),
+\]
+donde \(\mu\) es la rentabilidad esperada, \(\sigma>0\) es la volatilidad constante y \(W^{\mathbb{P}}(t)\) es un movimiento browniano bajo \(\mathbb{P}\).
+
+Aplicando el lema de Itô a \(\log S(t)\), se obtiene
+\[
+S(t)
+=
+S_0
+\exp\left[
+\left(\mu-\frac{1}{2}\sigma^2\right)t
++
+\sigma W^{\mathbb{P}}(t)
+\right].
+\]
+Por tanto, el modelo supone que el precio del subyacente sigue una distribución lognormal.
+
+Para valorar derivados, se trabaja bajo la medida neutral al riesgo \(\mathbb{Q}\). Bajo esta medida, el drift del subyacente deja de ser \(\mu\) y pasa a ser el tipo libre de riesgo \(r\). Así,
+\[
+dS(t)=rS(t)\,dt+\sigma S(t)\,dW^{\mathbb{Q}}(t).
+\]
+El cambio de medida modifica el término de tendencia, pero no elimina el papel central de la volatilidad. De hecho, la volatilidad es el parámetro que determina la dispersión de los posibles valores futuros del subyacente y, por tanto, influye de forma esencial en el precio de las opciones.
+
+Sea \(V(S,t)\) el precio en el instante \(t\) de un derivado europeo con payoff
+\[
+V(S,T)=g(S).
+\]
+Bajo las hipótesis anteriores, el precio satisface la ecuación de Black--Scholes.
+
+\begin{theorem}[Ecuación de Black--Scholes]
+\label{th:ecuacion-black-scholes}
+Supongamos que el precio del subyacente sigue, bajo la medida neutral al riesgo, la dinámica
+\[
+dS(t)=rS(t)\,dt+\sigma S(t)\,dW^{\mathbb{Q}}(t).
+\]
+Entonces el precio \(V(S,t)\) de un derivado europeo con condición final \(V(S,T)=g(S)\) satisface la ecuación
+\[
+\frac{\partial V}{\partial t}
++
+rS\frac{\partial V}{\partial S}
++
+\frac{1}{2}\sigma^2S^2
+\frac{\partial^2 V}{\partial S^2}
+-
+rV
+=0.
+\]
+\end{theorem}
+
+Esta ecuación puede obtenerse mediante un argumento de cobertura dinámica. La idea consiste en construir una cartera formada por una posición en el derivado y una posición en el subyacente, escogida de forma que el término aleatorio desaparezca. Al eliminarse el riesgo instantáneo, la cartera debe crecer al tipo libre de riesgo, pues de lo contrario existiría una oportunidad de arbitraje.
+
+De forma equivalente, la ecuación anterior puede interpretarse mediante el teorema de Feynman--Kac, que relaciona ciertas ecuaciones en derivadas parciales parabólicas con esperanzas condicionadas bajo una medida de probabilidad.
+
+\begin{theorem}[Feynman--Kac]
+\label{th:feynman-kac}
+Sea \(X(t)\) un proceso que, bajo una medida \(\mathbb{Q}\), satisface
+\[
+dX(t)=a(X(t),t)\,dt+b(X(t),t)\,dW^{\mathbb{Q}}(t).
+\]
+Si \(V(X,t)\) es suficientemente regular y satisface
+\[
+\frac{\partial V}{\partial t}
++
+a(X,t)\frac{\partial V}{\partial X}
++
+\frac{1}{2}b^2(X,t)\frac{\partial^2 V}{\partial X^2}
+-
+r(X,t)V
+=0,
+\]
+con condición final \(V(X(T),T)\), entonces
+\[
+V(X(t),t)
+=
+\mathbb{E}^{\mathbb{Q}}
+\left[
+\exp\left(-\int_t^T r(X(s),s)\,ds\right)
+V(X(T),T)
+\mid \mathcal{F}_t
+\right].
+\]
+\end{theorem}
+
+En el caso particular del modelo de Black--Scholes, se tiene
+\[
+a(S,t)=rS,
+\qquad
+b(S,t)=\sigma S.
+\]
+Por tanto, la valoración mediante ecuaciones en derivadas parciales y la valoración mediante esperanzas descontadas bajo \(\mathbb{Q}\) conducen al mismo precio.
+
+Para una opción call europea con strike \(K\) y vencimiento \(T\), cuyo payoff es
+\[
+\max\{S(T)-K,0\},
+\]
+la solución de la ecuación de Black--Scholes viene dada por la conocida fórmula cerrada.
+
+\begin{proposition}[Fórmula de Black--Scholes]
+\label{prop:formula-black-scholes}
+En el modelo de Black--Scholes, el precio en \(t=0\) de una opción call europea con strike \(K\), vencimiento \(T\), tipo de interés constante \(r\) y volatilidad constante \(\sigma\), es
+\[
+C_{BS}(S_0,K,T,r,\sigma)
+=
+S_0\Phi(d_1)
+-
+Ke^{-rT}\Phi(d_2),
+\]
+donde
+\[
+d_1=
+\frac{
+\log(S_0/K)+\left(r+\frac{1}{2}\sigma^2\right)T
+}{
+\sigma\sqrt{T}
+},
+\qquad
+d_2=d_1-\sigma\sqrt{T},
+\]
+y \(\Phi\) denota la función de distribución de una normal estándar.
+\end{proposition}
+
+Análogamente, el precio de una opción put europea viene dado por
+\[
+P_{BS}(S_0,K,T,r,\sigma)
+=
+Ke^{-rT}\Phi(-d_2)
+-
+S_0\Phi(-d_1).
+\]
+
+El modelo de Black--Scholes es, por tanto, un modelo cerrado y coherente desde el punto de vista matemático. Sin embargo, sus hipótesis son demasiado restrictivas para reproducir de forma precisa los precios observados en mercado. En particular, el modelo supone que la volatilidad \(\sigma\) es constante, que el subyacente sigue una dinámica lognormal, que no hay costes de transacción, que la negociación es continua y que la cobertura puede realizarse de forma exacta.
+
+En la práctica, estas hipótesis no se cumplen de forma exacta. Una de las evidencias más claras es la existencia de la volatilidad implícita. Dado un precio de mercado \(C^{mkt}(K,T)\), se define la volatilidad implícita como el valor \(\sigma_{imp}(K,T)\) que hace que la fórmula de Black--Scholes reproduzca dicho precio:
+\[
+C_{BS}(S_0,K,T,r,\sigma_{imp}(K,T))
+=
+C^{mkt}(K,T).
+\]
+
+\begin{definition}
+\label{def:volatilidad-implicita}
+La volatilidad implícita asociada a una opción de strike \(K\) y vencimiento \(T\) es el valor \(\sigma_{imp}(K,T)\) que, introducido en la fórmula de Black--Scholes, iguala el precio teórico al precio observado en mercado.
+\end{definition}
+
+Si el modelo de Black--Scholes describiese correctamente el mercado, la volatilidad implícita debería ser la misma para todos los strikes y vencimientos. Sin embargo, esto no ocurre en la práctica. Para un vencimiento fijo, la aplicación
+\[
+K\longmapsto \sigma_{imp}(K,T)
+\]
+no suele ser constante. Su representación gráfica recibe el nombre de sonrisa o \textit{skew} de volatilidad. Al considerar simultáneamente distintos vencimientos, se obtiene la superficie de volatilidad implícita:
+\[
+(K,T)\longmapsto \sigma_{imp}(K,T).
+\]
+
+La existencia de la superficie de volatilidad muestra que una única volatilidad constante no permite reproducir simultáneamente los precios de mercado para distintos strikes y vencimientos. Por tanto, aunque Black--Scholes proporciona un marco teórico coherente, la hipótesis de dinámica lognormal con volatilidad constante resulta demasiado restrictiva para capturar la información contenida en los precios observados.
+
+En este contexto, la volatilidad implícita no debe interpretarse solo como un parámetro del modelo, sino como una forma de resumir la información de mercado. Su dependencia respecto del strike y del vencimiento evidencia la necesidad de introducir metodologías más flexibles.
+
+Esta limitación motiva el estudio de los modelos de Volatilidad Local Estocástica, que enriquecen la dinámica del subyacente y de su volatilidad para ajustarse mejor a la superficie observada. Posteriormente, se introducirá la metodología de Entropía Relativa Mínima, que aborda el problema desde otra perspectiva: modificar la medida de probabilidad de los escenarios simulados para incorporar restricciones de mercado.\medskip
+
+\subsection*{Opciones forward--start}
+En la comparación numérica de ambos enfoques se considerarán tanto opciones vainilla europeas como opciones de tipo \textit{forward-start}, estas últimas especialmente útiles para analizar el comportamiento de cada metodología ante productos sensibles a la evolución futura de la volatilidad.
+
+Una opción \textit{forward-start} es una opción cuyo periodo de referencia comienza en una fecha futura \(T_1\) y vence en una fecha posterior \(T_2\), con \(0<T_1<T_2\). A diferencia de una opción europea vainilla, cuyo payoff depende únicamente del valor del subyacente en el vencimiento, una opción \textit{forward-start} depende de la evolución del subyacente entre dos fechas futuras.
+
+En particular, una call \textit{forward-start} con strike relativo \(K\) tiene payoff
+\[
+\max\{S(T_2)-K S(T_1),0\},
+\]
+mientras que una put \textit{forward-start} viene dada por
+\[
+\max\{K S(T_1)-S(T_2),0\}.
+\]
+
+En la implementación de este trabajo se utiliza la versión normalizada por el valor del subyacente en \(T_1\). En ese caso, los payoffs se escriben como
+\[
+\max\left\{\frac{S(T_2)}{S(T_1)}-K,0\right\},
+\qquad
+\max\left\{K-\frac{S(T_2)}{S(T_1)},0\right\},
+\]
+para call y put, respectivamente. Bajo una medida neutral al riesgo \(\mathbb{Q}\), sus precios son
+\[
+C_{FS}(S_0,K,T_1,T_2,r)
+=
+e^{-rT_2}
+\mathbb{E}^{\mathbb{Q}}
+\left[
+\max\left\{\frac{S(T_2)}{S(T_1)}-K,0\right\}
+\right],
+\]
+y
+\[
+P_{FS}(S_0,K,T_1,T_2,r)
+=
+e^{-rT_2}
+\mathbb{E}^{\mathbb{Q}}
+\left[
+\max\left\{K-\frac{S(T_2)}{S(T_1)},0\right\}
+\right].
+\]

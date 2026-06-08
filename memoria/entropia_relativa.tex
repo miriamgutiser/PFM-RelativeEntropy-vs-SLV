@@ -1,0 +1,423 @@
+\chapter{Entropía Relativa y Weighted Monte Carlo}
+
+Como se vio en el capítulo de conceptos preliminares, y en particular en el Teorema~\ref{th:segundo-teorema-fundamental}, en mercados incompletos la medida martingala equivalente no tiene por qué ser única. En este contexto, la valoración de derivados no replicables puede interpretarse como un problema de selección de medida. La metodología de Entropía Relativa Mínima, conocida como \textit{Minimum Relative Entropy} (MRE), proporciona un criterio para escoger una medida de valoración entre aquellas que son compatibles con la información de mercado disponible.\medskip
+
+La idea del método es partir de una medida previa, asociada a un modelo inicial o \textit{prior}, y construir una nueva medida que reproduzca determinadas restricciones de mercado, alejándose lo mínimo posible de la distribución original.\medskip
+
+En la práctica, este enfoque puede implementarse mediante \textit{Weighted Monte Carlo} (WMC). A diferencia de los modelos de Volatilidad Local Estocástica (SLV), donde la calibración modifica la dinámica del subyacente, WMC parte de un conjunto de trayectorias previamente simuladas y ajusta las probabilidades asignadas a cada una de ellas.\medskip
+
+En este capítulo se presenta primero la formulación matemática del problema de Entropía Relativa Mínima descrita en \cite{articleAvellaneda}. A continuación, se describe su aplicación en el contexto Monte Carlo, se introducen las restricciones de calibración consideradas y se desarrolla la resolución numérica del problema dual.
+
+\section{Formulación del problema de Entropía Relativa Mínima}
+
+Antes de formular el problema de optimización asociado a la Entropía Relativa Mínima, introducimos primero el concepto de entropía de una variable aleatoria discreta.
+
+\begin{definition}[Entropía de una variable aleatoria]
+Sea \(X\) una variable aleatoria discreta definida sobre un espacio de probabilidad \((\Omega,\mathcal{F},\mathbb{P})\). Supongamos que \(\Omega\) es finito y que
+\[
+p(\omega)=\mathbb{P}(\{\omega\}), \qquad \omega\in\Omega.
+\]
+Se define la entropía de \(X\) como
+\[
+H(X)
+:=
+-\mathbb{E}^{\mathbb{P}}\left[\log p(\omega)\right]
+=
+-\sum_{\omega\in\Omega}
+p(\omega)\log p(\omega).
+\]
+\end{definition}
+
+Esta cantidad mide el grado de incertidumbre de la variable aleatoria. Si no hay incertidumbre, es decir, si toda la probabilidad está concentrada en un único estado, la entropía es nula. Por el contrario, la entropía alcanza su valor máximo cuando todos los estados tienen la misma probabilidad. En particular, si \(X\) es uniforme sobre un conjunto con \(n\) posibles estados, entonces
+\[
+H(X)=\log n.
+\]
+
+El concepto anterior puede extenderse para comparar dos medidas de probabilidad distintas. Esta extensión recibe el nombre de entropía relativa o divergencia de Kullback--Leibler.
+
+\begin{definition}[Entropía relativa]
+Sean \(\mathbb{P}\) y \(\mathbb{Q}\) dos medidas de probabilidad definidas sobre un mismo espacio finito \((\Omega,\mathcal{F})\). Denotamos por
+\[
+p(\omega)=\mathbb{P}(\{\omega\}),
+\qquad
+q(\omega)=\mathbb{Q}(\{\omega\})
+\]
+las probabilidades asociadas a cada estado \(\omega\in\Omega\). La entropía relativa de \(\mathbb{Q}\) respecto de \(\mathbb{P}\) se define como
+\[
+D(\mathbb{Q}\| \mathbb{P})
+:=
+\mathbb{E}^{\mathbb{Q}}
+\left[
+\log\left(\frac{q(\omega)}{p(\omega)}\right)
+\right]
+=
+\sum_{\omega\in\Omega}
+q(\omega)
+\log\left(\frac{q(\omega)}{p(\omega)}\right).
+\]
+\end{definition}
+
+La entropía relativa cuantifica la discrepancia entre una probabilidad previa \(\mathbb{P}\) y una probabilidad posterior \(\mathbb Q\). En este sentido, mide el coste de sustituir la probabilidad inicial por una nueva probabilidad. Además, verifica que es no negativa y
+\[
+D(\mathbb{Q}\| \mathbb{P}) = 0, \quad \text{si, y solo si, } \quad \mathbb{Q} = \mathbb P.
+\]
+Aunque suele interpretarse como una medida de distancia entre distribuciones, no es una distancia, ya que no es simétrica y no satisface, en general, la desigualdad triangular. Por tanto, minimizar la entropía relativa equivale a buscar una medida posterior lo más cercana posible a una medida previa.\medskip
+
+En el contexto de valoración de derivados, esta idea se utiliza para seleccionar una medida de probabilidad que reproduzca cierta información de mercado. Supongamos que partimos de una medida previa \(\mathbb{P}\), asociada a un modelo inicial, y queremos encontrar una nueva medida \(\mathbb{Q}\) bajo la cual se satisfagan determinadas restricciones de calibración.
+
+Sea \(g_j(\omega)\) el valor descontado, o expresado en unidades del numerario, del \(j\)-ésimo instrumento de calibración en el escenario \(\omega\). Denotamos por \(c_j\) el precio objetivo de dicho instrumento, también expresado en unidades del numerario. Este precio puede ser una cotización de mercado o un precio de referencia generado por otro modelo. La condición de calibración se escribe entonces como
+\[
+\mathbb{E}^{\mathbb{Q}}\left[g_j(\omega)\right]=c_j,
+\qquad j=1,\ldots,m.
+\]
+Es decir, la medida posterior debe valorar correctamente los instrumentos utilizados como restricciones.
+
+Con esta notación, el problema de Entropía Relativa Mínima consiste en resolver
+\[
+\min_{\mathbb{Q}\in\mathcal{Q}}
+D(\mathbb{Q}\|\mathbb{P})
+\]
+sujeto a
+\[
+\mathbb{E}^{\mathbb{Q}}\left[g_j(\omega)\right]=c_j,
+\qquad j=1,\ldots,m.
+\]
+La familia \(\mathcal{Q}\) representa el conjunto de medidas de probabilidad admisibles. Por tanto, entre todas las medidas que reproducen las restricciones de mercado impuestas, se selecciona aquella que se mantiene más próxima a la medida previa \(\mathbb{P}\).
+
+En particular, si una de las restricciones corresponde al activo subyacente y se toma como numerario la cuenta libre de riesgo, la condición anterior recupera la propiedad martingala del precio descontado. En el caso de tipo de interés constante \(r\), esta restricción puede escribirse como
+\[
+\mathbb{E}^{\mathbb{Q}}
+\left[
+e^{-rT}S(T)
+\right]
+=
+S(0).
+\]
+De forma equivalente, si se trabaja directamente con precios descontados,
+\[
+\mathbb{E}^{\mathbb{Q}}
+\left[
+\frac{S(T)}{N(T)}
+\right]
+=
+\frac{S(0)}{N(0)}.
+\]
+En el caso particular \(r=0\), y si no se consideran dividendos, esta condición se reduce a
+\[
+\mathbb{E}^{\mathbb{Q}}\left[S(T)\right]=S(0).
+\]
+
+Así, el problema MRE puede entenderse como un problema de selección de medida: se parte de una distribución previa y se busca una distribución posterior que respete las restricciones de mercado, como precios de opciones o condiciones forward, modificando lo mínimo posible la medida original.
+
+\section{Weighted Monte Carlo}
+
+Una vez formulado el problema de Entropía Relativa Mínima, pasamos a su implementación en el contexto de simulación Monte Carlo. La idea principal de Weighted Monte Carlo es partir de un conjunto de trayectorias simuladas bajo una medida previa y modificar únicamente las probabilidades asignadas a dichas trayectorias. De este modo, las trayectorias se mantienen fijas, pero la medida de probabilidad discreta cambia.
+
+Supongamos que se generan \(N\) trayectorias del subyacente. En un Monte Carlo estándar, todas ellas reciben el mismo peso,
+\[
+p_i=\frac{1}{N}, \qquad i=1,\ldots,N.
+\]
+Sin embargo, en WMC se buscan nuevos pesos
+\[
+q=(q_1,\ldots,q_N),
+\]
+de forma que los instrumentos utilizados como benchmark sean valorados correctamente bajo la nueva medida.
+
+Sean \(m\) los instrumentos de calibración y sea \(g_{ij}\) el payoff descontado del instrumento \(j\) en la trayectoria \(i\). La matriz de payoffs se define como
+\[
+G=
+\begin{pmatrix}
+g_{11} & g_{12} & \cdots & g_{1m}\\
+g_{21} & g_{22} & \cdots & g_{2m}\\
+\vdots & \vdots & \ddots & \vdots\\
+g_{N1} & g_{N2} & \cdots & g_{Nm}
+\end{pmatrix}.
+\]
+Denotamos \(C_j\) el precio objetivo del instrumento \(j\). De esta forma, las restricciones de calibración son
+\[
+\sum_{i=1}^N q_i g_{ij}=C_j,
+\qquad j=1,\ldots,m.
+\]
+
+La matriz \(G\) no tiene por qué contener únicamente payoffs de opciones cotizadas, sino que también puede incluir restricciones auxiliares destinadas a asegurar propiedades financieras de la medida calibrada. Una de las más importantes es la condición de martingala, que garantiza la consistencia temporal del proceso bajo la medida posterior.
+
+\begin{observation}
+    Como se señala en \cite{articleElices}, al calibrar una medida posterior mediante Weighted Monte Carlo, el ajuste a opciones vainilla de distintos vencimientos no garantiza necesariamente que el proceso ponderado preserve la propiedad martingala. Por ello, pueden añadirse restricciones sintéticas adicionales cuyo precio objetivo es cero.
+
+En particular, bajo una medida neutral al riesgo, el subyacente descontado debe ser martingala. Esta condición puede incorporarse a la matriz de calibración añadiendo columnas asociadas a payoffs sintéticos del tipo
+\[
+h_i^{k,\ell}
+=
+\mathbf{1}_{\{S_i(t_k)\in I_\ell\}}
+\left(
+S_i(t_{k+1})
+\frac{F(0,t_k)}{F(0,t_{k+1})}
+-
+S_i(t_k)
+\right),
+\]
+e imponiendo
+\[
+\sum_{i=1}^N q_i h_i^{k,\ell}=0.
+\]
+Estas restricciones no representan instrumentos cotizados, sino condiciones auxiliares para preservar de forma aproximada la propiedad martingala de la medida posterior.
+\end{observation}
+
+Con independencia del tipo concreto de restricciones incluidas en la matriz \(G\), el objetivo del método sigue siendo determinar los pesos \(q_i\) que modifican lo mínimo posible la medida previa y que satisfacen las condiciones de calibración impuestas. En el caso de una medida previa general \(p=(p_1,\ldots,p_N)\), el problema se escribe como
+
+\begin{equation}
+\label{eq:problema_minimizacion_wmc}
+   \min_q D(q\|p) = \min_{q}
+    \sum_{i=1}^N q_i
+    \log\left(\frac{q_i}{p_i}\right)
+\end{equation}
+
+sujeto a
+\[
+\sum_{i=1}^N q_i=1,\quad q_i\geq 0,\,
+\qquad i=1,\ldots,N;
+\]
+\[
+\sum_{i=1}^N q_i g_{ij}=C_j,
+\qquad j=1,\ldots,m,
+\]
+
+En el caso básico de WMC, la medida previa es uniforme, es decir, \(\displaystyle p_i=\frac{1}{N}\). Por tanto, el término constante \(\log N\) puede omitirse y el problema equivale a 
+\[
+ \min_q\sum_{i=1}^N q_i\log q_i
+\]
+bajo las mismas restricciones de calibración.
+
+\subsection*{Resolución mediante multiplicadores de Lagrange}
+
+El problema de Entropía Relativa Mínima planteado anteriormente es un problema de optimización convexa con restricciones lineales. Siguiendo la formulación de \cite{articleAvellaneda}, puede resolverse mediante su problema dual, introduciendo multiplicadores de Lagrange asociados a las restricciones de calibración.\medskip
+
+Introducimos un vector de multiplicadores de Lagrange
+\[
+\lambda=(\lambda_1,\ldots,\lambda_m),
+\]
+asociado a estas restricciones. Para un valor dado de \(\lambda\), el vector de probabilidades posterior que resuelve el problema tiene forma exponencial, también conocida como forma de Boltzmann--Gibbs:
+\begin{equation*}
+\displaystyle
+    q_i
+=
+\frac{
+p_i\exp\left(\sum_{j=1}^m \lambda_j g_{ij}\right)
+}{
+Z(\lambda)
+},
+\qquad i=1,\ldots,N,
+\end{equation*}
+donde \(Z(\lambda)\) es el factor de normalización dado por
+\[
+Z(\lambda)
+=
+\sum_{i=1}^N
+p_i
+\exp\left(\sum_{j=1}^m \lambda_j g_{ij}\right).
+\]
+En el caso particular de un prior uniforme, \(\displaystyle p_i=\frac{1}{N}\), se obtiene
+\[
+Z(\lambda)
+=
+\frac{1}{N}
+\sum_{i=1}^N
+\exp\left(\sum_{j=1}^m \lambda_j g_{ij}\right),
+\]
+y
+\[
+q_i
+=
+\frac{
+\exp\left(\sum_{j=1}^m \lambda_j g_{ij}\right)
+}{
+\sum_{\ell=1}^N
+\exp\left(\sum_{j=1}^m \lambda_j g_{\ell j}\right)
+}.
+\]
+
+Por tanto, el problema original puede reformularse como un problema sin restricciones en los multiplicadores de Lagrange. Definimos la función dual
+\[
+W(\lambda)
+:=
+\log Z(\lambda)
+-
+\sum_{j=1}^m \lambda_j C_j.
+\]
+El objetivo es entonces resolver
+\[
+\min_{\lambda\in\mathbb{R}^m} W(\lambda).
+\]
+Denotaremos por \(\lambda^*\) al valor de los multiplicadores de Lagrange que minimiza la función \(W\).
+
+En \cite{articleAvellaneda} se muestra que esta formulación permite recuperar las restricciones de calibración impuestas previamente. En particular, cuando los precios objetivo son consistentes, el mínimo existe y es único.
+
+\subsection*{Formulaciones de calibración: ajuste exacto y ajuste ponderado}
+
+La formulación anterior corresponde al caso de ajuste exacto, conocido en \cite{articleAvellaneda} como \textit{exact fitting}. En este caso se exige que todos los instrumentos benchmark sean reproducidos exactamente bajo la medida posterior. En forma matricial, esta condición se escribe como
+\[
+G^\top q=C,
+\]
+donde \(G=(g_{ij})\), \(q=(q_1,\ldots,q_N)^\top\) y \(C=(C_1,\ldots,C_m)^\top\). Por tanto, en el ajuste exacto la calibración se obtiene resolviendo
+\[
+\min_{\lambda} W(\lambda),
+\]
+y el mínimo debe verificar
+\[
+\nabla W(\lambda)=G^\top q-C=0.
+\]
+
+Sin embargo, en la práctica puede ser conveniente relajar las restricciones de calibración. Esto ocurre, por ejemplo, cuando el número de restricciones es elevado, cuando algunas de ellas son casi redundantes o cuando se desea permitir cierta tolerancia numérica en los precios objetivo. Para ello se considera una segunda formulación, denominada \textit{weighted least squares}, en la que las desviaciones respecto a los precios benchmark se controlan mediante parámetros de tolerancia. \medskip
+
+En esta versión, la función objetivo dual se modifica añadiendo un término cuadrático en los multiplicadores:
+\[
+H(\lambda)
+=
+W(\lambda)
++
+\frac{1}{2}
+\sum_{j=1}^m
+\omega_j\lambda_j^2,
+\]
+donde \(\omega_j>0\) representa el parámetro de regularización asociado a la restricción \(j\). En forma matricial,
+\[
+H(\lambda)
+=
+W(\lambda)
++
+\frac{1}{2}\lambda^\top\Omega\lambda,
+\]
+con
+\[
+\Omega=\operatorname{diag}(\omega_1,\ldots,\omega_m).
+\]
+El gradiente de esta nueva función objetivo es
+\[
+\nabla H(\lambda)
+=
+G^\top q-C+\Omega\lambda.
+\]
+Por tanto, en el óptimo ya no se impone necesariamente \(G^\top q=C\), sino que se cumple
+\[
+G^\top q-C
+=
+-\Omega\lambda.
+\]
+Así, el error de calibración queda controlado por los parámetros \(\omega_j\). Con esta convención, \(\Omega=0\) recupera el ajuste exacto, mientras que valores positivos introducen una regularización del problema dual.
+
+La Hessiana correspondiente viene dada por
+\[
+\nabla^2H(\lambda)
+=
+\nabla^2W(\lambda)+\Omega.
+\]
+Por tanto, el ajuste ponderado puede interpretarse como una versión regularizada del ajuste exacto.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection*{Resolución numérica del problema dual}
+
+Una vez elegida la formulación de calibración, el problema se resuelve numéricamente en términos de los multiplicadores de Lagrange. Para ello se utiliza un método iterativo de tipo Newton, basado en el gradiente y la Hessiana de la función objetivo.
+
+La idea consiste en aproximar la función dual mediante su desarrollo de Taylor de segundo orden alrededor de un punto \(\widehat{\lambda}\). En el caso del ajuste exacto, la condición de primer orden asociada a esta aproximación cuadrática conduce a
+\[
+0
+=
+\nabla W(\widehat{\lambda})
++
+J(\widehat{\lambda})(\lambda-\widehat{\lambda}),
+\]
+donde
+\[
+J(\widehat{\lambda})=\nabla^2 W(\widehat{\lambda}).
+\]
+De esta expresión se obtiene el paso de Newton
+\[
+\lambda
+=
+\widehat{\lambda}
+-
+J(\widehat{\lambda})^{-1}\nabla W(\widehat{\lambda}).
+\]
+
+En forma iterativa, tomando \(\widehat{\lambda}=\lambda^{(k)}\), el paso de Newton se calcula resolviendo
+\[
+J(\lambda^{(k)})d^{(k)}
+=
+\nabla W(\lambda^{(k)}),
+\]
+donde
+\[
+J(\lambda^{(k)})=\nabla^2 W(\lambda^{(k)}).
+\]
+Después se actualizan los multiplicadores mediante
+\[
+\lambda^{(k+1)}
+=
+\lambda^{(k)}
+-
+\alpha d^{(k)},
+\]
+donde \(\alpha\in(0,1]\) es un parámetro de relajación.\medskip
+
+En el caso de mínimos cuadrados ponderados, se procede de forma análoga, sustituyendo \(W\) por \(H\). Por tanto, se resuelve
+\[
+J_H(\lambda^{(k)})d^{(k)}
+=
+\nabla H(\lambda^{(k)}),
+\]
+con
+\[
+J_H(\lambda^{(k)})
+=
+\nabla^2 H(\lambda^{(k)}),
+\]
+y se actualiza
+\[
+\lambda^{(k+1)}
+=
+\lambda^{(k)}
+-
+\alpha d^{(k)}.
+\]
+
+En la implementación, el parámetro \(\alpha\) se utiliza para amortiguar el paso de Newton y mejorar la estabilidad del procedimiento. Además, el cálculo de \(\log Z(\lambda)\) se evalúa de forma estable para evitar problemas numéricos al calcular exponenciales. También se incorporan salvaguardas numéricas, como una pequeña regularización diagonal del sistema lineal y, en caso necesario, la resolución mediante mínimos cuadrados cuando el sistema está mal condicionado.\medskip
+
+El algoritmo se detiene cuando el gradiente es suficientemente pequeño o cuando el error de calibración queda por debajo de la tolerancia fijada. Una vez alcanzada la convergencia, se obtiene el vector óptimo de multiplicadores \(\lambda^*\) y, sustituyéndolo en la expresión exponencial de los pesos, se calculan las probabilidades posteriores finales \(q_i\).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection*{Esquema del algoritmo}
+
+El procedimiento de calibración puede resumirse en los siguientes pasos:
+
+\begin{enumerate}
+    \item Simular \(N\) trayectorias del subyacente bajo la medida previa.
+
+    \item Calcular los payoffs descontados de los instrumentos benchmark en cada trayectoria y construir la matriz
+    \[
+    G=(g_{ij}).
+    \]
+
+    \item Fijar los precios objetivo de los instrumentos de calibración,
+    \[
+    C=(C_1,\ldots,C_m).
+    \]
+
+    \item Inicializar los multiplicadores de Lagrange, normalmente con
+    \[
+    \lambda^{(0)}=0.
+    \]
+
+    \item En cada iteración, calcular los pesos \(q_i\), el gradiente y la Hessiana de la función objetivo correspondiente, \(W\) en el caso de ajuste exacto o \(H\) en el caso ponderado.
+
+    \item Actualizar los multiplicadores mediante un paso de Newton amortiguado.
+
+    \item Repetir el proceso hasta que el gradiente o el error de calibración sean suficientemente pequeños.
+
+    \item Una vez alcanzada la convergencia, obtener los pesos posteriores calibrados \(q_i\).
+\end{enumerate}
+
+La formulación dual, el ajuste exacto y la versión de mínimos cuadrados ponderados siguen la metodología de Weighted Monte Carlo descrita en \cite{articleAvellaneda}. Asimismo, el uso de un esquema iterativo basado en el gradiente y la Hessiana se encuentra en línea con las implementaciones descritas en \cite{articleElices}. En este trabajo se incorporan además algunas salvaguardas numéricas propias de la implementación, como la evaluación estable de la función de normalización, la amortiguación del paso de Newton y una regularización diagonal en los sistemas lineales cuando resulta necesario.\medskip
+
+Con esto queda definida la metodología de Entropía Relativa Mínima. La valoración concreta de opciones vainilla y opciones de tipo \textit{forward-start} bajo la medida posterior está desarrollada en el capítulo de implementación numérica.

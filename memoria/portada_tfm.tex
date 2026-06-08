@@ -1,33 +1,51 @@
 
-\documentclass[12pt]{book}
+\documentclass[12pt,openany]{book}
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 %                       Paquetes y librerias                            %
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage{amsmath,amsfonts,amssymb,amsthm,latexsym,mathrsfs,pdfsync,color,graphicx}
+\usepackage{amsmath,amsfonts,amssymb,amsthm,latexsym,mathrsfs,color,graphicx}
 \usepackage[english,spanish,es-noquoting]{babel}
 \usepackage{geometry}
 \usepackage{graphicx}
 \usepackage{epstopdf}
 \usepackage{changepage}
+\usepackage{float}
+\usepackage{tabularx}
+\usepackage{amsthm} 
+
+\usepackage{url}
+
+\usepackage[hidelinks]{hyperref}
 
 \usepackage[fixlanguage]{babelbib}
     \bibliographystyle{plain}
 \usepackage{url} % necesario para \url{...} en el .bib
 
 
-\geometry{bindingoffset=2cm}
-\geometry{textwidth=390pt}
+%\geometry{bindingoffset=2cm}
+%\geometry{textwidth=390pt}
+ \geometry{ a4paper, left=3cm, right=3cm, top=3cm,bottom=3cm}
+\raggedbottom
+
 
 
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 %    Definicion de entornos y numeracion de teoremas, definiciones...   %
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
-\newtheorem{teor}{Teorema}[chapter]
-%\newtheorem{prop}[teor]{Proposición} % al ponerlo así considera que el contador es comun para los teoremas y las proposiciones
+\theoremstyle{plain}
+\newtheorem{theorem}{Teorema}[chapter]
+\newtheorem{teor}[theorem]{Teorema}
+\newtheorem{proposition}[theorem]{Proposición}
+\newtheorem{lemma}[theorem]{Lema}
+\newtheorem{corollary}[theorem]{Corolario}
 
-%\theoremstyle{definition}
+\theoremstyle{definition}
+\newtheorem{definition}{Definición}[chapter]
+\newtheorem{example}{Ejemplo}[chapter]
+\newtheorem{observation}{Observación}[chapter]
+%\newtheorem{prop}[teor]{Proposición} % al ponerlo así considera que el contador es comun para los teoremas y las proposiciones
 
 %\theoremstyle{remark}
 
@@ -103,15 +121,14 @@ Curso -- 2025-26
 
 
 \vspace{4.8cm}
-\hspace{-1.2cm}
-\begin{minipage}{0.6\linewidth}
-\begin{tabular}{ll}
+\noindent\begin{minipage}{\textwidth}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
 \textbf{Fecha presentación:} &  #6 \\
 \textbf{Tutor académico:}&  #3\\
 \textbf{Empresa:} & #4  \\%[0.5cm]
 \textbf{Tutor empresa: }& #7 \\
-& \includegraphics[width=0.8\textwidth]{#5}
-\end{tabular}
+& \includegraphics[width=0.45\textwidth]{#5}
+\end{tabularx}
 \end{minipage}
 
 \enlargethispage{5cm} {\pagestyle{empty}\cleardoublepage }}
@@ -147,7 +164,7 @@ Curso -- 2025-26
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 %                             Portada                                   %
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
-\portada{Entropía Relativa versus Volatilidad Local Estocástica:\\[0.3cm]
+\portada{Entropía Relativa versus Volatilidad Local Estocástica:\\[0.1cm]
 {\Large Comparación de las dos estrategias dinámicas de cobertura.}}{Miriam Gutiérrez Serrano}{Carlos Vázquez Cendón (UDC)}{Banco Santander}{Banco_Santander_Logotipo.png}{Julio 2026}{Daniel Arrieta Rodríguez y Cristina Arribas Francisco}
 
 
@@ -177,7 +194,13 @@ Curso -- 2025-26
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 \mainmatter
 
-\input{main}
+\input{Introducción}
+% \input{MarcoTeorico}
+\input{Conceptos preliminares y Modelo de Black-Scholes}
+\input{SLV}
+\input{entropia_relativa}
+%\input{Implentación numérica}
+
 
 
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %

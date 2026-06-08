@@ -20,7 +20,7 @@
 %    Definicion de entornos y numeracion de teoremas, definiciones...   %
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 \newtheorem{teor}{Teorema}[chapter]
-%\newtheorem{prop}[teor]{Proposición} % al ponerlo así considera que el contador es comun para los teoremas y las proposiciones
+%\newtheorem{prop}[teor]{Proposiciï¿½n} % al ponerlo asï¿½ considera que el contador es comun para los teoremas y las proposiciones
 
 %\theoremstyle{definition}
 
@@ -79,13 +79,13 @@
 \vspace{0.9cm}
 \begin{center}
 \bf
-Máster en Matemática Industrial
+Mï¿½ster en Matemï¿½tica Industrial
 
 \vspace{0.3cm}
 Curso -- Curso
 
 \vspace{2.3cm}
-\large Trabajo Fin de Máster
+\large Trabajo Fin de Mï¿½ster
 
 
 \vspace{0.9cm}
@@ -101,8 +101,8 @@ Curso -- Curso
 \hspace{-1.2cm}
 \begin{minipage}{0.6\linewidth}
 \begin{tabular}{ll}
-\textbf{Fecha presentación:} &  \\
-\textbf{Tutor/a académico/a:}& \\
+\textbf{Fecha presentaciï¿½n:} &  \\
+\textbf{Tutor/a acadï¿½mico/a:}& \\
 \textbf{Empresa:} &  \\%[0.5cm]
 \textbf{Tutor/a empresa: }& \\
 & \includegraphics[width=0.8\textwidth]{#5}
@@ -142,9 +142,9 @@ Curso -- Curso
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 %                             Portada                                   %
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
-\portada{Título}{Autor/a}{Director}{Nombre de la empresa}{logo_empresa}
+\portada{Tï¿½tulo}{Autor/a}{Director}{Nombre de la empresa}{logo_empresa}
 % El ultimo argumento debe incluir la ruta del fichero del logo de
-% la empresa. Si no se desea añadir comentar las lineas 83 y 131
+% la empresa. Si no se desea aï¿½adir comentar las lineas 83 y 131
 % del codigo y descomentar la 84
 
 
@@ -180,7 +180,7 @@ Curso -- Curso
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 \backmatter
 \def\leftmark{ }
-\addcontentsline{toc}{chapter}{Bibliografía}
+\addcontentsline{toc}{chapter}{Bibliografï¿½a}
 %\bibliography{ruta_archivo_bibliografia}
 %\bibliographystyle{estilo de bibliografia}
 
