@@ -41,9 +41,14 @@ from Stochastic_Local_Volatility.core.processes import FellerCondition,CIR_PDF_C
 
 # Global variables 
 
+# s = 0
+# t = 5
+# x = np.linspace(0.001,0.501,100)
+
 s = 0
-t = 5
-x = np.linspace(0.001,0.501,100)
+t = 2
+x = np.linspace(0.0005, 0.30, 200)
+
 
 # Feller condition
 
@@ -52,39 +57,42 @@ def Analysis():
 
     # Feller condition satisfied
 
-    gamma = 0.316
-    kappa = 0.5
-    v_s   = 0.2
-    v_bar = 0.05
-    q_F = FellerCondition(kappa,v_bar,gamma)
-    print(q_F)
-    output_case1 = CIR_PDF_CDF(x,gamma,kappa,t,s,v_bar,v_s)
+    # gamma = 0.316, kappa = 0.5, v_s   = 0.2
+    # v_bar = 0.05
+    kappa = 1.5
+    v_s   = 0.04
+    v_bar = 0.04
+    gamma = 0.2
+    q_F_satisfied = FellerCondition(kappa,v_bar,gamma)
+    print(q_F_satisfied)
+    output_case_satisfied = CIR_PDF_CDF(x,gamma,kappa,t,s,v_bar,v_s)
     
     # Feller condition not satisfied
 
-    gamma    = 0.129
-    kappa    = 0.5
-    v_s      = 0.2
-    v_bar    = 0.05
-    output_case2 = CIR_PDF_CDF(x,gamma,kappa,t,s,v_bar,v_s)
-    feller2 = FellerCondition(kappa,v_bar, gamma)
+    # gamma    = 0.129, kappa    = 0.5, v_s      = 0.2
+    # v_bar    = 0.05
+    gamma = 0.5
+    output_case_not_satisfied = CIR_PDF_CDF(x,gamma,kappa,t,s,v_bar,v_s)
+    q_F_not_satisfied = FellerCondition(kappa,v_bar, gamma)
     
     # Generate output plots
 
     plt.figure(1)
-    plt.plot(x,output_case1["pdf"], label="Feller no satisfecha (q_F = -0.5)")
-    plt.plot(x,output_case2["pdf"], linestyle="--",
-         label="Feller satisfecha (q_F = 2)")
+    plt.plot(x, output_case_satisfied["pdf"],
+         label=f"Feller satisfecha (q_F = {q_F_satisfied:.4f})")
+    plt.plot(x, output_case_not_satisfied["pdf"], linestyle="--",
+         label=f"Feller no satisfecha (q_F = {q_F_not_satisfied:.4f})")
     plt.grid()
     plt.xlabel("x")
     plt.ylabel("f(x)")
-    plt.ylim([0.0,15.0])
+    plt.ylim([0.0,25.0])
     plt.legend(loc = "upper right", frameon = True)
 
     plt.figure(2)
-    plt.plot(x, output_case1["cdf"], label="Feller no satisfecha (q_F = -0.5)")
-    plt.plot(x, output_case2["cdf"], linestyle="--",
-         label="Feller satisfecha (q_F = 2)")
+    plt.plot(x, output_case_satisfied["cdf"],
+         label=f"Feller satisfecha (q_F = {q_F_satisfied:.4f})")
+    plt.plot(x, output_case_not_satisfied["cdf"], linestyle="--",
+         label=f"Feller no satisfecha (q_F = {q_F_not_satisfied:.4f})")
     plt.grid()
     plt.xlabel("x")
     plt.ylabel("F(x)")

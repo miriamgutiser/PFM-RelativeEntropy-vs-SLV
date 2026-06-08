@@ -1,3 +1,10 @@
+"""
+Este modulo analiza cómo los parámetros del modelo de Heston afectan la volatilidad implícita de las opciones.
+    - Se estudia el efecto de gamma, kappa, v0, rho y vBar en la volatilidad implícita.
+    - Se utiliza el método COS para calcular los precios de las opciones y luego se obtiene la volatilidad implícita a partir de esos precios.
+    - Se generan gráficos para visualizar cómo cada parámetro influye en la forma de la curva de volatilidad implícita, tanto en función del strike como en función del tiempo a vencimiento.
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -45,8 +52,7 @@ def heston_model_implied_vols():
         
         # The COS method
         opt_price = CallPutOptionPriceCOSMthd(cf, CP, S0, r, T, K, N, L)
-        if hasattr(opt_price, 'diagonal'):
-            opt_price = opt_price.diagonal()
+        opt_price = np.atleast_1d(opt_price).flatten()
         
         for j in range(len(K)):
             strike = float(K[j])
@@ -65,8 +71,7 @@ def heston_model_implied_vols():
     for i, kappa_temp in enumerate(kappa_v):
         cf = lambda u: chf_heston(u, T, kappa_temp, vBar, gamma, rho, v0, r)
         opt_price = CallPutOptionPriceCOSMthd(cf, CP, S0, r, T, K, N, L)
-        if hasattr(opt_price, 'diagonal'):
-            opt_price = opt_price.diagonal()
+        opt_price = np.atleast_1d(opt_price).flatten()
         
         for j in range(len(K)):
             strike = float(K[j])
@@ -87,8 +92,8 @@ def heston_model_implied_vols():
         for idx, T_temp in enumerate(T_mat):
             cf = lambda u: chf_heston(u, T_temp, kappa_temp, vBar, gamma, rho, v0, r)
             val_cos = CallPutOptionPriceCOSMthd(cf, CP, S0, r, T_temp, [S0], N, L)
-            val = val_cos[0, 0] if hasattr(val_cos, 'shape') and len(val_cos.shape) == 2 else val_cos[0]
-            IV[idx, i] = ImpliedVolatility(CP, float(val), float(S0), T_temp, S0, r) * 100
+            val = float(np.atleast_1d(val_cos).flatten()[0])
+            IV[idx, i] = ImpliedVolatility(CP, val, float(S0), T_temp, S0, r) * 100
         
         arg_legend.append(f'kappa={kappa_temp:.2f}')
     
@@ -104,8 +109,8 @@ def heston_model_implied_vols():
         for idx, T_temp in enumerate(T_mat):
             cf = lambda u: chf_heston(u, T_temp, kappa, vBar, gamma, rho, v0_temp, r)
             val_cos = CallPutOptionPriceCOSMthd(cf, CP, S0, r, T_temp, [S0], N, L)
-            val = val_cos[0, 0] if hasattr(val_cos, 'shape') and len(val_cos.shape) == 2 else val_cos[0]
-            IV[idx, i] = ImpliedVolatility(CP, float(val), float(S0), T_temp, S0, r) * 100
+            val = float(np.atleast_1d(val_cos).flatten()[0])
+            IV[idx, i] = ImpliedVolatility(CP, val, float(S0), T_temp, S0, r) * 100
         
         arg_legend.append(f'v0={v0_temp:.2f}')
     
@@ -120,8 +125,7 @@ def heston_model_implied_vols():
     for i, rho_temp in enumerate(rho_v):
         cf = lambda u: chf_heston(u, T, kappa, vBar, gamma, rho_temp, v0, r)
         opt_price = CallPutOptionPriceCOSMthd(cf, CP, S0, r, T, K, N, L)
-        if hasattr(opt_price, 'diagonal'):
-            opt_price = opt_price.diagonal()
+        opt_price = np.atleast_1d(opt_price).flatten()
         
         for j in range(len(K)):
             strike = float(K[j])
@@ -140,8 +144,7 @@ def heston_model_implied_vols():
     for i, vBar_temp in enumerate(vBar_v):
         cf = lambda u: chf_heston(u, T, kappa, vBar_temp, gamma, rho, v0, r)
         opt_price = CallPutOptionPriceCOSMthd(cf, CP, S0, r, T, K, N, L)
-        if hasattr(opt_price, 'diagonal'):
-            opt_price = opt_price.diagonal()
+        opt_price = np.atleast_1d(opt_price).flatten()
         
         for j in range(len(K)):
             strike = float(K[j])
@@ -150,7 +153,7 @@ def heston_model_implied_vols():
         
         arg_legend.append(f'vbar={vBar_temp:.2f}')
     
-    make_figure(K, iv_m, arg_legend, 'Effect of $\\bar{v}$ on implied volatility')
+    make_figure(K, iv_m, arg_legend, 'Effect of $\bar{v}$ on implied volatility')
 
 
 

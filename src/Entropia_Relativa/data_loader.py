@@ -7,19 +7,11 @@ Este archivo actua como punto de entrada editable del modulo:
 3. se lanza toda la simulacion, calibracion y pricing final.
 """
 
-from __future__ import annotations
-
 import argparse
-import sys
 from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
-
-if __package__ in (None, ""):
-    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-
-
 from common.types import OptionType
 
 
@@ -27,7 +19,7 @@ DISPLAY_DECIMALS = 7
 
 
 # Parametros globales editables del metodo
-n_paths = 100000
+n_paths = 50000
 sigma_prior = 0.50   # Respaldo por si falla la extracción de alguna volatilidad ATMF de los benchmarks. 
 #True: prior con curva de volatilidad por vencimiento, False: Prior GBM con volatilidad constante
 use_atmf_term_structure_prior = True
@@ -36,7 +28,7 @@ use_antithetic = True
 include_spot_column = True
 pricing_option_type = OptionType.CALL
 
-calibration_mode = "weighted_least_squares"  # weighted_least_squares o exact
+calibration_mode = "exact"  # weighted_least_squares o exact
 include_forward_constraints = True
 include_martingale_constraints = True
 wls_weight_options = 1e-7
@@ -133,16 +125,16 @@ TARGET_OPTION_PRICES_OTM = np.array([
     
 ])
 
-# Precios de mercado benchmark obitenido con el modelo de Heston SLV
+# Precios de mercado benchmark obtenidos con la simulación Heston-SLV
 precios_heston_cos = np.array([
-    [60.0000000, 40.0000000, 20.0000000, 0.2229867, 0.0000000, 0.0000000],  # 1w
-    [60.0000000, 40.0000000, 20.0000000, 0.4884929, 0.0000000, 0.0000000],  # 1m
-    [60.0000000, 40.0000001, 20.0013072, 1.4919262, 0.0000002, 0.0000000],  # 6m
-    [60.0000000, 40.0000812, 20.0290388, 2.3806541, 0.0001825, 0.0000000],  # 1y
-    [60.0000112, 40.0034200, 20.1898050, 3.7155644, 0.0172554, 0.0000102],  # 2y
-    [60.0008991, 40.0571122, 20.9392436, 6.3445809, 0.6680989, 0.0185347],  # 5y
-    [60.0046127, 40.1726274, 21.7713243, 8.1977730, 1.8153020, 0.2155480],  # 8y
-    [60.0096787, 40.2797724, 22.3227411, 9.2308144, 2.6101659, 0.4855687]   # 10y
+    [60.0000000, 40.0000000, 20.0000000, 1.1256347, 0.0000000, 0.0000000],  # 1w
+    [60.0000000, 40.0000000, 20.0000000, 2.2082912, 0.0001529, 0.0000000],  # 1m
+    [60.0000000, 40.0000000, 20.0014740, 4.3937251, 0.0084267, 0.0000000],  # 6m
+    [60.0000000, 40.0000000, 20.0216840, 5.2729253, 0.0285129, 0.0000000],  # 1y
+    [60.0000000, 40.0000327, 20.2271699, 6.3037571, 0.1896704, 0.0000000],  # 2y
+    [60.0000000, 40.0437075, 21.3880668, 8.2675430, 1.3064532, 0.0200497],  # 5y
+    [60.0048990, 40.2095667, 22.5095885, 9.8765899, 2.7403400, 0.3494998],  # 8y
+    [60.0103493, 40.3313238, 23.1250107, 10.8813794, 3.6825644, 0.7809219]  # 10y
 ])
 
 TARGET_OPTION_PRICES = precios_heston_cos

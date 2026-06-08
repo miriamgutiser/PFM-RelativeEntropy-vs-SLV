@@ -1,1 +1,1 @@
-# Volatilidad_local_estocastica/__init__.py
+"""Utilidades de investigación para volatilidad local estocástica Heston-SLV."""

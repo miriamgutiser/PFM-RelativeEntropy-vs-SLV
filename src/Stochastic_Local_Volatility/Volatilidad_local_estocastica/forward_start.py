@@ -30,7 +30,7 @@ def ChFHestonForward(u, T_1, T_2, kappa, vBar, gamma, rho, v0, r):
         a_2 = (1 / (1 - 2*C*c_bar(T1)))^(0.5*d_bar)
         ChF = exp(A + a_1) * a_2
 
-    Args:
+    Parámetros:
         u (float o ndarray): argumento complejo de la función característica
         T_1 (float): tiempo de inicio del período forward
         T_2 (float): vencimiento de la opción
@@ -41,7 +41,7 @@ def ChFHestonForward(u, T_1, T_2, kappa, vBar, gamma, rho, v0, r):
         v0 (float): varianza inicial en t=0
         r (float): tipo de interés libre de riesgo
 
-    Returns:
+    Devuelve:
         ndarray: valores de la función característica
     """
     i   = 1j
@@ -76,12 +76,12 @@ def CallPutOptionPriceCOSMthd_FrwdStart(cf, CP, r, T1, T2, K, N, L):
     """
     Precio de una opción forward-start (Call o Put) utilizando el método COS.
 
-    Calcula el valor descontado de una opción cuyo strike se fija en $T_1$ como un
-    porcentaje $K$ del precio del activo $S_{T_1}$. El payoff en $T_2$ es
-    $(S_{T_2} - K \cdot S_{T_1})^+$ para un Call y $(K \cdot S_{T_1} - S_{T_2})^+$ para un Put.
+    Calcula el valor descontado de una opción cuyo strike se fija en T1 como un
+    porcentaje K del precio del activo S_T1. El payoff en T2 es
+    (S_T2 - K*S_T1)^+ para un Call y (K*S_T1 - S_T2)^+ para un Put.
 
-    Args:
-        cf (callable): función característica del log-retorno forward $\ln(S_{T_2}/S_{T_1})$
+    Parámetros:
+        cf (callable): función característica del log-retorno forward log(S_T2/S_T1)
         CP (OptionType): tipo de opción (Call o Put)
         r (float): tipo de interés libre de riesgo
         T1 (float): tiempo de inicio del periodo forward
@@ -90,7 +90,7 @@ def CallPutOptionPriceCOSMthd_FrwdStart(cf, CP, r, T1, T2, K, N, L):
         N (int): número de términos en la expansión de Fourier
         L (float): parámetro para definir el rango de truncamiento [a, b]
 
-    Returns:
+    Devuelve:
         ndarray: precio de la opción en t=0 evaluado para cada strike relativo K
     """
     K   = np.atleast_1d(K) + 1.0
@@ -120,14 +120,14 @@ def BS_Call_Option_Price_FrwdStart(K, sigma, T1, T2, r):
     Fórmula (coincide con MATLAB):
         value = exp(-r*T1)*N(d1) - N(d2)*K_adj*exp(-r*T2)
 
-    Args:
+    Parámetros:
         K (float o ndarray): strike desplazado (k - 1)
         sigma (float): volatilidad
         T1 (float): tiempo de inicio del período forward
         T2 (float): vencimiento
         r (float): tipo de interés libre de riesgo
 
-    Returns:
+    Devuelve:
         ndarray: precios de la opción
     """
     K_adj = np.atleast_1d(K) + 1.0
@@ -144,7 +144,7 @@ def ImpliedVolatilityFrwdStart(marketPrice, K, T1, T2, r, initialVol=0.3):
 
     Traduce el `fzero` de MATLAB: resuelve element-wise para cada strike.
 
-    Args:
+    Parámetros:
         marketPrice (float o ndarray): precio(s) de mercado de la opción
         K (float o ndarray): vector de strikes desplazados (k - 1)
         T1 (float): tiempo de inicio del período forward
@@ -152,7 +152,7 @@ def ImpliedVolatilityFrwdStart(marketPrice, K, T1, T2, r, initialVol=0.3):
         r (float): tipo de interés libre de riesgo
         initialVol (float): volatilidad inicial para el solver
 
-    Returns:
+    Devuelve:
         ndarray: volatilidades implícitas
     """
     marketPrice = np.atleast_1d(marketPrice).flatten()
