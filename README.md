@@ -9,9 +9,6 @@ y modelos de Volatilidad Local Estocástica aplicados a la modelización y valor
 
 - `docs/`: documentación del proyecto y artículos científicos de referencia.
 - `src/`: código fuente (python)
-  -`Entropia_Relativa/`.
-  -`Stochastic_Local_Volatility/`.
-  -`common/`.
 - `results/`: resultados numéricos, gráficos y tablas
 - `memoria/`: Proyecto latex junto con la memoria final
 
