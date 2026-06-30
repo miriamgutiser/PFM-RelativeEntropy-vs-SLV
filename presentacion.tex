@@ -1,0 +1,572 @@
+\documentclass[8pt]{beamer}
+\usetheme{Madrid}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish, es-tabla]{babel}
+\usepackage{amsmath,amsfonts,amssymb,amsthm}
+\DeclareMathOperator{\gr}{gr} % Grafo de una función
+\DeclareMathOperator{\diam}{diam} % Diámetro
+\DeclareMathOperator{\dist}{dist} % distancia
+\DeclareUnicodeCharacter{2061}{}
+\usepackage{algpseudocode}
+\AtBeginSection[]
+{
+\begin{frame}
+\begin{Large}
+\tableofcontents[sectionstyle=shaded,currentsection=show]
+\end{Large}
+\end{frame}
+}
+\usepackage{mathrsfs}
+\usepackage{color}
+\usepackage{xcolor, colortbl}
+\usepackage{array, multirow, multicol}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{comment}
+\usepackage{csquotes}
+\usepackage[backend=biber,style=authoryear]{biblatex}
+\addbibresource{referencias1.bib}
+\usepackage{comment}
+\usepackage{makecell}
+\title[Entropía Relativa versus Volatilidad Local Estocástica: Comparación de las dos estrategias dinámicas de coberutra]{Entropía Relativa versus Volatilidad Local Estocástica: Comparación de las dos estrategias dinámicas de coberutra}
+\author[Miriam Gutiérrez Serrano]{{\bf Autora:} Miriam Gutiérrez Serrano\\
+{\bf Tutor acádemico:}Carlos Vázquez Cendón (UDC)\\ 
+{\bf Tutor Empresa:} Daniel Arrieta Rodriguez y Cristina Arribas Francisco\\ 
+\vspace{1cm} {\bf PFM Máster Matemática Industrial}}
+
+\date{15 de Julio del 2026}
+
+%%%%%% INICIO PRESENTACIÓN %%%%%%%%%%%%
+\begin{document}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+%%%%%%%% INTRODUCCIÓN %%%%%%%%%%%
+\begin{Large}
+    \begin{frame}{\bf  {\LARGE {Introducción}}}
+\begin{itemize}
+    \item Escuela matemática polaca (Varsovia, siglo XX), con figuras destacadas como Sierpinski, Kuratowski y Tarski.
+    
+\end{itemize}
+\begin{itemize}
+    \item El término ''Espacio Polaco'' fue popularizado por matemáticos franceses.
+\end{itemize}
+\begin{itemize}
+    \item D.L. Cohn, \emph{Measure Theory. Second Edition}, Birkhäuser, 2013.
+\end{itemize}
+\end{frame}
+\end{Large}
+
+
+
+
+\begin{frame}{Índice}
+    \begin{Large}
+\tableofcontents
+\end{Large}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% CONCEPTOS PRELIMINARES Y BLACK--SCHOLES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conceptos preliminares y Black--Scholes}
+
+% Slide 1
+\begin{frame}{Definición}
+\pause
+  \begin{block}{Definición}
+    Un \textbf{espacio polaco} es un espacio topológico separable que puede ser metrizado bajo una métrica completa. 
+  \end{block}
+  \pause
+    \vspace{0.5em}
+  \textbf{Primeros ejemplos:}
+  \begin{itemize}
+    \item Para cada $n \in \mathbb N$, $\mathbb{R}^n$ con la topología usual
+    \item Cada espacio de Banach separable, con la topología inducida por su norma (Por ejemplo, los espacios $L^p$, $\ell^p,\dots$)
+    \item Todo espacio metrizable compacto. 
+    \item Todo espacio de Hausdorff compacto segundo contable.
+  \end{itemize}
+\end{frame}
+
+% Slide 2
+\begin{frame}{Propiedades básicas}
+  \begin{block}{Proposición}
+    Todo subespacio cerrado, y todo subespacio abierto, de un espacio polaco son polacos.
+  \end{block}
+  \pause
+
+  \begin{itemize}
+      \item Para subespacios \textbf{cerrados}, la restricción de la métrica original garantiza la \textbf{completitud}.
+      \item Para subespacios abiertos, puede construirse una métrica equivalente que garantice completitud.
+      
+        \vspace{0.5em}
+      \textbf{Ejemplo.} El intervalo \textbf{abierto} $(0,1)$ como subespacio de $(\mathbb{R}, \tau_u)$ es un espacio polaco. No es completo con la métrica usual heredada de $\mathbb R$. Sin embargo, la métrica
+    \[
+    d_0(x,y) := d(x,y) + \left| \frac{1}{\dist(x,\mathbb R \setminus (0,1))} -  \frac{1}{\dist(y,\mathbb R \setminus (0,1)))}  \right|
+    \]
+    garantiza \textbf{completitud}.
+
+    \item En ambos casos, subespacio de un espacio separable metrizable es \textbf{separable}.
+  \end{itemize}
+  
+
+
+\end{frame}
+
+
+
+
+% Slide 3
+    \begin{frame}{Propiedades básicas}
+    \begin{block}{Definición}
+        Sea $\{(X_\alpha, \tau_\alpha): \alpha \in I\}$ una familia de espacios topológicos disjuntos. Se considera $\displaystyle X = \bigcup_\alpha X_\alpha$, y se define sobre $X$ la topología
+        \[
+        \tau_\Sigma = \{U \subset X: U \cap X_i \in \tau_i \text{ para todo } i\in I\}. 
+        \]
+        El par $(X, \tau_\Sigma)$ se llama unión disjunta de los espacios dados. 
+    \end{block}
+    \pause
+  \begin{block}{Proposición}
+    La unión disjunta, ya sea infinita o finita, de espacios polacos es polaca.
+  \end{block}
+\end{frame}
+
+\begin{frame}{\textbf{Ejemplo}}
+    \begin{itemize}
+    \item     Sean $X_1 = [0,1], X_2 = [0,3]$. Consideramos
+    \[
+    X=\sum_{i=1}^2 X_i = \{ (x,1): x \in [0,1]\} \cup \{ (x,2): x\in [0,3]\}
+    \]
+    Definimos la métrica $d$ en $X$ como
+    \[
+    d((x,i),(y,j)) = 
+ \begin{cases}
+            |x-y| & \text{si} \quad i = j\\
+            1 & \text{si}\quad i \neq j
+        \end{cases}
+    \]
+    \item $d$ metriza la topología y $(X,d)$ es \textbf{completo}. 
+    \item El conjunto $D:= (\mathbb Q \cap [0,1]) \cup (\mathbb Q \cap [0,3]) \subset X $ es denso y numerable ($X$ \textbf{separable}). 
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}{Primeras propiedades}
+ \begin{block}{Proposición}
+     El producto contable de espacios polacos, ya sea finito o infinito, es polaco.
+ \end{block}
+ \pause
+  \textbf{Ejemplo (Cubo de Hilbert).} El espacio $X = [0,1]^\mathbb N$ con la topología producto es un espacio polaco.
+  \begin{itemize}
+    \item En $[0,1]$, sea $d(x,y) = |x-y|, x,y \in [0,1]$ la métrica usual.
+    \vspace{0.2cm}
+    
+    En $X$, se puede definir la métrica:
+    \[ d(x, y) = \sum_{n=1}^\infty \frac{1}{2^n} |x_n -y_n|, \quad x,y \in X \]
+    \item Esta métrica garantiza \textbf{completitud} y \textbf{separabilidad} en $X$.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Caracterización de subespacios polacos}
+    \begin{block}{Definición}
+         Sea $(X,\tau)$ un espacio topológico y sea $A\subseteq X$ no vacío. Decimos que: 
+    \begin{itemize}
+        \item A es un conjunto $G_\delta$ en $X$ si $\displaystyle A = \bigcap_{n \in \mathbb{N}} U_n$, donde los $U_n$ son abiertos en $X$.
+        \item A es un conjunto $F_\sigma$ en $X$ si $\displaystyle A= \bigcup_{n \in \mathbb{N}} F_n$, donde los $F_n$ son cerrados en $X$. 
+    \end{itemize}
+    \end{block}
+    \pause   
+    \begin{block}{Proposición}
+        Todo subconjunto cerrado de un espacio métrico es un $G_\delta$. Respectivamente, todo subconjunto abierto es un $F_\sigma$. 
+    \end{block}
+    \pause
+      Los conjuntos $G_\delta$ no son necesariamente abiertos o cerrados. Consideremos el espacio $(\mathbb R, \tau_u)$ y $A = [0,1)$:
+    \[
+    A=\bigcap_{n=1}^{\infty} \left( \frac{-1}{n}, 1\right)
+    \]
+\end{frame}
+
+\begin{frame}{Caracterización de subespacios polacos}
+\pause
+    \begin{block}{Proposición}
+        Sean $X,Y$ espacios métricos homeomorfos. Entonces, si $Y$ es polaco, también lo es $X$. 
+    \end{block}
+    \pause
+    \vspace{0.2cm}
+    Si $X$ es un espacio polaco, hemos visto
+    \begin{itemize}
+        \item Subespacio cerrado de $X$, entonces polaco y además conjunto $G_\delta$
+        \item Subespacio abierto de $X$, entonces polaco y además conjunto $G_\delta$.
+    \end{itemize}
+    \pause
+    \begin{block}{Teorema}
+    Sea $X$ un espacio polaco. Entonces, un subespacio de $X$ es polaco, si y solo si, es un conjunto $G_\delta$ en $X$.
+  \end{block}
+  \pause
+  \vspace{0.35cm}
+     \textbf{Ejemplo}. Los números irracionales constituyen un conjunto $G_\delta$ en $\mathbb R$ ($\mathbb{Q}$ es un conjunto $F_\sigma$ en $\mathbb{R}$) con respecto a la topología usual:
+    \[\mathbb{R}\setminus\mathbb{Q}=\bigcap_{q \in \mathbb{Q}} \{q\}^c.
+    \]
+Por lo tanto, es subespacio polaco.
+\end{frame}
+
+\begin{frame}{Espacios fundamentales}
+    \begin{enumerate}
+        \item Espacio de Baire $\mathcal{N} = \mathbb{N}^\mathbb N$.
+        \begin{itemize}
+            \item Formado por sucesiones de números naturales.
+            \item Base contable: $\mathcal{N}(n_1,\dots,n_k) = \{(m_i)\in \mathcal{N}: m_i = n_i, \, i =1, \dots, k \}$.
+            \item Métrica completa que genera la topología producto:
+            \[
+            d'(\alpha, \beta) =
+            \begin{cases}
+            \displaystyle\frac{1}{\min\{k \in \mathbb{N} : \alpha_k \neq \beta_k\}} & \text{si } \alpha \neq \beta, \\[1.5ex]
+            0 & \text{si } \alpha = \beta.
+            \end{cases}
+            \]
+        \end{itemize}
+
+        \only<2>{
+        \textbf{Ejemplo.} Sean $       \alpha = (1,2,3,4,5,6,\dots),\quad \beta = (1,2,3,3,4,5,6,\dots)$. Se tiene que  $\displaystyle \alpha_4 =4 \neq \beta_4 = 3 \Longrightarrow$
+            \[
+             d'(\alpha, \beta) = \frac{1}{\min \{k \in \mathbb{N}: \alpha_k \neq \beta_k \}} = \frac{1}{4}
+             \]
+        }
+
+        \only<3>{
+        \item Espacio de Cantor $\{0,1\}^\mathbb N$.
+        \begin{itemize}
+            \item Formado por sucesiones de ceros y unos.
+            \item Producto de $\{0,1\}$ con la topología discreta.
+        \end{itemize}
+        }
+    \end{enumerate}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% VOLATILIDAD LOCAL ESTOCASTICA
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Volatilidad Local Estocástica}
+
+\begin{frame}{$\sigma$-álgebra de Borel y funciones medibles}
+\begin{itemize}
+    \item   Sean $(X_1,\mathcal{M}_1),(X_2,\mathcal{M}_2),...$ espacios medibles. El producto es el espacio $\left(\displaystyle \prod_n X_n,\prod_n \mathcal{M}_n\right)$. $\prod_n \mathcal{M}_n$ es la $\sigma-$ álgebra generada por los conjuntos de la forma 
+\begin{equation*}
+    A_1\times A_2 \times \dots \times A_N \times X_{N+1} \times X_{N+2} \times \dots
+\end{equation*}
+para algún $N \in \mathbb{N}$ y alguna elección del conjunto $A_n$ en $\mathcal{M}_n$, $n=1,...,N$. 
+\pause
+    \item $\mathcal{B}(X)$: $\sigma$-álgebra de Borel en el espacio topológico $(X, \tau)$, generada por su topología. 
+    \pause
+\end{itemize}
+
+    \begin{block}{Proposición}
+        Sean $X_1,X_2,...$ una colección finita o infinita de espacios métricos separables. Entonces, $\displaystyle \mathcal{B}\left(\prod_{n} X_n\right) = \prod_{n} \mathcal{B}(X_n)$, donde $\displaystyle \prod_n X_n$ está dotado de la topología producto. 
+    \end{block}
+\end{frame}
+
+\begin{frame}{$\sigma$-álgebra de Borel y funciones medibles}
+ 
+    \begin{block}{Definición}
+            Sean $(X, \mathcal{M})$ e $(Y, \mathcal{N})$ dos espacios medibles. Una función $f:X \longrightarrow Y$ es medible con respecto a $\mathcal{M}$ y  $\mathcal{N}$ si, para cada $B \in \mathcal{N}$, el conjunto $f^{-1}(B) \in \mathcal{M}$. 
+    \end{block}
+    \begin{itemize}
+        \item Es medible de Borel si para todo conjunto $B \in \mathcal B (Y)$ se tiene $f^{-1}(B) \in \mathcal{
+B}(X)$.
+    \end{itemize}
+\pause
+    \begin{block}{Proposición}
+            Sean $(X, \mathcal{M})$ un espacio medible e $Y$ un espacio polaco. Para cada $n \in \mathbb{N}$, sea $f_n: X \longrightarrow Y$ una función medible con respecto a $\mathcal{M}$ y $\mathcal{B}(Y)$. Entonces, el conjunto 
+    \begin{equation*}
+        C=\left\{x\in X: \text{ existe } \lim_n f_n(x)\right\}
+    \end{equation*}
+    pertenece a $\mathcal{M}$. Además, la función $f:C \longrightarrow Y$ definida por 
+    \begin{equation*}
+        f(x) = \lim_n f_n(x)
+    \end{equation*}
+    es medible con respecto a $\mathcal{M}_C$ y $\mathcal{B}(Y)$. 
+    \end{block}
+    \begin{itemize}
+        \item $\mathcal{M}_C$ denota la $\sigma$-álgebra definida por $\mathcal{M}_C := \{A \cap E: E \in \mathcal{M}\}$ 
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Medidas de Borel}
+\begin{itemize}
+    \item Una medida definida en la $\sigma$-álgebra de Borel en un espacio topológico de Hausdorff $X$ se llama medida de Borel. 
+\end{itemize}
+\medskip 
+\pause
+
+\textbf{Ejemplo}.$(\mathbb R, \tau_u)$ es un espacio de Hausdorff en que todo conjunto abierto es un $F_\sigma$.
+   \begin{itemize}
+       \item Todo intervalo abierto es de la siguiente forma: 
+       \[
+        (a,b) = \bigcup_{n \in \mathbb{N}} \left[a + \frac{1}{n}, b - \frac{1}{n}\right],
+   \]
+   \item Todo abierto es unión contable de intervalos abiertos. 
+   \end{itemize}
+\pause
+
+     \begin{block}{Teorema}
+        Sea $X$ un espacio de Hausdorff donde cada conjunto abierto es un $F_\sigma$, y sea $\mu$ una medida de Borel finita en $X$. Entonces cada subconjunto de Borel en $X$ satisface que 
+    \begin{equation}
+    \label{eq: mu abierto}
+        \mu(A) = \inf \{\mu(U): A \subseteq U, U \text{ es abierto}\}
+    \end{equation}
+    y
+    \begin{equation}
+    \label{eq: mu cerrado}
+        \mu(A) = \sup \{\mu(F): F \subseteq A, F \text{ es cerrado}\}
+    \end{equation}
+    \end{block}
+\end{frame}
+
+\begin{frame}{Medidas de Borel}
+    \begin{block}{Definición}
+           Sea $(X,d)$ un espacio métrico. Un subconjunto $A \subset X$ se dice que es precompacto si, para cada número real $\epsilon >0$, existe un conjunto finito de puntos $x_1, x_2,\dots, x_n$ de $X$ tal que 
+    \begin{equation*}
+        A \subset \bigcup_{k=1}^nB(x_k,\epsilon)
+    \end{equation*}
+    \end{block}
+    \begin{itemize}
+        \item Un conjunto es precompacto si, y solo si, su clausura es compacta.
+    \end{itemize}
+    \pause
+        \textbf{Ejemplo}. El conjunto $(0,1) \subset \mathbb R$ bajo la métrica usual es precompacto. 
+        \pause
+    \begin{block}{Teorema}
+            Un espacio métrico $(X,d)$ es compacto si, y solo si, es completo y precompacto. 
+    \end{block}
+\end{frame}
+
+\begin{frame}{Medidas de Borel}
+ \begin{block}{Definición}
+        Sea $X$ un espacio topológico de Hausdorff. Supongamos que $\mathcal{M}$ es una $\sigma$-álgebra sobre $X$ tal que $\mathcal{B}(X) \subseteq \mathcal{M}$. Una medida $\mu$ sobre $\mathcal{M}$ se dice regular si cumple las siguientes condiciones:
+        \begin{enumerate}
+            \item Todo subconjunto compacto $K \subseteq X$ satisface $\mu(K) < +\infty$.
+            \item  Para todo conjunto $A \in \mathcal{M}$, se cumple $$\mu(A) = \inf \{\mu(U): A \subseteq U, U \text{ es abierto}\}\text{ (Regular exterior)}, \text{ y}$$.
+            \item para todo conjunto abierto $U \subseteq X$, se cumple $$\mu(U) = \sup \{\mu(K): K \subseteq U, K \text{ es compacto} \} \text{ (Regular interior)}.$$
+        \end{enumerate}
+    \end{block}
+    \begin{block}{Teorema}
+        Toda medida de Borel finita en un espacio polaco es regular. 
+    \end{block}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ENTROPIA RELATIVA
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Entropia Relativa}
+\begin{frame}{Definición y caracterizaciones básicas}
+    \begin{block}{Definición}
+        Sea $X$ un espacio polaco. Un subconjunto $A$ de $X$ es analítico si existe un espacio polaco $Z$ y una función continua $f:Z \longrightarrow X$ tal que $f(Z)=A$. En otras palabras, $A$ es la imagen de un espacio polaco bajo una función continua.
+    \end{block}
+\pause
+    \begin{block}{Propiedades}
+         Sea $X$ un espacio polaco. Se tiene que
+         \begin{itemize}
+             \item si $A_1,A_2, \dots$ son subconjuntos analíticos de $X$, entonces  $\displaystyle \bigcup_k A_k$ y $\displaystyle \bigcap_k A_k$ son analíticos.
+             \item Cada subconjunto $G_\delta$ de $X$ es analítico.
+             \item Cada subconjunto $F_\sigma$ de $X$ es analítico.
+         \end{itemize}
+    \end{block}
+    \pause
+    \begin{itemize}
+        \item En particular, abiertos y cerrados de $X$ son analíticos.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Relación con el espacio de Baire}
+    \begin{block}{Teorema de la intersección de Cantor}
+        Sea $(X,d)$ un espacio métrico completo y sea $(F_n)$  una sucesión decreciente (con respecto a la inclusión) de conjuntos cerrados no vacíos de $X$ tal que $\displaystyle \lim_{n \to \infty} \diam (F_n) = 0 $. Entonces, $\displaystyle \bigcap_{n=1}^\infty F_n$ contiene exactamente un solo punto, es decir, 
+    \begin{equation*}
+        \bigcap_{n=1}^\infty F_n = \{x\} \text{ para algún } x \in X
+    \end{equation*}
+    \end{block}
+    \begin{block}{Teorema}
+        Todo espacio polaco no vacío es la imagen de $\mathcal{N}$ por una función continua.
+    \end{block}
+\end{frame}
+
+\begin{frame}{Relación con el espacio de Baire}
+
+    \begin{block}{Corolario}
+        Todo subconjunto analítico de un espacio polaco no vacío es la imagen de $\mathcal{N}$ por una función continua.
+    \end{block}
+    \pause 
+    \begin{block}{Proposición}
+        Sea $X$ un espacio polaco. Un subconjunto $A$ de $X$ es analítico si, y solo si, existe un subconjunto cerrado de $\mathcal{N} \times X$ cuya proyección sobre $X$ sea $A$.
+    \end{block}
+\end{frame}
+
+
+\begin{frame}{Relación con el espacio de Cantor}
+    \begin{block}{Definición}
+      Un espacio topológico $(X,\tau)$ se dice de   dimensión cero si admite una base formada por conjuntos que son tanto abiertos como cerrados.  
+    \end{block}
+    \pause
+    \vspace{0.35cm}
+    \textbf{Ejemplos}.
+    \begin{itemize}
+        \item  Consideramos $\mathbb{Q}$ dotado de la topología heredada de $\mathbb{R}$. Los conjuntos de la forma
+    \[
+    (a,b) \cap \mathbb{Q} = [a,b] \cap \mathbb{Q}, \quad a,b \in \mathbb{R} \setminus\mathbb{Q},\ a < b,
+    \]
+    constituyen una base para la topologia.
+    \item El espacio de Baire $\mathcal{N}$.
+    \item El espacio de Cantor $\{0,1\}^\mathbb{N}$.
+    \end{itemize}
+   
+\end{frame}
+\begin{frame}{Relación con el espacio de Cantor}
+    \begin{block}{Proposición}
+    Sea $X$ un espacio separable y metrizable. Entonces es homeomorfo a un subespacio de $[0,1]^\mathbb{N}$. 
+    \end{block}
+    \begin{block}{Proposición}
+        Sea $X$ un espacio polaco. Entonces es homeomorfo a un subconjunto $G_\delta$ de $[0,1]^\mathbb{N}$.
+    \end{block}
+    \pause
+    \begin{itemize}
+        \item O sea: $[0,1]^\mathbb{N}$ es polaco, y además, ''contiene'' a todo espacio polaco.
+    \end{itemize}
+    \pause
+    \begin{block}{Proposición}
+        Todo espacio polaco es la imagen de un espacio polaco de dimensión cero por una función inyectiva continua.
+    \end{block}
+    \begin{block}{Proposición}
+        Todo subconjunto de Borel de un espacio polaco es la imagen de un espacio polaco de dimensión cero por una función inyectiva continua.
+    \end{block}
+\end{frame}
+
+\begin{frame}{Relación entre representaciones de espacios polacos}
+    Sea $X$ un espacio polaco no vacío. Hemos visto
+    \begin{enumerate}
+        \item Existe una función continua $f: \mathcal{N}\longrightarrow X$ sobreyectiva:
+        \[
+        X = f(\mathcal{N}), \quad \text{con } \mathcal{N} = \mathbb{N}^\mathbb{N}
+        \]
+        \item $X$ es \textbf{homeomorfo} a un subconjunto $G_\delta$ de $[0,1]^\mathbb{N}$ (espacio polaco).
+        \item $X$ es la imagen de un espacio polaco de dimensión cero por una función continua e inyectiva
+    \end{enumerate}
+    \vspace{0.5cm}   
+    
+   \textbf{Resumen:}
+\[
+\mathcal{N} \xrightarrow{\text{cont., sobrey.}} X 
+\xrightarrow[\text{homeo}]{\phantom{\text{homeo}}} 
+G_\delta \subseteq [0,1]^\mathbb{N},
+\quad 
+Y \xrightarrow{\text{cont., biyectiva}} X
+\]
+\begin{itemize}
+  \item \( \mathcal{N} \): espacio de Baire.
+  \item \( Y \): espacio polaco de dimensión cero.
+\end{itemize}
+
+\end{frame}
+
+\begin{comment}
+    \begin{frame}{Relación con el espacio de Cantor}
+    \begin{block}{Definición}
+       Sea $X$ un espacio métrico. Decimos que $p$ es un punto de condensación si cada entorno de $p$ contiene una cantidad no contable de puntos. 
+    \end{block}
+    \vspace{0.2cm}
+    \textbf{Ejemplo.} Sea $X = \mathbb R, \,\mathbb{R}\setminus \mathbb{
+Q}$ con la métrica usual. Tomamos un punto $p \in X$. En efecto, es punto de condensación:
+    \[
+    \text{para cualquier } \epsilon>0, B(p,\epsilon) \cap X \text{ es no contable}
+    \]
+    \pause
+    \begin{block}{Proposición}
+       Sea $X$ un espacio topológico segundo contable. Si $\mathcal{V}$ es una familia de subconjuntos abiertos de $X$, entonces existe $\mathcal{V}_0 \subset \mathcal{V}$ contable tal que 
+    \[
+    \bigcup_{V \in \mathcal{V}} V = \bigcup_{V \in \mathcal{V}_0} V 
+    \]
+    \end{block}
+\end{frame}
+\end{comment}
+
+
+\begin{frame}{Relación con el espacio de Cantor}
+    \begin{block}{Teorema}
+        Sea $X$ un espacio polaco, y sea $B$ un subconjunto no contable de $X$. Entonces, existe una función continua inyectiva $f:\mathcal{N}\longrightarrow X$ tal que $f(\mathcal{N}) \subseteq B$ y $B\setminus f(\mathcal{N})$ es contable.
+    \end{block}
+    \vspace{0.35cm}
+    \pause
+    Sean ahora $X$ un espacio compacto e $Y$ un espacio de Hausdorff.
+    Supongamos que $f:X \longrightarrow Y$ es una función continua y biyectiva. 
+     \begin{itemize}
+         \item Como $X$ es compacto y $f$ es continua, $f(X)$ es compacto.
+         \item $f$ es un homeomorfismo entre $X$ e $Y$.
+     \end{itemize} 
+    \pause
+    \vspace{0.35cm}
+    \begin{block}{Corolario}
+       Todo subconjunto de Borel no contable de un espacio polaco contiene un subconjunto que es homeomorfo a $\{0,1\}^\mathbb{N}$ 
+    \end{block}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% IMPLEMENTACIÓN NUMERICA
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Implementación numérica}
+\begin{frame}{Definición y caracterizaciones básicas}
+    \begin{block}{Definición}
+        Sea $X$ un espacio polaco. Un subconjunto $A$ de $X$ es analítico si existe un espacio polaco $Z$ y una función continua $f:Z \longrightarrow X$ tal que $f(Z)=A$. En otras palabras, $A$ es la imagen de un espacio polaco bajo una función continua.
+    \end{block}
+\pause
+    \begin{block}{Propiedades}
+         Sea $X$ un espacio polaco. Se tiene que
+         \begin{itemize}
+             \item si $A_1,A_2, \dots$ son subconjuntos analíticos de $X$, entonces  $\displaystyle \bigcup_k A_k$ y $\displaystyle \bigcap_k A_k$ son analíticos.
+             \item Cada subconjunto $G_\delta$ de $X$ es analítico.
+             \item Cada subconjunto $F_\sigma$ de $X$ es analítico.
+         \end{itemize}
+    \end{block}
+    \pause
+    \begin{itemize}
+        \item En particular, abiertos y cerrados de $X$ son analíticos.
+    \end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% CONCLUSIONES Y LÍNEAS FUTURAS DE INVESTIGACIÓN
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conclusiones}
+
+
+%%%%%%%%%%%%%%%%%%%%% REFERENCIAS %%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\bf Referencias}
+\begin{thebibliography}{50}
+
+  \bibitem{lib1:libro} Cohn, D.L.
+  {\em Measure Theory: Second Edition}. Birkhäuser, New York, 2013.
+
+  \bibitem{lib2:libro} Willard, S.
+  {\em General Topology}. Addison-Wesley, 1970.
+  \bibitem{lib3:libro} Munkres, J.R.
+  {\em Topology. Second edition}. Pearson, 2002.
+
+  \bibitem{araujo:apuntes} Araujo Gómez, J.
+  {\em Measure Theory, Parts 1--3}. Apuntes del curso 2023/2024, Universidad de Cantabria.
+
+
+
+\end{thebibliography}
+\end{frame}
+
+
+
+%%%%%%%%%%%%%%%%% FIN %%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\titlepage
+\end{frame}
+\end{document}
