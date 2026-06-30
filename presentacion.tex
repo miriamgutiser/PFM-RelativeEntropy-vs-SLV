@@ -47,14 +47,14 @@
 \begin{Large}
     \begin{frame}{\bf  {\LARGE {Introducción}}}
 \begin{itemize}
-    \item Escuela matemática polaca (Varsovia, siglo XX), con figuras destacadas como Sierpinski, Kuratowski y Tarski.
+    \item Valoración de productos derivados
     
 \end{itemize}
 \begin{itemize}
-    \item El término ''Espacio Polaco'' fue popularizado por matemáticos franceses.
+    \item Modelo de Black--Scholes, 1973
 \end{itemize}
 \begin{itemize}
-    \item D.L. Cohn, \emph{Measure Theory. Second Edition}, Birkhäuser, 2013.
+    \item Black Monday, desplome bursátil del 19 de octubre de 1987
 \end{itemize}
 \end{frame}
 \end{Large}
@@ -78,7 +78,10 @@
 \begin{frame}{Definición}
 \pause
   \begin{block}{Definición}
-    Un \textbf{espacio polaco} es un espacio topológico separable que puede ser metrizado bajo una métrica completa. 
+    Un proceso estocástico $\{X(t)\}_{t \geq 0}$ se dice martingala respecto de la filtración $\{\mathcal F_t\}_{t\geq 0}$ y de la medida $\mathbb P$ si es adaptado, integrable y verifica
+    \[
+        \mathbb{E}^\mathbb{P}[X(T) | \mathcal{F}_t] = X(t), \quad t \leq T. 
+        \]
   \end{block}
   \pause
     \vspace{0.5em}
@@ -92,9 +95,17 @@
 \end{frame}
 
 % Slide 2
-\begin{frame}{Propiedades básicas}
-  \begin{block}{Proposición}
-    Todo subespacio cerrado, y todo subespacio abierto, de un espacio polaco son polacos.
+\begin{frame}{Teoremas fundamentales de Valoración Financiera}
+  \begin{block}{Primer Teorema Fundamental.}
+    Un mercado financiero está libre de arbitraje si y solo si existe una medida de probailidad $\mathbb Q$, equivalente a $\mathbb{P}$, bajo la cual los precios expresados en unidades del numerario son martingalas. Es decir, 
+    \[
+        \frac{S^{(m)}(t)}{N(t)} = \mathbb{E}^\mathbb{Q}\right[ \frac{S^{(m)}(t)}{N(t)} | \mathcal{F}_t \left], \quad m = 1, \dots, M, \, t \,leq T
+        \]
+  \end{block}
+  \pause
+
+  \begin{block}{Segundo Teorema fundamental.}
+    Supongamos que el mercado está libre de arbitraje. Entonces, el mercado es completo si, y solo si, existe una única medida martingala equivalente.
   \end{block}
   \pause
 
@@ -120,37 +131,43 @@
 
 
 % Slide 3
-    \begin{frame}{Propiedades básicas}
-    \begin{block}{Definición}
-        Sea $\{(X_\alpha, \tau_\alpha): \alpha \in I\}$ una familia de espacios topológicos disjuntos. Se considera $\displaystyle X = \bigcup_\alpha X_\alpha$, y se define sobre $X$ la topología
-        \[
-        \tau_\Sigma = \{U \subset X: U \cap X_i \in \tau_i \text{ para todo } i\in I\}. 
+    \begin{frame}{Modelo de Black--Scholes}
+    Consideramos un mercado formado por una cuenta bancaria libre de riesgo $B(t)$ y un activo con riesgo $S(t)$. La cuenta bancaria evoluciona según
+    \[
+        dB(t) = rB(t)\, dt,
         \]
-        El par $(X, \tau_\Sigma)$ se llama unión disjunta de los espacios dados. 
-    \end{block}
+    con $r$ tipo de interés libre de riesgo. 
     \pause
-  \begin{block}{Proposición}
-    La unión disjunta, ya sea infinita o finita, de espacios polacos es polaca.
-  \end{block}
+    El activo subyacente sigue, bajo la medida $\mathbb{Q}$,
+    \[
+        dS(t) = r S(t) dt + \sigma S(t) dW^\mathbb{Q} (t),
+        \]
+    donde $r$ es el interés libre de riesgo, $\sigma >0 $ es la volatilidad constante y $dW^\mathbb{Q}$ es un movimiento browniano bajo $\mathbb{P}$.
+    \pause
+    \begin{block}{\textbf{Teorema}. Ecuación de Black-Scholes.}
+        Supongamos que el precio del subyacente sigue, bajo la medida neutral al riesgo, la dinámica
+        \[
+            dS(t) = r S(t) dt + \sigma S(t) dW^\mathbb{Q} (t).
+            \]
+        Entonces, el precio $V(S,t)$ de un derivado europeo con condición final $V(T,S) = g(S)$ satisface la ecuación
+        \begin{equation}
+            \frac{\partial V}{\partial t} + r \frac{\partial V}{\partial S} + \frac{1}{2}\sigma ^2 S^2 \frac{\partial ^2 V}{\partial S^2}-rV = 0. 
+        \end{equation}
+    \end{block}
+
 \end{frame}
 
-\begin{frame}{\textbf{Ejemplo}}
-    \begin{itemize}
-    \item     Sean $X_1 = [0,1], X_2 = [0,3]$. Consideramos
+\begin{frame}{Modelo de Black--Scholes}
+    \begin{block}{Teorema Feynman-Kac}
+    Sea $X(t)$ un proceso que, bajo una medida $\mathbb Q$, satisface
     \[
-    X=\sum_{i=1}^2 X_i = \{ (x,1): x \in [0,1]\} \cup \{ (x,2): x\in [0,3]\}
-    \]
-    Definimos la métrica $d$ en $X$ como
+        dX(t) = a(X,t)\frac{\partial V}{\partial X} + \frac{1}{2} b^2(X,t)\frac{\partial ^2 V}{\partial X^2} - r(X,t)V = 0, 
+        \]
+    con condición final $V(X,T)$, entonces
     \[
-    d((x,i),(y,j)) = 
- \begin{cases}
-            |x-y| & \text{si} \quad i = j\\
-            1 & \text{si}\quad i \neq j
-        \end{cases}
-    \]
-    \item $d$ metriza la topología y $(X,d)$ es \textbf{completo}. 
-    \item El conjunto $D:= (\mathbb Q \cap [0,1]) \cup (\mathbb Q \cap [0,3]) \subset X $ es denso y numerable ($X$ \textbf{separable}). 
-\end{itemize}
+        V(X,T) = \mathbb{E}^\mathbb{Q}\left[ \exp \left( - \int_t^T r(X(s),s) ds\right)V(X,T) | \mathcal{F}_t \right]
+        \]
+    \end{block}
 \end{frame}
 
 
