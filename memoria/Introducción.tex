@@ -1,4 +1,24 @@
 
 \chapter{Introducción}
 
+En los mercados financieros actuales, la correcta valoración de productos derivados es un elemento clave tanto para la gestión del riesgo como para la toma de decisiones. La complejidad observada en las superficies de volatilidad implícita hace necesario el uso de modelos capaces de reproducir con precisión las dinámicas de mercado, especialmente en contextos en los que los supuestos clásicos resultan insuficientes. \medskip
 
+Aunque los instrumentos derivados se negocian desde mucho antes de la formalización matemática moderna, el desarrollo sistemático de modelos de valoración comenzó a consolidarse a mediados del siglo XX, cuando la combinación de procesos estocásticos, cálculo de Itô y argumentos de ausencia de arbitraje permitió construir un marco riguroso para obtener precios consistentes con el mercado. \medskip
+
+Un punto de inflexión en esta evolución fue la publicación, en 1973, del modelo de Black--Scholes para la valoración de opciones europeas, posteriormente ampliado por Merton. Este modelo proporcionó una fórmula cerrada para el precio de opciones bajo hipótesis muy concretas, entre ellas que el precio del activo subyacente sigue una dinámica lognormal con volatilidad constante.  \medskip
+
+Sin embargo, con el paso del tiempo se observó que algunas de las hipótesis del modelo no se ajustaban completamente al comportamiento real de los mercados. En particular, la volatilidad implícita obtenida a partir de los precios observados no era constante, sino que dependía tanto del strike como del vencimiento de la opción. Este fenómeno, conocido como smile o superficie de volatilidad, se hizo especialmente relevante tras el desplome bursátil del 19 de octubre de 1987, conocido como Black Monday, al poner de manifiesto que los mercados asignaban una mayor probabilidad a movimientos extremos de la que implicaba el modelo lognormal clásico. \medskip
+
+La aparición de la superficie de volatilidad motivó el desarrollo de modelos capaces de reproducir de forma más precisa los precios de mercado. En esta memoria nos centraremos en el estudio de dos metodologías que permiten abordar esta cuestión desde enfoques diferentes.
+
+Por un lado, los modelos de Volatilidad Local Estocástica surgen como un enfoque híbrido que combina las ventajas de los modelos de volatilidad local y de volatilidad estocástica, permitiendo un ajuste preciso a las cotizaciones observadas en el mercado y una representación más realista de la evolución futura de la volatilidad.
+
+Por otro lado, el enfoque basado en Entropía Relativa Mínima proporciona un marco general de calibración y valoración en mercados incompletos, en el que se selecciona la medida de valoración más cercana a una medida previa, sujeta a la imposición de restricciones de mercado. En la práctica, emplearemos el método de Weighted Monte Carlo, que permite incorporar información de mercado modificando las probabilidades asociadas a la simulación original. \medskip
+
+El objetivo principal de este trabajo es analizar y comparar ambos enfoques desde un punto de vista teórico y práctico, identificando sus principales ventajas, limitaciones y ámbitos de aplicación.
+
+En primer lugar, abordaremos el marco teórico necesario para el desarrollo del trabajo, que incluye los fundamentos de los procesos estocásticos aplicados a la modelización financiera, la dinámica de los precios de los activos bajo medidas de probabilidad equivalentes y los principios básicos de valoración de derivados financieros. Asimismo, presentaremos el modelo de Black--Scholes y sus principales limitaciones, con el fin de motivar el estudio de los nuevos métodos. \medskip
+
+En segundo lugar, estudiaremos en detalle el modelo de Volatilidad Local Estocástica, introduciendo previamente los modelos de volatilidad local y de volatilidad estocástica, así como su combinación en el marco SLV. Por otra parte, estudiaremos el enfoque de Entropía Relativa Mínima como método de calibración y valoración en mercados incompletos. En esta fase se analizará su formulación teórica, su interpretación probabilística como un problema de optimización bajo restricciones y su relación con el cambio de medida. \medskip
+
+A partir de este análisis, se desarrollarán simulaciones numéricas con el fin de analizar el comportamiento de los modelos y su capacidad para reproducir las dinámicas observadas en los mercados. Por último, llevaremos a cabo una comparación sistemática entre los enfoques SLV y MRE, evaluando su comportamiento en el contexto de opciones europeas vainilla y opciones de tipo \textit{forward-start}. Este análisis permitirá estudiar las ventajas y limitaciones de cada metodología en un entorno de mayor complejidad, propio de productos exóticos.

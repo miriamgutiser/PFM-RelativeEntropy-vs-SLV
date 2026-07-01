@@ -1,5 +1,8 @@
 
 \documentclass[12pt,openany]{book}
+
+\setcounter{tocdepth}{1}
+\setcounter{secnumdepth}{2}
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 %                       Paquetes y librerias                            %
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
@@ -7,6 +10,7 @@
 \usepackage[T1]{fontenc}
 \usepackage{amsmath,amsfonts,amssymb,amsthm,latexsym,mathrsfs,color,graphicx}
 \usepackage[english,spanish,es-noquoting]{babel}
+\addto\captionsspanish{\renewcommand{\tablename}{Tabla}}
 \usepackage{geometry}
 \usepackage{graphicx}
 \usepackage{epstopdf}
@@ -14,6 +18,15 @@
 \usepackage{float}
 \usepackage{tabularx}
 \usepackage{amsthm} 
+\usepackage{longtable}
+\usepackage{booktabs}
+
+% Tablas apéndice
+\usepackage{multirow}
+\usepackage{pdflscape}
+\usepackage{booktabs}
+
+
 
 \usepackage{url}
 
@@ -123,10 +136,10 @@ Curso -- 2025-26
 \vspace{4.8cm}
 \noindent\begin{minipage}{\textwidth}
 \begin{tabularx}{\textwidth}{@{}lX@{}}
-\textbf{Fecha presentación:} &  #6 \\
+\textbf{Fecha de presentación:} &  #6 \\
 \textbf{Tutor académico:}&  #3\\
 \textbf{Empresa:} & #4  \\%[0.5cm]
-\textbf{Tutor empresa: }& #7 \\
+\textbf{Tutor de empresa: }& #7 \\
 & \includegraphics[width=0.45\textwidth]{#5}
 \end{tabularx}
 \end{minipage}
@@ -164,8 +177,10 @@ Curso -- 2025-26
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 %                             Portada                                   %
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+\hypersetup{pageanchor=false}
 \portada{Entropía Relativa versus Volatilidad Local Estocástica:\\[0.1cm]
 {\Large Comparación de las dos estrategias dinámicas de cobertura.}}{Miriam Gutiérrez Serrano}{Carlos Vázquez Cendón (UDC)}{Banco Santander}{Banco_Santander_Logotipo.png}{Julio 2026}{Daniel Arrieta Rodríguez y Cristina Arribas Francisco}
+\hypersetup{pageanchor=true}
 
 
 
@@ -185,7 +200,7 @@ Curso -- 2025-26
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 \addcontentsline{toc}{chapter}{Resumen}
 \markboth{Resumen}{ }
-\resumen{ruta_fichero_resumen}
+\resumen{resumen.tex}
 % El argumento debe incluir la ruta del .tex del resumen
 
 
@@ -195,12 +210,22 @@ Curso -- 2025-26
 \mainmatter
 
 \input{Introducción}
-% \input{MarcoTeorico}
 \input{Conceptos preliminares y Modelo de Black-Scholes}
 \input{SLV}
 \input{entropia_relativa}
-%\input{Implentación numérica}
+\input{Implementación numérica}
+\input{Conclusiones}
 
+% ----------------------------------------------------------
+%                         Apéndices
+% ----------------------------------------------------------
+\cleardoublepage
+\appendix
+% Asegurar que el estilo de página use marcadores (\leftmark/\rightmark)
+\pagestyle{headings}
+\input{Apendice_resultados_SLV}
+\input{Apendice_resultados_MRE}
+\input{Apendice_forward_start}
 
 
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %

@@ -1,10 +1,10 @@
 \chapter{Entropía Relativa y Weighted Monte Carlo}
 
-Como se vio en el capítulo de conceptos preliminares, y en particular en el Teorema~\ref{th:segundo-teorema-fundamental}, en mercados incompletos la medida martingala equivalente no tiene por qué ser única. En este contexto, la valoración de derivados no replicables puede interpretarse como un problema de selección de medida. La metodología de Entropía Relativa Mínima, conocida como \textit{Minimum Relative Entropy} (MRE), proporciona un criterio para escoger una medida de valoración entre aquellas que son compatibles con la información de mercado disponible.\medskip
+Como se vio en el capítulo de conceptos preliminares, y en particular en el Teorema~\ref{th:segundo-teorema-fundamental}, en mercados incompletos la medida martingala equivalente no tiene por qué ser única. En este contexto, la valoración de derivados no replicables puede interpretarse como un problema de selección de medida. La metodología de Entropía Relativa Mínima, conocida como Minimum Relative Entropy (MRE), proporciona un criterio para escoger una medida de valoración entre aquellas que son compatibles con la información de mercado disponible.\medskip
 
-La idea del método es partir de una medida previa, asociada a un modelo inicial o \textit{prior}, y construir una nueva medida que reproduzca determinadas restricciones de mercado, alejándose lo mínimo posible de la distribución original.\medskip
+La idea del método es partir de una medida previa, asociada a un modelo inicial o prior, y construir una nueva medida que reproduzca determinadas restricciones de mercado, alejándose lo mínimo posible de la distribución original.\medskip
 
-En la práctica, este enfoque puede implementarse mediante \textit{Weighted Monte Carlo} (WMC). A diferencia de los modelos de Volatilidad Local Estocástica (SLV), donde la calibración modifica la dinámica del subyacente, WMC parte de un conjunto de trayectorias previamente simuladas y ajusta las probabilidades asignadas a cada una de ellas.\medskip
+En la práctica, este enfoque puede implementarse mediante Weighted Monte Carlo (WMC). A diferencia de los modelos de Volatilidad Local Estocástica (SLV), donde la calibración modifica la dinámica del subyacente, WMC parte de un conjunto de trayectorias previamente simuladas y ajusta las probabilidades asignadas a cada una de ellas.\medskip
 
 En este capítulo se presenta primero la formulación matemática del problema de Entropía Relativa Mínima descrita en \cite{articleAvellaneda}. A continuación, se describe su aplicación en el contexto Monte Carlo, se introducen las restricciones de calibración consideradas y se desarrolla la resolución numérica del problema dual.
 
@@ -61,7 +61,8 @@ La entropía relativa cuantifica la discrepancia entre una probabilidad previa \
 \[
 D(\mathbb{Q}\| \mathbb{P}) = 0, \quad \text{si, y solo si, } \quad \mathbb{Q} = \mathbb P.
 \]
-Aunque suele interpretarse como una medida de distancia entre distribuciones, no es una distancia, ya que no es simétrica y no satisface, en general, la desigualdad triangular. Por tanto, minimizar la entropía relativa equivale a buscar una medida posterior lo más cercana posible a una medida previa.\medskip
+La entropía relativa no es una distancia en sentido matemático, sino una divergencia estadística, ya que no es simétrica ni satisface, en general, la desigualdad triangular. Por tanto, minimizar la entropía relativa equivale a buscar una medida posterior lo más cercana posible a una medida previa, entendiendo dicha cercanía en el sentido de esta divergencia.\medskip
+
 
 En el contexto de valoración de derivados, esta idea se utiliza para seleccionar una medida de probabilidad que reproduzca cierta información de mercado. Supongamos que partimos de una medida previa \(\mathbb{P}\), asociada a un modelo inicial, y queremos encontrar una nueva medida \(\mathbb{Q}\) bajo la cual se satisfagan determinadas restricciones de calibración.
 
@@ -124,15 +125,18 @@ q=(q_1,\ldots,q_N),
 de forma que los instrumentos utilizados como benchmark sean valorados correctamente bajo la nueva medida.
 
 Sean \(m\) los instrumentos de calibración y sea \(g_{ij}\) el payoff descontado del instrumento \(j\) en la trayectoria \(i\). La matriz de payoffs se define como
-\[
-G=
+\begin{equation}
+\label{matriz_payoffs_MRE}
+  G=
 \begin{pmatrix}
 g_{11} & g_{12} & \cdots & g_{1m}\\
 g_{21} & g_{22} & \cdots & g_{2m}\\
 \vdots & \vdots & \ddots & \vdots\\
 g_{N1} & g_{N2} & \cdots & g_{Nm}
-\end{pmatrix}.
-\]
+\end{pmatrix}.  
+\end{equation}
+
+
 Denotamos \(C_j\) el precio objetivo del instrumento \(j\). De esta forma, las restricciones de calibración son
 \[
 \sum_{i=1}^N q_i g_{ij}=C_j,
@@ -252,7 +256,7 @@ Denotaremos por \(\lambda^*\) al valor de los multiplicadores de Lagrange que mi
 
 En \cite{articleAvellaneda} se muestra que esta formulación permite recuperar las restricciones de calibración impuestas previamente. En particular, cuando los precios objetivo son consistentes, el mínimo existe y es único.
 
-\subsection*{Formulaciones de calibración: ajuste exacto y ajuste ponderado}
+\subsection{Formulaciones de calibración: ajuste exacto y ajuste ponderado}
 
 La formulación anterior corresponde al caso de ajuste exacto, conocido en \cite{articleAvellaneda} como \textit{exact fitting}. En este caso se exige que todos los instrumentos benchmark sean reproducidos exactamente bajo la medida posterior. En forma matricial, esta condición se escribe como
 \[
@@ -315,7 +319,7 @@ Por tanto, el ajuste ponderado puede interpretarse como una versión regularizad
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection*{Resolución numérica del problema dual}
+\subsection{Resolución numérica del problema dual}
 
 Una vez elegida la formulación de calibración, el problema se resuelve numéricamente en términos de los multiplicadores de Lagrange. Para ello se utiliza un método iterativo de tipo Newton, basado en el gradiente y la Hessiana de la función objetivo.
 
@@ -387,7 +391,7 @@ El algoritmo se detiene cuando el gradiente es suficientemente pequeño o cuando
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection*{Esquema del algoritmo}
+\subsection{Esquema del algoritmo}
 
 El procedimiento de calibración puede resumirse en los siguientes pasos:
 

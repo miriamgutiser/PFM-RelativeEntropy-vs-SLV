@@ -139,14 +139,14 @@ V(T)=H.
 Un mercado se dice completo si todo derivado puede ser replicado mediante una cartera autofinanciada.
 \end{definition}
 
-Así, la relación entre completitud del mercado y unicidad de la medida de valoración queda recogida en el siguiente resulDtado.
+Así, la relación entre completitud del mercado y unicidad de la medida de valoración queda recogida en el siguiente resultado.
 
 \begin{theorem}[Segundo Teorema Fundamental de Valoración Financiera]
 \label{th:segundo-teorema-fundamental}
 Supongamos que el mercado está libre de arbitraje. Entonces, el mercado es completo si y solo si existe una única medida martingala equivalente.
 \end{theorem}
 
-%REVISAR SI ES CIERTO CUANDO VICTOR TE PASE EL LIBRO SI LA DEMOSTRACIÓN ESTA EN EL LIBRO Y EN ESAS PÁGINAS
+
 Una demostración de estos dos últimos resultados se pueden encontrar en \cite[pp.92--98]{Capinski2012}. \medskip
 
 Por tanto, en un mercado completo, el precio de cualquier derivado replicable queda determinado de forma única por ausencia de arbitraje. En cambio, en un mercado incompleto pueden existir varias medidas martingala equivalentes y, en consecuencia, distintos precios compatibles con ausencia de arbitraje para un mismo derivado no replicable.
@@ -183,7 +183,7 @@ X\frac{d\mathbb{Q}}{d\mathbb{P}}
 \right].
 \]
 
-En el contexto de procesos estocásticos continuos, el resultado que describe cómo cambia la dinámica de un proceso al realizar un cambio de medida es el teorema de Cameron--Martin--Girsanov.
+En el contexto de procesos estocásticos continuos, el resultado que describe cómo cambia la dinámica de un proceso al realizar un cambio de medida es el Teorema de Cameron--Martin--Girsanov.
 
 \begin{theorem}[Teorema de Cameron--Martin--Girsanov]
 \label{th:girsanov}
@@ -245,7 +245,7 @@ Si definimos
 :=
 \frac{\mu(t)-\nu(t)}{\sigma(t)},
 \]
-y si \(\gamma\) satisface la condición de integrabilidad del teorema de Cameron--Martin--Girsanov, entonces existe una medida \(\mathbb{Q}\) tal que
+y si \(\gamma\) satisface la condición de integrabilidad del Teorema de Cameron--Martin--Girsanov \ref{th:girsanov}, entonces existe una medida \(\mathbb{Q}\) tal que
 \[
 \widetilde{W}(t)
 =
@@ -393,7 +393,7 @@ d_1=
 \qquad
 d_2=d_1-\sigma\sqrt{T},
 \]
-y \(\Phi\) denota la función de distribución de una normal estándar.
+y \(\Phi\) denota la función de distribución de una Normal estándar.
 \end{proposition}
 
 Análogamente, el precio de una opción put europea viene dado por
@@ -423,19 +423,20 @@ Si el modelo de Black--Scholes describiese correctamente el mercado, la volatili
 \[
 K\longmapsto \sigma_{imp}(K,T)
 \]
-no suele ser constante. Su representación gráfica recibe el nombre de sonrisa o \textit{skew} de volatilidad. Al considerar simultáneamente distintos vencimientos, se obtiene la superficie de volatilidad implícita:
+no suele ser constante. Su representación gráfica recibe el nombre de sonrisa o skew de volatilidad. Al considerar simultáneamente distintos vencimientos, se obtiene la superficie de volatilidad implícita:
 \[
 (K,T)\longmapsto \sigma_{imp}(K,T).
 \]
 
 La existencia de la superficie de volatilidad muestra que una única volatilidad constante no permite reproducir simultáneamente los precios de mercado para distintos strikes y vencimientos. Por tanto, aunque Black--Scholes proporciona un marco teórico coherente, la hipótesis de dinámica lognormal con volatilidad constante resulta demasiado restrictiva para capturar la información contenida en los precios observados.
 
-En este contexto, la volatilidad implícita no debe interpretarse solo como un parámetro del modelo, sino como una forma de resumir la información de mercado. Su dependencia respecto del strike y del vencimiento evidencia la necesidad de introducir metodologías más flexibles.
+En este contexto, la volatilidad implícita no debe interpretarse solo como un parámetro del modelo, sino como una forma de resumir la información de mercado. Su dependencia respecto del strike y del vencimiento evidencia la necesidad de introducir metodologías más flexibles.\medskip
 
 Esta limitación motiva el estudio de los modelos de Volatilidad Local Estocástica, que enriquecen la dinámica del subyacente y de su volatilidad para ajustarse mejor a la superficie observada. Posteriormente, se introducirá la metodología de Entropía Relativa Mínima, que aborda el problema desde otra perspectiva: modificar la medida de probabilidad de los escenarios simulados para incorporar restricciones de mercado.\medskip
 
-\subsection*{Opciones forward--start}
-En la comparación numérica de ambos enfoques se considerarán tanto opciones vainilla europeas como opciones de tipo \textit{forward-start}, estas últimas especialmente útiles para analizar el comportamiento de cada metodología ante productos sensibles a la evolución futura de la volatilidad.
+\subsection{Opciones forward--start}
+\label{sec:forward_start}
+En la comparación numérica de ambos enfoques se considerarán tanto opciones vainilla europeas como opciones de tipo \textit{forward-start}, estas últimas especialmente útiles para analizar el comportamiento de cada metodología ante productos sensibles a la evolución futura de la volatilidad.\medskip
 
 Una opción \textit{forward-start} es una opción cuyo periodo de referencia comienza en una fecha futura \(T_1\) y vence en una fecha posterior \(T_2\), con \(0<T_1<T_2\). A diferencia de una opción europea vainilla, cuyo payoff depende únicamente del valor del subyacente en el vencimiento, una opción \textit{forward-start} depende de la evolución del subyacente entre dos fechas futuras.
 

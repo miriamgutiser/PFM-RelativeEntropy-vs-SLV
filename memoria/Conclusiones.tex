@@ -1,0 +1,22 @@
+\chapter{Conclusiones y líneas futuras de investigación}
+
+\section{Conclusiones}
+
+En este trabajo se han estudiado y comparado dos metodologías de valoración de derivados financieros: el modelo de Volatilidad Local Estocástica, en particular Heston--SLV, y el enfoque de Entropía Relativa Mínima implementado mediante \textit{Weighted Monte Carlo}. Ambas metodologías permiten incorporar la información contenida en una superficie de volatilidad implícita, pero lo hacen desde perspectivas diferentes. Mientras que Heston--SLV modifica la dinámica del subyacente combinando una componente local con una componente estocástica de la volatilidad, MRE/WMC mantiene fijas las trayectorias simuladas y ajusta la medida de probabilidad mediante una redistribución de pesos sujeta a restricciones de calibración.\medskip
+
+Los resultados numéricos muestran que, para opciones europeas vanilla, MRE reproduce de forma razonable los precios generados por Heston--SLV, incluso en strikes no utilizados directamente como benchmark. En el caso de las opciones \textit{forward-start}, los precios obtenidos mediante el ajuste exacto también son relativamente próximos a los de Heston--SLV. Sin embargo, el análisis de la volatilidad implícita \textit{forward-start} muestra que la proximidad en precios no garantiza necesariamente una buena reproducción de la estructura de smile forward. En particular, la formulación exacta presenta problemas de estabilidad para capturar dicha estructura, mientras que la formulación regularizada mediante mínimos cuadrados ponderados permite recuperar de forma más adecuada la curvatura del smile. En conjunto, la comparación confirma que ambas metodologías son consistentes para la valoración, pero también pone de manifiesto diferencias relevantes cuando se analizan productos más sensibles a la dinámica temporal del subyacente.
+
+
+\section{Líneas futuras de investigación}
+
+Como posibles líneas futuras de investigación, una primera extensión de este trabajo consistiría en aplicar ambas metodologías a datos reales de mercado, utilizando superficies de volatilidad implícita observadas para distintos activos y fechas. Esto permitiría analizar con mayor precisión la capacidad de ajuste de los modelos en un contexto más cercano a la práctica financiera.\medskip
+
+Otra línea de trabajo sería ampliar el conjunto de productos derivados considerados. En esta memoria se han valorado principalmente opciones europeas vainilla y opciones de tipo \textit{forward-start}. Sin embargo, sería interesante estudiar el comportamiento de los métodos SLV y MRE/WMC en la valoración de productos más complejos o dependientes de la trayectoria, como opciones asiáticas o barrera.\medskip
+
+También resultaría relevante incorporar un análisis de cobertura. En este trabajo la comparación se ha centrado en los precios obtenidos bajo ambas metodologías, pero una comparación más completa debería estudiar las sensibilidades de los precios frente a los factores de mercado y la estabilidad de las estrategias de cobertura asociadas.\medskip
+
+Finalmente, otra extensión posible sería comparar el enfoque MRE/WMC con variantes más generales, como Generalized Weighted Monte Carlo, o con otros métodos de calibración basados en optimización. Esto permitiría evaluar si una elección distinta de la medida previa o de las restricciones de calibración mejora la estabilidad y precisión de los precios obtenidos.
+
+
+
+

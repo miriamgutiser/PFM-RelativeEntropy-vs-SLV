@@ -1,13 +1,13 @@
 \chapter{Volatilidad Local Estocástica}
 Como se ha visto en el capítulo anterior, una de las principales limitaciones del modelo de Black--Scholes es que la hipótesis de volatilidad constante impide reproducir la sonrisa y la superficie de volatilidad implícita observadas en mercado.\medskip 
 
-Esta limitación motiva la introducción de modelos más flexibles, capaces de incorporar una volatilidad dependiente del estado del mercado o de evolucionar de forma aleatoria en el tiempo. Entre las extensiones más utilizadas se encuentran los modelos de volatilidad local y los modelos de volatilidad estocástica. Sin embargo, considerados por separado, cada uno de estos enfoques presenta ciertas restricciones. Con el objetivo de combinar sus principales ventajas, se introducen los modelos de Volatilidad Local Estocástica, conocidos como modelos \textit{Stochastic--Local Volatility} (SLV).\medskip
+Esta limitación motiva la introducción de modelos más flexibles, capaces de incorporar una volatilidad dependiente del estado del mercado o de evolucionar de forma aleatoria en el tiempo. Entre las extensiones más utilizadas se encuentran los modelos de volatilidad local y los modelos de volatilidad estocástica. Sin embargo, considerados por separado, cada uno de estos enfoques presenta ciertas restricciones. Con el objetivo de combinar sus principales ventajas, se introducen los modelos de Volatilidad Local Estocástica, conocidos como modelos \textit{Stochastic--Local Volatility}(SLV).\medskip
 
 En este capítulo introducimos primero los modelos de volatilidad local y de volatilidad estocástica, prestando especial atención al modelo de Heston. A continuación se presenta el modelo híbrido Heston--SLV, que será el enfoque utilizado posteriormente en la comparación con la metodología de Entropía Relativa Mínima. El desarrollo sigue principalmente la notación de \cite{DanielArrietaPresentation} y el tratamiento de Heston--SLV de \cite{oosterlee2021modelos}.
 
 \section{Volatilidad local}
 
-En esta sección se introduce el modelo de volatilidad local, conocido habitualmente como modelo LV por sus siglas en inglés, \textit{Local Volatility}. \medskip
+En esta sección se introduce el modelo de volatilidad local, conocido habitualmente como modelo LV por sus siglas en inglés, \textit{Local Volatility }. \medskip
 
 El concepto de volatilidad local fue introducido por Dupire en \cite{Dupire1994} como una forma de incorporar la dependencia de la volatilidad respecto del strike y del vencimiento. La idea principal consiste en sustituir el parámetro constante $\sigma_{\text{imp}}$ del modelo de Black--Scholes por una función determinista que depende del tiempo y del nivel del subyacente. De este modo, bajo la medida neutral al riesgo $\mathbb{Q}$, la dinámica del precio del activo se modeliza mediante la ecuación diferencial estocástica
 
@@ -28,7 +28,7 @@ Por otra parte, suponiendo ausencia de arbitraje, el valor de la opción \(V(S,t
 \end{cases} 
 \end{equation}
 
-La ecuación \eqref{eq:edp_volatilidad_local} es una ecuación en derivadas parciales de Kolmogorov hacia atrás, que describe cómo el valor de la opción \(V(S,t)\) evoluciona a lo largo del tiempo. Sin embargo, para obtener una expresión explícita de la función \(\sigma_{\mathrm{LV}}\) en términos de precios de mercado resulta más conveniente trabajar con la ecuación forward asociada a la densidad del subyacente. \medskip
+La ecuación \ref{eq:edp_volatilidad_local} es una ecuación en derivadas parciales de Kolmogorov hacia atrás, que describe cómo el valor de la opción \(V(S,t)\) evoluciona a lo largo del tiempo. Sin embargo, para obtener una expresión explícita de la función \(\sigma_{\mathrm{LV}}\) en términos de precios de mercado resulta más conveniente trabajar con la ecuación forward asociada a la densidad del subyacente. \medskip
 
 Recordemos el siguiente resultado, que relaciona una ecuación diferencial estocástica general con la evolución temporal de su densidad de transición.
 
@@ -55,13 +55,13 @@ f_{S(t_0)}(y)=\delta(y-S_0).
 \end{equation}
 \end{theorem}
 
-Una demostración a este resultado se puede encontrar en \cite[Cap.~5, Secs.~5.1 y 5.7, pp.~283 y 368--369]{Karatzas1991}. El modelo de volatilidad local se basa precisamente en esta ecuación forward. En efecto, bajo la medida neutral al riesgo, la dinámica del subyacente en el modelo de volatilidad local viene dada por
+Una demostración de este resultado se puede encontrar en \cite[Cap.~5, Secs.~5.1 y 5.7, pp.~283 y 368--369]{Karatzas1991}. El modelo de volatilidad local se basa precisamente en esta ecuación forward. En efecto, bajo la medida neutral al riesgo, la dinámica del subyacente en el modelo de volatilidad local viene dada por
 \begin{equation}
 dS(t)=rS(t)\,dt+\sigma_{\mathrm{LV}}(S,t)S(t)\,dW(t),
 \qquad S(t_0)=S_0.
 \label{eq:dinamica_local_vol}
 \end{equation}
-Comparando \eqref{eq:dinamica_local_vol} con la ecuación diferencial estocástica general del teorema anterior, se tiene
+Comparando \ref{eq:dinamica_local_vol} con la ecuación diferencial estocástica general del teorema anterior, se tiene
 \[
 \bar{\mu}(t,y)=ry,
 \qquad
@@ -108,7 +108,7 @@ e^{-r(T-t_0)}
 \int_K^{\infty} (y-K) f_{S(T)}(y)\,dy.
 \label{eq:call_density}
 \end{equation}
-Derivando \eqref{eq:call_density} respecto de $K$, se obtiene
+Derivando \ref{eq:call_density} respecto de $K$, se obtiene
 \[
 \frac{\partial V_c(K,T)}{\partial K}
 =
@@ -123,7 +123,7 @@ e^{-r(T-t_0)}f_{S(T)}(K),
 \]
 que coincide con la fórmula de Breeden--Litzenberger.
 
-Ahora derivamos \eqref{eq:call_density} respecto del vencimiento \(T\). Usando la ecuación de Fokker--Planck asociada a la dinámica \eqref{eq:dinamica_local_vol}, e integrando por partes, se obtiene
+Ahora derivamos \ref{eq:call_density} respecto del vencimiento \(T\). Usando la ecuación de Fokker--Planck asociada a la dinámica \ref{eq:dinamica_local_vol}, e integrando por partes, se obtiene
 \begin{equation}
 \frac{\partial V_c(K,T)}{\partial T}
 =
@@ -148,7 +148,7 @@ rK\dfrac{\partial V_c(K,T)}{\partial K}
 }.
 \end{equation}
 
-Esta fórmula muestra que la función de volatilidad local \(\sigma_{\mathrm{LV}}(K,T)\) queda caracterizada a partir de la superficie de precios de opciones europeas observada en el mercado. En consecuencia, el modelo de volatilidad local puede ajustarse exactamente a las cotizaciones de opciones europeas, sin necesidad de introducir un procedimiento de calibración paramétrica. En la práctica, no obstante, las derivadas parciales que aparecen en \eqref{eq:Dupire_local_vol} deben aproximarse numéricamente a partir de un conjunto finito de precios de mercado, lo que puede generar inestabilidades, especialmente en zonas donde la densidad neutral al riesgo es pequeña. \medskip
+Esta fórmula muestra que la función de volatilidad local \(\sigma_{\mathrm{LV}}(K,T)\) queda caracterizada a partir de la superficie de precios de opciones europeas observada en el mercado. En consecuencia, el modelo de volatilidad local puede ajustarse exactamente a las cotizaciones de opciones europeas, sin necesidad de introducir un procedimiento de calibración paramétrica. En la práctica, no obstante, las derivadas parciales que aparecen en \ref{eq:Dupire_local_vol} deben aproximarse numéricamente a partir de un conjunto finito de precios de mercado, lo que puede generar inestabilidades, especialmente en zonas donde la densidad neutral al riesgo es pequeña. \medskip
 
 De forma equivalente, si se trabaja directamente con una superficie suficientemente regular de volatilidad implícita \(\widehat{\sigma}(t,K)\), se puede escribir la fórmula de Dupire en términos de la varianza total. Para ello, se introduce
 \[
@@ -183,12 +183,12 @@ K\dfrac{\partial w}{\partial K}
 \right)
 }.
 \end{equation}
-Esta formulación es útil cuando la entrada principal es la superficie de volatilidad implícita. En la implementación, no obstante, se utiliza la forma equivalente basada en precios: primero se transforma la superficie implícita en una superficie de precios call \(V_c(K,T)\) mediante Black--Scholes y después se aplica \eqref{eq:Dupire_local_vol}.\medskip
+Esta formulación es útil cuando la entrada principal es la superficie de volatilidad implícita. En la implementación, no obstante, se utiliza la forma equivalente basada en precios: primero se transforma la superficie implícita en una superficie de precios call \(V_c(K,T)\) mediante Black--Scholes y después se aplica \ref{eq:Dupire_local_vol}.\medskip
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{Simulación del modelo LV}
 
-Una vez obtenida la función de volatilidad local, el modelo puede simularse directamente a partir de la dinámica definida en \eqref{eq:dinamica_local_vol}. A diferencia del modelo de Black--Scholes, en el que la volatilidad es constante, en el modelo LV la volatilidad debe evaluarse en cada instante temporal y en cada nivel alcanzado por el subyacente. Es decir, a lo largo de cada trayectoria se utiliza el valor
+Una vez obtenida la función de volatilidad local, el modelo puede simularse directamente a partir de la dinámica definida en \ref{eq:dinamica_local_vol}. A diferencia del modelo de Black--Scholes, en el que la volatilidad es constante, en el modelo LV la volatilidad debe evaluarse en cada instante temporal y en cada nivel alcanzado por el subyacente. Es decir, a lo largo de cada trayectoria se utiliza el valor
 \[
 \sigma_{\mathrm{LV}}(S(t_i),t_i).
 \]
@@ -230,7 +230,7 @@ Una forma natural de superar esta limitación consiste en modelar la volatilidad
 
 En esta sección nos centraremos en el modelo de Heston, que será el modelo de volatilidad estocástica utilizado posteriormente como base para construir el modelo híbrido Heston--SLV. Antes de introducirlo, conviene presentar brevemente el proceso CIR, ya que la varianza en el modelo de Heston sigue precisamente una dinámica de este tipo.
 
-\subsection*{El proceso CIR}
+\subsection{El proceso CIR}
 
 El proceso de Cox--Ingersoll--Ross, o proceso CIR, fue introducido originalmente en el contexto de modelos de tipos de interés. En el modelo de Heston, este proceso se utiliza para describir la evolución de la varianza instantánea del activo subyacente. Su dinámica viene dada por
 \begin{equation}
@@ -328,7 +328,7 @@ S(t_0)=S_0>0,
 v(t_0)=v_0>0.
 \]
 
-Los movimientos brownianos que aparecen en \eqref{eq:heston_sv} están correlados según
+Los movimientos brownianos que aparecen en \ref{eq:heston_sv} están correlados según
 \begin{equation}
 \label{eq:heston_correlation}
 dW^{S,\mathbb{Q}}(t)\,dW^{v,\mathbb{Q}}(t)=\rho_{S,v}\,dt.
@@ -356,7 +356,7 @@ Bajo la medida $\mathbb{P}$, la varianza podría escribirse con parámetros prop
 son parámetros de valoración calibrados a precios de opciones.
 \end{observation}
 
-\subsubsection*{Ecuación de valoración de Heston}
+\subsubsection{Ecuación de valoración de Heston}
 
 Sea \(V(t,S,v)\) el valor de un derivado europeo escrito sobre el activo \(S\), suponiendo que la dinámica del par \((S(t),v(t))\) viene dada por el modelo de Heston. La ecuación de valoración asociada puede obtenerse mediante dos enfoques equivalentes: el enfoque de martingala y el enfoque de cobertura. Ambos procedimientos se desarrollan en \cite[pp.~245--247]{oosterlee2021modelos}; aquí se recoge únicamente la ecuación resultante, ya que la deducción sigue las mismas ideas introducidas para el modelo de Black--Scholes. \medskip
 
@@ -390,7 +390,7 @@ En particular, para un derivado europeo con payoff \(\Phi(S(T))\), se tiene la c
 \[
 V(T,S,v)=\Phi(S).
 \]
-Aplicando el lema de Itô bidimensional a \(V(t,S(t),v(t))\) y usando las dinámicas de \eqref{eq:heston_sv}, se obtiene la siguiente ecuación en derivadas parciales:
+Aplicando el lema de Itô bidimensional a \(V(t,S(t),v(t))\) y usando las dinámicas de \ref{eq:heston_sv}, se obtiene la siguiente ecuación en derivadas parciales:
 \begin{equation}
 \label{eq:heston_edp}
 \frac{\partial V}{\partial t}
@@ -402,13 +402,13 @@ Aplicando el lema de Itô bidimensional a \(V(t,S(t),v(t))\) y usando las dinám
 -rV=0.
 \end{equation}
 
-El enfoque de cobertura conduce a la misma ecuación, aunque la construcción de la cartera replicante es más compleja que en Black--Scholes. En este caso existen dos fuentes de riesgo, una asociada al subyacente \(S(t)\) y otra asociada a la varianza \(v(t)\). Por tanto, si solo se negocian el activo subyacente y la cuenta bancaria, el mercado no permite cubrir directamente ambas fuentes de incertidumbre. Para completar la cobertura sería necesario incorporar algún instrumento adicional sensible a la volatilidad, por ejemplo una opción líquida. Esta observación refleja la relación entre los modelos de volatilidad estocástica y la incompletitud de mercado. \medskip
+El enfoque de cobertura conduce a la misma ecuación, aunque la construcción de la cartera replicante es más compleja que en Black--Scholes. En este caso existen dos fuentes de riesgo, una asociada al subyacente \(S(t)\) y otra asociada a la varianza \(v(t)\). Por tanto, si solo se negocian el activo subyacente y la cuenta bancaria, el mercado no permite cubrir directamente ambas fuentes de incertidumbre. Para completar la cobertura sería necesario incorporar algún instrumento adicional sensible a la volatilidad. Esta observación refleja la relación entre los modelos de volatilidad estocástica y la incompletitud de mercado. \medskip
 
-La ecuación \eqref{eq:heston_edp} también admite una interpretación probabilística mediante Feynman--Kac, que expresa el precio como una esperanza descontada bajo la medida neutral al riesgo. Además, una de las principales ventajas del modelo de Heston es que pertenece a la clase de modelos afines. Esto permite obtener su función característica en forma semianalítica, lo que facilita la valoración eficiente de opciones europeas y la posterior calibración del modelo a superficies de volatilidad implícita, por ejemplo mediante métodos basados en Fourier como el método COS.
+La ecuación \ref{eq:heston_edp} también admite una interpretación probabilística mediante Feynman--Kac, que expresa el precio como una esperanza descontada bajo la medida neutral al riesgo. Además, una de las principales ventajas del modelo de Heston es que pertenece a la clase de modelos afines. Esto permite obtener su función característica en forma semianalítica, lo que facilita la valoración eficiente de opciones europeas y la posterior calibración del modelo a superficies de volatilidad implícita, por ejemplo mediante métodos basados en Fourier como el método COS.
 
 \subsubsection*{Limitaciones del modelo de Heston}
 
-El modelo de Heston introduce una fuente estocástica para la varianza y, por tanto, permite generar sonrisas y \textit{skews} de volatilidad implícita que no pueden reproducirse en el modelo de Black--Scholes con volatilidad constante. Además, sus parámetros tienen una interpretación financiera clara: la correlación \(\rho_{S,v}\) influye principalmente en la inclinación del \textit{skew}, la volatilidad de la volatilidad \(\gamma\) afecta a la curvatura de la sonrisa, \(v_0\) determina el nivel inicial de varianza, \(\theta\) representa el nivel de largo plazo y \(\kappa\) controla la velocidad de reversión hacia dicho nivel.
+El modelo de Heston introduce una fuente estocástica para la varianza y, por tanto, permite generar sonrisas y skews de volatilidad implícita que no pueden reproducirse en el modelo de Black--Scholes con volatilidad constante. Además, sus parámetros tienen una interpretación financiera clara: la correlación \(\rho_{S,v}\) influye principalmente en la inclinación del skew, la volatilidad de la volatilidad \(\gamma\) afecta a la curvatura de la sonrisa, \(v_0\) determina el nivel inicial de varianza, \(\theta\) representa el nivel de largo plazo y \(\kappa\) controla la velocidad de reversión hacia dicho nivel.
 
 Sin embargo, aunque esta estructura proporciona una dinámica más rica que la de un modelo de volatilidad local puro, el modelo de Heston no garantiza por sí solo un ajuste exacto a toda la superficie de volatilidad implícita observada en mercado. En la práctica, la calibración se realiza escogiendo los parámetros
 \[
@@ -422,7 +422,7 @@ Por tanto, el modelo de Heston presenta una ventaja importante frente a la volat
 
 \section{Modelo de volatilidad local estocástica}
 
-Los modelos de volatilidad local estocástica, conocidos como modelos \textit{Stochastic Local Volatility} o SLV, combinan las ideas introducidas en las secciones anteriores. Por un lado, incorporan una componente local que permite ajustar la superficie de volatilidad implícita observada en mercado. Por otro lado, mantienen una componente estocástica para describir de forma más realista la evolución futura de la volatilidad.\medskip
+Los modelos de volatilidad local estocástica, conocidos como modelos \textit{Stochastic--Local Volatility} o SLV, combinan las ideas introducidas en las secciones anteriores. Por un lado, incorporan una componente local que permite ajustar la superficie de volatilidad implícita observada en mercado. Por otro lado, mantienen una componente estocástica para describir de forma más realista la evolución futura de la volatilidad.\medskip
 
 Esta combinación permite corregir algunas de las limitaciones de los modelos LV y SV considerados por separado, y resulta especialmente útil en productos sensibles a la dinámica futura de la sonrisa de volatilidad, como las opciones \textit{forward-start}. En esta sección se introduce la formulación general del modelo SLV y, posteriormente, su particularización al caso Heston--SLV.
 
@@ -442,11 +442,11 @@ dW^S(t)\,dW^v(t)=\rho_{S,v}\,dt.
 \end{cases}
 \end{equation}
 
-En esta formulación, \(S(t)\) representa el precio del activo subyacente y \(v(t)\) es el factor estocástico asociado a la volatilidad. La función \(\eta(S(t),t)\) representa la componente local del modelo, también denominada función de apalancamiento o \textit{leverage function}.\medskip
+En esta formulación, \(S(t)\) representa el precio del activo subyacente y \(v(t)\) es el factor estocástico asociado a la volatilidad. La función \(\eta(S(t),t)\) representa la componente local del modelo, también denominada función de apalancamiento (leverage function).\medskip
 
 Por otro lado, la función \(\xi(v(t))\) introduce la dependencia respecto del factor estocástico \(v(t)\), mientras que las funciones \(a_v\) y \(b_v\) determinan, respectivamente, la deriva y la difusión de dicho proceso. Finalmente, el parámetro \(\rho_{S,v}\in[-1,1]\) mide la correlación instantánea entre las dos fuentes de aleatoriedad.\medskip
 
-El modelo \eqref{eq:general_slv} contiene como casos particulares algunos de los modelos estudiados anteriormente. Si se toma \(\eta(S,t)=1\), se recupera un modelo puramente de volatilidad estocástica. En cambio, si la componente estocástica no introduce aleatoriedad adicional y se identifica el producto \(\eta(S,t)\xi(v(t))\) con la volatilidad local \(\sigma_{\mathrm{LV}}(S,t)\), se obtiene el modelo de volatilidad local.\medskip
+El modelo \ref{eq:general_slv} contiene como casos particulares algunos de los modelos estudiados anteriormente. Si se toma \(\eta(S,t)=1\), se recupera un modelo puramente de volatilidad estocástica. En cambio, si la componente estocástica no introduce aleatoriedad adicional y se identifica el producto \(\eta(S,t)\xi(v(t))\) con la volatilidad local \(\sigma_{\mathrm{LV}}(S,t)\), se obtiene el modelo de volatilidad local.\medskip
 
 Por tanto, el modelo SLV puede interpretarse como una extensión híbrida que combina la capacidad de ajuste de los modelos de volatilidad local con la dinámica de los modelos de volatilidad estocástica. En la siguiente subsección se estudia cómo se determina la componente local \(\eta\), que es el elemento que permite conectar ambas partes del modelo.
 
@@ -454,7 +454,7 @@ Por tanto, el modelo SLV puede interpretarse como una extensión híbrida que co
 
 El elemento que conecta la parte local y la parte estocástica del modelo SLV es la función \(\eta(S,t)\). Esta función se introduce para que el modelo reproduzca la superficie de volatilidad implícita observada en mercado, manteniendo al mismo tiempo una dinámica estocástica para la volatilidad.\medskip
 
-La determinación de la función \(\eta\) se basa en la relación de consistencia entre el modelo SLV y el modelo de volatilidad local asociado a la superficie de mercado. Esta relación, conocida habitualmente como condición de proyección o \textit{Markovian projection}, puede encontrarse en \cite[Sec.~10.2.1]{oosterlee2021modelos}. En particular, se impone que la varianza instantánea efectiva del modelo SLV, condicionada al nivel del subyacente, coincida con la varianza local obtenida mediante la fórmula de Dupire. Por tanto,
+La determinación de la función \(\eta\) se basa en la relación de consistencia entre el modelo SLV y el modelo de volatilidad local asociado a la superficie de mercado. Esta relación, conocida habitualmente como condición de proyección (Markovian projection), puede encontrarse en \cite[Sec.~10.2.1]{oosterlee2021modelos}. En particular, se impone que la varianza instantánea efectiva del modelo SLV, condicionada al nivel del subyacente, coincida con la varianza local obtenida mediante la fórmula de Dupire. Por tanto,
 \begin{equation}
 \label{eq:slv_projection}
 \sigma_{\mathrm{LV}}^2(K,t)
@@ -466,7 +466,7 @@ La determinación de la función \(\eta\) se basa en la relación de consistenci
 \right].
 \end{equation}
 
-A partir de \eqref{eq:slv_projection}, la componente local del modelo queda determinada por
+A partir de \ref{eq:slv_projection}, la componente local del modelo queda determinada por
 \begin{equation}
 \label{eq:eta_slv_general}
 \eta(K,t)
@@ -485,7 +485,7 @@ A partir de \eqref{eq:slv_projection}, la componente local del modelo queda dete
 
 En esta expresión, el numerador \(\sigma_{\mathrm{LV}}(K,t)\) es la función de volatilidad local introducida en la sección de volatilidad local. Por tanto, la componente local del modelo SLV hereda la información contenida en los precios de opciones vainilla observados inicialmente. \medskip
 
-El papel de la función \(\eta\) no es sustituir a \(\sigma_{\mathrm{LV}}\), sino adaptar la componente estocástica del modelo para que, al condicionar por el nivel del subyacente, la varianza efectiva del modelo SLV coincida con la varianza local. De esta forma, la relación \eqref{eq:slv_projection} permite combinar el ajuste inicial proporcionado por el modelo LV con la dinámica estocástica introducida por el proceso \(v(t)\).
+El papel de la función \(\eta\) no es sustituir a \(\sigma_{\mathrm{LV}}\), sino adaptar la componente estocástica del modelo para que, al condicionar por el nivel del subyacente, la varianza efectiva del modelo SLV coincida con la varianza local. De esta forma, la relación \ref{eq:slv_projection} permite combinar el ajuste inicial proporcionado por el modelo LV con la dinámica estocástica introducida por el proceso \(v(t)\).
 
 El denominador, en cambio, depende de la componente estocástica del modelo. Concretamente, recoge el valor esperado de \(\xi^2(v(t))\) condicionado a que el subyacente tome el valor \(K\) en el instante \(t\). Este término no se conoce, en general, de forma explícita, ya que depende de la distribución conjunta de \((S(t),v(t))\) bajo el propio modelo SLV. Por ello, debe aproximarse numéricamente.
 
@@ -494,7 +494,7 @@ Una forma habitual de estimar esta esperanza condicional es mediante un procedim
 \left(S_{j}(t_i),v_{j}(t_i)\right),
 \qquad j=1,\ldots,N.
 \]
-Las trayectorias se agrupan según el valor alcanzado por el subyacente \(S_j(t_i)\), dividiendo el rango de valores simulados en intervalos o \textit{bins}. Si \(I_k\) denota el \(k\)-ésimo bin y \(J_k=\{m:S_m(t_i)\in I_k\}\) es el conjunto de índices de las trayectorias que caen en dicho bin, entonces, para una trayectoria \(j\in J_k\), se aproxima
+Las trayectorias se agrupan según el valor alcanzado por el subyacente \(S_j(t_i)\), dividiendo el rango de valores simulados en intervalos o bins. Si \(I_k\) denota el \(k\)-ésimo bin y \(J_k=\{m:S_m(t_i)\in I_k\}\) es el conjunto de índices de las trayectorias que caen en dicho bin, entonces, para una trayectoria \(j\in J_k\), se aproxima
 \begin{equation}
 \label{eq:conditional_expectation_bins_general}
 \mathbb{E}^{\mathbb{Q}}
@@ -512,7 +512,7 @@ Así, para cada instante temporal y para cada nivel simulado del subyacente, la 
 
 \subsection{Modelo Heston--SLV}
 
-En este trabajo se considera una particularización del modelo SLV en la que la componente estocástica de la volatilidad viene dada por el modelo de Heston. Es decir, se toma como factor estocástico la varianza instantánea \(v(t)\), cuya dinámica sigue un proceso CIR. En la formulación general \eqref{eq:general_slv}, esto equivale a tomar
+En este trabajo se considera una particularización del modelo SLV en la que la componente estocástica de la volatilidad viene dada por el modelo de Heston. Es decir, se toma como factor estocástico la varianza instantánea \(v(t)\), cuya dinámica sigue un proceso CIR. En la formulación general \ref{eq:general_slv}, esto equivale a tomar
 \[
 \xi(v(t))=\sqrt{v(t)},
 \qquad
@@ -521,7 +521,7 @@ a_v(v(t),t)=\kappa(\theta-v(t)),
 b_v(v(t),t)=\gamma\sqrt{v(t)}.
 \]
 
-Sustituyendo estas expresiones en el modelo SLV general, se obtiene el modelo Heston--SLV bajo la medida neutral al riesgo \(\mathbb{Q}\):
+Sustituyendo estas expresiones en el modelo SLV general, se obtiene el modelo Heston--SLV bajo la medida neutral al riesgo \(\mathbb{Q}\),
 \begin{equation}
 \label{eq:heston_slv}
 \begin{cases}
@@ -535,7 +535,7 @@ dW^S(t)\,dW^v(t)=\rho_{S,v}\,dt.
 \end{cases}
 \end{equation}
 
-La primera ecuación describe la evolución del activo subyacente. La segunda ecuación coincide con la dinámica de la varianza en el modelo de Heston \eqref{eq:heston_sv}. El parámetro \(\kappa\) representa la velocidad de reversión a la media, \(\theta\) el nivel medio de largo plazo, \(\gamma\) la volatilidad de la volatilidad y \(\rho_{S,v}\) la correlación instantánea entre el movimiento del subyacente y el de la varianza.
+La primera ecuación describe la evolución del activo subyacente. La segunda ecuación coincide con la dinámica de la varianza en el modelo de Heston \ref{eq:heston_sv}. El parámetro \(\kappa\) representa la velocidad de reversión a la media, \(\theta\) el nivel medio de largo plazo, \(\gamma\) la volatilidad de la volatilidad y \(\rho_{S,v}\) la correlación instantánea entre el movimiento del subyacente y el de la varianza.
 
 En este caso, como \(\xi^2(v(t))=v(t)\), la relación general para la componente local se simplifica a
 \begin{equation}
@@ -558,7 +558,7 @@ Esta expresión muestra la estructura híbrida del modelo. El numerador \(\sigma
 
 Por tanto, el modelo Heston--SLV puede interpretarse como una corrección local del modelo de Heston. La componente estocástica proporciona una dinámica más realista para la evolución futura de la volatilidad, mientras que la función \(\eta\) ajusta dicha dinámica para que sea consistente con la superficie de volatilidad implícita observada inicialmente. A continuación, describimos cómo se simula numéricamente este modelo mediante Monte Carlo.
 
-\subsection*{Simulación Monte Carlo del modelo}
+\subsection{Simulación Monte Carlo del modelo}
 
 La simulación del modelo Heston--SLV se realiza mediante un método de Monte Carlo. Para ello, se considera una partición uniforme del intervalo temporal \([0,T]\),
 \[
@@ -683,7 +683,7 @@ r-\frac{1}{2}\eta^2(S_{i,j},t_j)v_{i,j}
 \end{equation}
 Esta forma mantiene la positividad del subyacente y resulta natural para una dinámica de tipo lognormal con coeficientes constantes en cada paso temporal.\medskip
 
-Además del esquema de Euler, se ha considerado también un esquema de tipo \textit{Almost Exact Simulation} (AES), siguiendo el enfoque descrito en \cite[Sec.~10.2.3]{oosterlee2021modelos}. Este tipo de métodos busca reducir el sesgo de discretización asociado a la simulación del modelo Heston--SLV, especialmente en la componente de varianza y en la estimación de la esperanza condicional que aparece en la función de apalancamiento. Los detalles concretos de la implementación numérica y de los esquemas considerados se discutirán posteriormente.\medskip
+Además del esquema de Euler, se ha considerado también un esquema de tipo Almost Exact Simulation (AES), siguiendo el enfoque descrito en \cite[Sec.~10.2.3]{oosterlee2021modelos}. Este tipo de métodos busca reducir el sesgo de discretización asociado a la simulación del modelo Heston--SLV, especialmente en la componente de varianza y en la estimación de la esperanza condicional que aparece en la función de apalancamiento. Los detalles concretos de la implementación numérica y de los esquemas considerados se discutirán posteriormente.\medskip
 
 
 Desde el punto de vista numérico, la simulación del proceso de varianza requiere cierto cuidado, ya que el proceso CIR debe permanecer no negativo. El tratamiento concreto utilizado para evitar valores negativos de la varianza se detallará posteriormente en la sección de implementación numérica.\medskip
