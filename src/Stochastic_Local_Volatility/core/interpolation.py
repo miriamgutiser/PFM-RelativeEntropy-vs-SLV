@@ -83,7 +83,7 @@ def ImpliedVolatility(CP,marketPrice,K,T,S_0,r):
     sigmaGrid = np.linspace(0,2,200)
     optPriceGrid = BS_Call_Put_Option_Price_tau(CP,S_0,K,sigmaGrid,T,r)
     sigmaInitial = np.interp(marketPrice,optPriceGrid,sigmaGrid)
-    print("Initial volatility = {0}".format(sigmaInitial))
+    print("Initial volatility = {0:.2f}".format(float(sigmaInitial)))
     
     # Use already determined input for the local-search (final tuning)
 
@@ -93,7 +93,7 @@ def ImpliedVolatility(CP,marketPrice,K,T,S_0,r):
     except RuntimeError:
         impliedVol = sigmaInitial
     
-    print("Final volatility = {0}".format(impliedVol))
+    print("Final volatility = {0:.2f}".format(float(impliedVol)))
     return float(impliedVol)
 
 

@@ -48,17 +48,22 @@ from Stochastic_Local_Volatility.Volatilidad_local_estocastica.slv_heston_mc imp
 )
 
 
-DISPLAY_DECIMALS = 7
+DISPLAY_DECIMALS = 2
 
-S0 = 100.0            # Spot inicial usado en la superficie/simulacion
-T1 = 0.5             # Fecha(s) de inicio del periodo forward
-T2 = 5             # Fecha(s) de vencimiento (T2 > T1)
-STRIKES = (70,110)   # Strikes en unidades de precio
+S0 = 100
+# T1 = (0.5,1.0,2.0,5.0)
+# T2 = (1.0,2.0,5.0,10.0)            # Fecha(s) de vencimiento (T2 > T1)
+# STRIKES = (70,90, 110)   # Strikes en unidades de precio
+T1 = (2.0,)
+T2 = (10,)
+STRIKES = (60.0, 70.0, 80.0, 90.0, 100.0, 110.0, 120.0, 130.0, 140.0)
+
+
 OPTION_TYPE = "call"           # "call" o "put"
 N_PATHS = 50_000
 STEPS_PER_YEAR = 50
 N_BINS = 20
-SCHEME = "AES"
+SCHEME = "Euler"
 SEED = 12345
 
 
@@ -227,7 +232,7 @@ def run_slv_forward_start(
         key_2 = round(float(T2), 12)
         if key_1 not in slv_result.snapshots or key_2 not in slv_result.snapshots:
             print(
-                f"Aviso: No hay snapshot para T1={T1} o T2={T2}. "
+                f"Aviso: No hay snapshot para T1={T1:.2f} o T2={T2:.2f}. "
                 "Se omite esta combinacion."
             )
             continue
@@ -261,7 +266,7 @@ def run_slv_forward_start(
 
 def _build_parser() -> argparse.ArgumentParser:
     available = ", ".join(
-        f"{label}={float(maturity):.6g}"
+        f"{label}={float(maturity):.2f}"
         for label, maturity in zip(MARKET_MATURITY_LABELS, MARKET_MATURITIES)
     )
     parser = argparse.ArgumentParser(
@@ -322,15 +327,15 @@ def _build_parser() -> argparse.ArgumentParser:
 def _print_results(df: pd.DataFrame, params: HestonParams | None = None) -> None:
     if params is not None:
         print("=== Parametros de la componente estocastica Heston usados en SLV ===")
-        print(f"  kappa = {params.kappa:.7f}")
-        print(f"  theta = {params.theta:.7f}")
-        print(f"  gamma = {params.gamma:.7f}")
-        print(f"  rho   = {params.rho:.7f}")
-        print(f"  v0    = {params.v0:.7f}")
+        print(f"  kappa = {params.kappa:.2f}")
+        print(f"  theta = {params.theta:.2f}")
+        print(f"  gamma = {params.gamma:.2f}")
+        print(f"  rho   = {params.rho:.2f}")
+        print(f"  v0    = {params.v0:.2f}")
         print()
 
     print(
-        f"{'Tipo':<6} {'S0':>10} {'T1':>10} {'T2':>10} "
+        f"{'Tipo':<6} {'T1':>10} {'T2':>10} "
         f"{'K':>12} "
         f"{'Precio SLV':>14}"
     )
@@ -345,8 +350,8 @@ def _print_results(df: pd.DataFrame, params: HestonParams | None = None) -> None
 
         tipo = str(row["option_type"]).upper()
         print(
-            f"{tipo:<6} {row['S0']:>10.4f} {row['T1']:>10.4f} {row['T2']:>10.4f} "
-            f"{row['strike']:>12.4f} "
+            f"{tipo:<6} {row['T1']:>10.2f} {row['T2']:>10.2f} "
+            f"{row['strike']:>12.2f} "
             f"{row['slv_price']:>14.{DISPLAY_DECIMALS}f}"
         )
 

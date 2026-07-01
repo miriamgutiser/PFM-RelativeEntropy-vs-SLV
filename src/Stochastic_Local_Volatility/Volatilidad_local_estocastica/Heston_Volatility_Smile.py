@@ -26,7 +26,7 @@ from Stochastic_Local_Volatility.Volatilidad_local_estocastica.market_surface im
 )
 
 
-DISPLAY_DECIMALS = 7
+DISPLAY_DECIMALS = 2
 
 
 @dataclass
@@ -132,8 +132,8 @@ def main() -> None:
     params = calibration.params
 
     print("Calibración Heston para smile")
-    print(f"kappa={params.kappa:.7f}, theta={params.theta:.7f}, gamma={params.gamma:.7f}, rho={params.rho:.7f}, v0={params.v0:.7f}")
-    print(f"objective={calibration.optimizer_result.fun:.7f}")
+    print(f"kappa={params.kappa:.2f}, theta={params.theta:.2f}, gamma={params.gamma:.2f}, rho={params.rho:.2f}, v0={params.v0:.2f}")
+    print(f"objective={calibration.optimizer_result.fun:.2f}")
 
     heston_iv_smile = heston_surface_iv(
         config.CP,

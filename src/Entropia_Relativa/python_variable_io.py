@@ -48,6 +48,8 @@ def export_python_variables_module(
     """
     Guarda variables en un archivo .py para poder importarlas despues.
     """
+    module_path.parent.mkdir(parents=True, exist_ok=True)
+    temp_path = module_path.with_name(f"{module_path.name}.tmp")
     lines = [
         "from __future__ import annotations",
         "",
@@ -59,7 +61,8 @@ def export_python_variables_module(
         lines.append(f"{name} = {_python_literal(value)}")
         lines.append("")
 
-    module_path.write_text("\n".join(lines), encoding="utf-8")
+    temp_path.write_text("\n".join(lines), encoding="utf-8")
+    temp_path.replace(module_path)
     return module_path
 
 

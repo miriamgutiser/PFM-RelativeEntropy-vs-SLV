@@ -42,7 +42,7 @@ from Stochastic_Local_Volatility.core.pricing_Black_Scholes import (
 )
 
 
-DISPLAY_DECIMALS = 7
+DISPLAY_DECIMALS = 2
 
 
 @dataclass(frozen=True)

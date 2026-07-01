@@ -11,7 +11,7 @@ def relative_entropy(p,q):
      
 p = (0.3, 0.3, 0.4)        
 q = (1/3, 1/3, 1/3) 
-print(relative_entropy(p, q))
+print(f"{relative_entropy(p, q):.2f}")
 
 
 

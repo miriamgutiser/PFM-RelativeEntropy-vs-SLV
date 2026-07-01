@@ -20,9 +20,10 @@ from Entropia_Relativa.python_variable_io import load_python_variables_module
 
 
 # Cambia estos valores si ejecutas el archivo por celdas.
-STRIKES = (70.0, 90.0, 110.0)
+# STRIKES = (70.0, 90.0, 110.0)
+STRIKES = (40, 60, 80, 100, 120, 140, 160)
 MATURITIES = (1.0 / 52.0, 1.0 / 12.0, 0.5, 1.0, 2.0, 5.0, 8.0, 10.0)
-OPTION_TYPE = "put"  # "call" o "put"
+OPTION_TYPE = "call"  # "call" o "put"
 DEFAULT_PRIOR_FILE = prior_filename
 DEFAULT_CALIBRATION_FILE = calibration_filename
 
@@ -117,7 +118,7 @@ def wmc_price(
 
 def _build_parser() -> argparse.ArgumentParser:
     available = ", ".join(
-        f"{label}={float(maturity):.6g}"
+        f"{label}={float(maturity):.2f}"
         for label, maturity in zip(MATURITY_LABELS, T)
     )
     parser = argparse.ArgumentParser(
@@ -171,8 +172,8 @@ def main() -> None:
             )
             tipo = "CALL" if args.option_type == OptionType.CALL else "PUT"
             print(
-                f"{tipo:<6} {float(strike):>8.1f} "
-                f"{float(maturity):>12.4f} {price:>14.7f}"
+                f"{tipo:<6} {float(strike):>8.2f} "
+                f"{float(maturity):>12.2f} {price:>14.2f}"
             )
 
 

@@ -15,11 +15,11 @@ import numpy as np
 from common.types import OptionType
 
 
-DISPLAY_DECIMALS = 7
+DISPLAY_DECIMALS = 2
 
 
 # Parametros globales editables del metodo
-n_paths = 50000
+n_paths = 20000
 sigma_prior = 0.50   # Respaldo por si falla la extracción de alguna volatilidad ATMF de los benchmarks. 
 #True: prior con curva de volatilidad por vencimiento, False: Prior GBM con volatilidad constante
 use_atmf_term_structure_prior = True
@@ -28,7 +28,7 @@ use_antithetic = True
 include_spot_column = True
 pricing_option_type = OptionType.CALL
 
-calibration_mode = "exact"  # weighted_least_squares o exact
+calibration_mode = "weighted_least_squares"  # weighted_least_squares o exact
 include_forward_constraints = True
 include_martingale_constraints = True
 wls_weight_options = 1e-7
@@ -99,6 +99,7 @@ K_OTM = np.array([100.0, 120.0, 140.0], dtype=float)
 K_ITM = np.array([40.0, 60.0, 80.0, 100.0], dtype=float)
 K_TOTAL = np.array([40.0, 60.0, 80.0, 100.0, 120.0, 140.0], dtype=float)
 
+
 # Filas: vencimientos en el orden de T.
 # Columnas: strikes en el orden de K.
 # Precios de mercado benchmark originales - ITM
@@ -121,23 +122,33 @@ TARGET_OPTION_PRICES_OTM = np.array([
     [2.3806541, 0.0001825, 0.0000000],  # 1y
     [3.7155644, 0.0172554, 0.0000102],  # 2y
     [6.3445809, 0.6680989, 0.0185347],  # 5y
-
     
 ])
 
 # Precios de mercado benchmark obtenidos con la simulación Heston-SLV
-precios_heston_cos = np.array([
-    [60.0000000, 40.0000000, 20.0000000, 1.1256347, 0.0000000, 0.0000000],  # 1w
-    [60.0000000, 40.0000000, 20.0000000, 2.2082912, 0.0001529, 0.0000000],  # 1m
-    [60.0000000, 40.0000000, 20.0014740, 4.3937251, 0.0084267, 0.0000000],  # 6m
-    [60.0000000, 40.0000000, 20.0216840, 5.2729253, 0.0285129, 0.0000000],  # 1y
-    [60.0000000, 40.0000327, 20.2271699, 6.3037571, 0.1896704, 0.0000000],  # 2y
-    [60.0000000, 40.0437075, 21.3880668, 8.2675430, 1.3064532, 0.0200497],  # 5y
-    [60.0048990, 40.2095667, 22.5095885, 9.8765899, 2.7403400, 0.3494998],  # 8y
-    [60.0103493, 40.3313238, 23.1250107, 10.8813794, 3.6825644, 0.7809219]  # 10y
+precios_slv_heston = np.array([
+    [60.0000000, 40.0000000, 20.0000000, 0.4191409, 0.0000000, 0.0000000],  # 1w
+    [60.0000000, 40.0000000, 20.0000000, 0.7797067, 0.0000000, 0.0000000],  # 1m
+    [60.0337026, 40.0646896, 20.1269522, 1.7919218, 0.0893402, 0.0835814],  # 6m
+    [60.0573948, 40.0918895, 20.1480862, 2.5512694, 0.0881962, 0.0867019],  # 1y
+    [60.0650344, 40.1109063, 20.2900735, 3.6398271, 0.0227346, 0.0010697],  # 2y
+    [60.1177145, 40.3071079, 21.1727439, 6.0637444, 0.6946861, 0.1448100],  # 5y
+    [60.1618292, 40.5268602, 22.0680717, 7.9898000, 1.8932022, 0.4748797],  # 8y
+    [60.1757180, 40.6457816, 22.5937671, 9.1466081, 2.7927337, 0.8372880]  # 10y
 ])
 
-TARGET_OPTION_PRICES = precios_heston_cos
+precios_black_scholes = np.array([
+    [60.000000,  40.000000,  20.000000,  0.276672,  0.000000e+00,  0.000000e+00],
+    [60.000000,  40.000000,  20.000000,  0.583880,  0.000000e+00,  0.000000e+00],
+    [60.000000,  40.000000,  20.000768,  1.555654,  1.000000e-07,  0.000000e+00],
+    [60.000001,  40.000128,  20.019855,  2.409644,  6.070000e-04,  1.000000e-07],
+    [60.000649,  40.010854,  20.190072,  3.494601,  3.396250e-02,  4.301000e-04],
+    [60.045907,  40.224618,  21.119243,  5.916966,  7.003463e-01,  1.022162e-01],
+    [60.112498,  40.484168,  22.014632,  7.902615,  1.916710e+00,  5.036228e-01],
+    [60.124103,  40.591334,  22.529451,  9.090017,  2.825371e+00,  8.914006e-01]
+])
+
+TARGET_OPTION_PRICES = precios_slv_heston
 K = K_TOTAL
 MATURITY_LABELS = MATURITY_LABELS_TOTAL
 T = T_TOTAL
@@ -188,14 +199,14 @@ def format_benchmark_summary() -> str:
     lines = [
         "=== Benchmarks cargados ===",
         f"Tipo opcion: {'CALL' if CP == OptionType.CALL else 'PUT'}",
-        f"Spot S0: {S0:.4f}",
+        f"Spot S0: {S0:.2f}",
         f"Numero de vencimientos: {len(T)}",
         f"Numero de strikes: {len(K)}",
         f"Total opciones benchmark: {len(BENCHMARK_OPTIONS)}",
         f"Vencimientos: {MATURITY_LABELS}",
-        f"Strikes: {K.tolist()}",
+        f"Strikes: [{', '.join(f'{strike:.2f}' for strike in K)}]",
         f"Numero de trayectorias: {n_paths}",
-        f"Sigma prior fallback: {sigma_prior:.4f}",
+        f"Sigma prior fallback: {sigma_prior:.2f}",
         f"Semilla: {seed}",
         f"Prior ATMF por vencimiento: {use_atmf_term_structure_prior}",
         "Calibracion paper:",
@@ -284,7 +295,7 @@ def _export_prior_results(
     print("=== Simulacion prior ===")
     print(
         f"Trayectorias = {pipeline_config.n_paths}, "
-        f"sigma = {pipeline_config.sigma:.4f}, seed = {pipeline_config.seed}"
+        f"sigma = {pipeline_config.sigma:.2f}, seed = {pipeline_config.seed}"
     )
     print(f"Prior guardado en {export_path.name}")
     print(f"MAE prior en benchmarks = {mae:.{DISPLAY_DECIMALS}f}")
@@ -383,8 +394,8 @@ def _export_calibration_results(
         f"martingala = {calibration_result.n_martingale_constraints}"
     )
     print(
-        f"Max abs total = {calibration_result.max_abs_error_total:.2e}, "
-        f"grad = {calibration_result.norma_gradiente:.2e}, "
+        f"Max abs total = {calibration_result.max_abs_error_total:.2f}, "
+        f"grad = {calibration_result.norma_gradiente:.2f}, "
         f"iteraciones = {calibration_result.iteraciones}"
     )
     print(f"Calibracion guardada en {export_path.name}")
@@ -496,13 +507,13 @@ def _run_pricing(
 
     print("=== Pricing ===")
     print(f"Trayectorias cargadas: {path_matrix.shape[0]}")
-    print(f"Suma pesos calibrados: {np.sum(pesos_posteriores):.10f}")
-    print(f"Suma pesos previos:    {np.sum(pesos_prior):.10f}")
+    print(f"Suma pesos calibrados: {np.sum(pesos_posteriores):.2f}")
+    print(f"Suma pesos previos:    {np.sum(pesos_prior):.2f}")
     print(_format_calibration_summary(calibration_metadata))
     print()
     print(_format_pricing_table(results, benchmark_prices_market))
     print()
-    print(f"Max |error| WMC vs Market (benchmarks) = {max_error:.2e}")
+    print(f"Max |error| WMC vs Market (benchmarks) = {max_error:.2f}")
 
 
 def run_full_pipeline(

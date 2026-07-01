@@ -1,7 +1,7 @@
 #%%
 # Weighted Monte Carlo: precios de opciones forward-start con pesos posteriores.
 #
-# El usuario introduce datos de contrato en unidades monetarias:
+# El usuario introduce datos de contrato:
 #   - S0: spot actual del activo
 #   - K: precio de ejercicio actual/equivalente del contrato
 #
@@ -33,15 +33,16 @@ from Entropia_Relativa.data_loader import (
 from Entropia_Relativa.python_variable_io import load_python_variables_module
 
 
-DISPLAY_DECIMALS = 7
+DISPLAY_DECIMALS = 2
 DEFAULT_PRIOR_FILE = prior_filename
 DEFAULT_CALIBRATION_FILE = calibration_filename
 
 # Valores editables si ejecutas el archivo por celdas.
 S0 = 100
-T1 = 0.0
-T2 = 10
-STRIKES = (70.0, 100.0, 120.0)
+T1 = (2.0,)
+T2 = (10,)
+STRIKES = (60.0, 70.0, 80.0, 90.0, 100.0, 110.0, 120.0, 130.0, 140.0)
+
 OPTION_TYPE = "call"
 
 
@@ -148,7 +149,7 @@ def _resolve_pricing_s0(path_matrix: np.ndarray, times: np.ndarray, requested_s0
     if not np.isclose(pricing_s0, path_s0, rtol=1e-6, atol=1e-8):
         raise ValueError(
             f"S0={pricing_s0} no coincide con el spot inicial de las "
-            f"trayectorias cargadas ({path_s0:.10f}). Regenera las trayectorias "
+            f"trayectorias cargadas ({path_s0:.2f}). Regenera las trayectorias "
             "con ese S0 antes de usarlo para pricing."
         )
     return pricing_s0
@@ -228,7 +229,7 @@ def wmc_forward_start_price(
 
 def _build_parser() -> argparse.ArgumentParser:
     available = ", ".join(
-        f"{label}={float(maturity):.6g}"
+        f"{label}={float(maturity):.2f}"
         for label, maturity in zip(MATURITY_LABELS, T)
     )
     parser = argparse.ArgumentParser(
@@ -290,7 +291,7 @@ def _format_results_table(results: list[dict]) -> str:
     """
     lines: list[str] = []
     header = (
-        f"{'Tipo':<6} {'S0':>10} {'T1':>10} {'T2':>10} "
+        f"{'Tipo':<6} {'T1':>10} {'T2':>10} "
         f"{'K':>12} {'Precio WMC':>14}"
     )
     lines.append(header)
@@ -305,8 +306,8 @@ def _format_results_table(results: list[dict]) -> str:
 
         tipo = "CALL" if row["option_type"] == OptionType.CALL else "PUT"
         lines.append(
-            f"{tipo:<6} {row['S0']:>10.4f} {row['T1']:>10.4f} {row['T2']:>10.4f} "
-            f"{row['strike']:>12.4f} "
+            f"{tipo:<6} {row['T1']:>10.2f} {row['T2']:>10.2f} "
+            f"{row['strike']:>12.2f} "
             f"{row['price']:>14.{DISPLAY_DECIMALS}f}"
         )
 
@@ -335,17 +336,17 @@ def main() -> None:
 
     n_paths = path_matrix.shape[0]
     print(f"Trayectorias: {n_paths}")
-    print(f"Suma pesos calibrados: {np.sum(weights):.10f}")
+    print(f"Suma pesos calibrados: {np.sum(weights):.2f}")
     print(f"Modo pesos: {weights_mode}")
-    print(f"S0 pricing: {pricing_s0:.4f}")
-    print(f"Tiempos en la malla: {times.tolist()}")
+    print(f"S0 pricing: {pricing_s0:.2f}")
+    print(f"Tiempos en la malla: [{', '.join(f'{time:.2f}' for time in times)}]")
     print()
 
     results: list[dict] = []
     for T1_value in T1_list:
         for T2_value in T2_list:
             if T2_value <= T1_value:
-                print(f"Aviso: T2={T2_value} <= T1={T1_value}. Se omite esta combinacion.")
+                print(f"Aviso: T2={T2_value:.2f} <= T1={T1_value:.2f}. Se omite esta combinacion.")
                 continue
             for strike in strikes:
                 price = wmc_forward_start_price(

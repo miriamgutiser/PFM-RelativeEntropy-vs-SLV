@@ -31,7 +31,7 @@ from Entropia_Relativa.gbm_prior_paths import pathwise_discounted_payoff
 from Entropia_Relativa.python_variable_io import load_python_variables_module
 
 
-DISPLAY_DECIMALS = 7
+DISPLAY_DECIMALS = 2
 
 
 @dataclass(frozen=True)
@@ -213,7 +213,7 @@ def price_options_grid(
 def _format_optional_float(value: float | None) -> str:
     if value is None:
         return "n/d"
-    return f"{value:.2e}"
+    return f"{value:.2f}"
 
 
 def _format_optional_int(value: int | None) -> str:
@@ -273,7 +273,7 @@ def _format_pricing_table(
         tipo = "CALL" if res.CP == OptionType.CALL else "PUT"
 
         line = (
-            f"{tipo:<6} {res.strike:>8.1f} {res.maturity:>12.4f} "
+            f"{tipo:<6} {res.strike:>8.2f} {res.maturity:>12.2f} "
             f"{res.price_wmc:>14.{DISPLAY_DECIMALS}f} {res.price_mc:>14.{DISPLAY_DECIMALS}f} "
         )
         if show_market:
@@ -282,7 +282,7 @@ def _format_pricing_table(
             )
             if market_price is not None:
                 diff_mkt = abs(res.price_wmc - market_price)
-                line += f"{market_price:>14.{DISPLAY_DECIMALS}f} {diff_mkt:>12.2e} "
+                line += f"{market_price:>14.{DISPLAY_DECIMALS}f} {diff_mkt:>12.{DISPLAY_DECIMALS}f} "
             else:
                 line += f"{'---':>14} {'---':>12} "
         line += f"{diff_mc:>12.{DISPLAY_DECIMALS}f}"
@@ -315,8 +315,8 @@ def main() -> None:
 
     n_paths = path_matrix.shape[0]
     print(f"Trayectorias cargadas: {n_paths}")
-    print(f"Suma pesos calibrados: {np.sum(pesos_posteriores):.10f}")
-    print(f"Suma pesos previos:    {np.sum(pesos_prior):.10f}")
+    print(f"Suma pesos calibrados: {np.sum(pesos_posteriores):.2f}")
+    print(f"Suma pesos previos:    {np.sum(pesos_prior):.2f}")
     print(_format_calibration_summary(calibration_metadata))
     if (
         calibration_metadata.n_martingale_constraints is not None
@@ -358,7 +358,7 @@ def main() -> None:
             if market_price is not None:
                 error = abs(res.price_wmc - market_price)
                 max_error = max(max_error, error)
-        print(f"\nMax |error| WMC vs Market (benchmarks)    = {max_error:.2e}")
+        print(f"\nMax |error| WMC vs Market (benchmarks)    = {max_error:.2f}")
 
 
 if __name__ == "__main__":

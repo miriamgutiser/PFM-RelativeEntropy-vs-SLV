@@ -42,7 +42,7 @@ from Entropia_Relativa.python_variable_io import (
 )
 
 
-DISPLAY_DECIMALS = 7
+DISPLAY_DECIMALS = 2
 CALIBRATION_MODE_EXACT = "exact"
 CALIBRATION_MODE_WLS = "weighted_least_squares"
 CONSTRAINT_KIND_OPTION = "option"
@@ -121,6 +121,9 @@ class RelativeEntropyCalibrationConfig:
     factor_reduccion_alpha: float = 5.0
     limite_factor_condicion: float = 10.0
     max_ajustes_alpha: int = 10
+    filter_itm_option_constraints_in_exact: bool = True
+    exact_min_option_moneyness: float = 1.0
+    exact_newton_eigenvalue_tolerance: float = 1e-10
 
 
 @dataclass(frozen=True)
@@ -229,8 +232,16 @@ def _build_option_constraints(
 ) -> list[CalibrationConstraint]:
     option_prices = precios_benchmark_market()
     constraints: list[CalibrationConstraint] = []
+    exact_filter_threshold = float(config.exact_min_option_moneyness * S0)
 
     for index, benchmark in enumerate(BENCHMARK_OPTIONS):
+        if (
+            config.calibration_mode == CALIBRATION_MODE_EXACT
+            and config.filter_itm_option_constraints_in_exact
+            and float(benchmark.strike) < exact_filter_threshold
+        ):
+            continue
+
         payoffs = np.asarray(
             prior_data.discounted_payoff_matrix[:, index],
             dtype=float,
@@ -617,6 +628,45 @@ def resolver_paso_newton(
     )[0]
 
 
+def resolver_paso_newton_exacto(
+    jacobiano: np.ndarray,
+    gradiente: np.ndarray,
+    eigenvalue_tolerance: float,
+) -> np.ndarray:
+    """
+    Resuelve el paso exacto con una pseudo-inversa espectral.
+
+    En modo exacto no existe la diagonal WLS que regulariza el Jacobiano. Las
+    opciones ITM y las restricciones de forward pueden dejar covarianzas casi
+    singulares, por lo que se proyecta el paso sobre los autovalores positivos.
+    """
+    matriz = np.asarray(jacobiano, dtype=float)
+    matriz = 0.5 * (matriz + matriz.T)
+    gradiente_array = np.asarray(gradiente, dtype=float)
+
+    try:
+        autovalores, autovectores = np.linalg.eigh(matriz)
+    except np.linalg.LinAlgError:
+        return np.asarray(gradiente_array, dtype=float)
+
+    max_autovalor = max(float(np.max(autovalores)), 0.0)
+    tolerancia = max(1e-12, float(eigenvalue_tolerance) * max_autovalor)
+    mascara = autovalores > tolerancia
+
+    if np.any(mascara):
+        base = autovectores[:, mascara]
+        paso = base @ ((base.T @ gradiente_array) / autovalores[mascara])
+    else:
+        paso = gradiente_array.copy()
+
+    if not np.all(np.isfinite(paso)):
+        paso = gradiente_array.copy()
+    if producto_escalar(gradiente_array, paso) <= 0.0:
+        paso = gradiente_array.copy()
+
+    return np.asarray(paso, dtype=float)
+
+
 def norma_infinito(vector: np.ndarray) -> float:
     """
     Devuelve la norma infinito de un vector.
@@ -747,7 +797,17 @@ def calibrate_relative_entropy_weights(
             optimizador_exito = True
             break
 
-        paso_newton = resolver_paso_newton(jacobiano=jacobiano, gradiente=gradiente)
+        if usa_wls:
+            paso_newton = resolver_paso_newton(
+                jacobiano=jacobiano,
+                gradiente=gradiente,
+            )
+        else:
+            paso_newton = resolver_paso_newton_exacto(
+                jacobiano=jacobiano,
+                gradiente=gradiente,
+                eigenvalue_tolerance=config.exact_newton_eigenvalue_tolerance,
+            )
         condicion_actual = float(np.linalg.cond(jacobiano))
         valor_objetivo_actual = objetivo_dual(
             lambdas=lambdas,

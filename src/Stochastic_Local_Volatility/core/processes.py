@@ -72,7 +72,7 @@ def FellerCondition(kappa,v_bar,gamma):
         float: Valor de q_F.
     """
     q_F = 2.0*kappa*v_bar/np.power(gamma,2.0)-1.0
-    print("Feller condition, q_F is equal to %.2f" %q_F)
+    print("Feller condition, q_F is equal to %.2f" % q_F)
     return q_F
         
 # PDF and CDF for CIR process

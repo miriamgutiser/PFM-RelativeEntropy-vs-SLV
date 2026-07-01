@@ -290,7 +290,7 @@ def main() -> None:
         seed=12345,
     )
     result = simulate_heston_slv(config=config, heston_params=params)
-    print(result.prices.to_string(index=False))
+    print(result.prices.to_string(index=False, float_format=lambda value: f"{value:.2f}"))
 
 
 if __name__ == "__main__":

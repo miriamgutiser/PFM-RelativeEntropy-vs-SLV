@@ -74,7 +74,7 @@ def mainCalculation():
         if time[i]==0.0:
             time[i]=0.0001
         
-        print('current time is {0}'.format(time[i]))
+        print("current time is {0:.2f}".format(float(time[i, 0])))
 
         # Standarize Normal(0,1)
 

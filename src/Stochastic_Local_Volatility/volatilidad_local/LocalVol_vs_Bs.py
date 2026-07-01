@@ -153,7 +153,7 @@ def simulate_local_volatility_paths(s0, T, r, sigmalv2, n_paths=25_000, n_steps=
 
     for i in range(n_steps):
         current_time = max(times[i], 0.0001)
-        print(f"current time is {current_time:3.3f}")
+        print(f"current time is {current_time:.2f}")
 
         z = rng.standard_normal(n_paths)
         z = (z - np.mean(z)) / np.std(z)

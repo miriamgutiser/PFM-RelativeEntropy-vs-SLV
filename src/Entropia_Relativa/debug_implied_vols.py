@@ -29,13 +29,13 @@ def main():
     for t, tv in zip(benchmark_times, total_variances):
         implied_vol = np.sqrt(tv / t) if t > 0 else 0.0
         print(
-            f"  T={t:8.6f} (años)  ->  "
-            f"Varianza Total={tv:.8f}  ->  Volatilidad={implied_vol:.8f}"
+            f"  T={t:8.2f} (años)  ->  "
+            f"Varianza Total={tv:.2f}  ->  Volatilidad={implied_vol:.2f}"
         )
     
     print()
     print("=" * 80)
-    print(f"Volatilidad fallback (sigma_prior): {sigma_prior:.8f}")
+    print(f"Volatilidad fallback (sigma_prior): {sigma_prior:.2f}")
     print("=" * 80)
 
     implied_vols = np.sqrt(total_variances / benchmark_times)

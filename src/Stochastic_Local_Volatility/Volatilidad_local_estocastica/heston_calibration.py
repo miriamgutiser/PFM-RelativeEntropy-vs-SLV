@@ -328,13 +328,13 @@ def main() -> None:
     print("Calibración Heston")
     print(f"option_type = {option_type_label(config.option_type)}")
     print(f"target      = {config.calibration_target}")
-    print(f"kappa       = {params.kappa:.7f}")
-    print(f"theta       = {params.theta:.7f}")
-    print(f"gamma       = {params.gamma:.7f}")
-    print(f"rho         = {params.rho:.7f}")
-    print(f"v0          = {params.v0:.7f}")
-    print(f"objective   = {result.optimizer_result.fun:.7f}")
-    print(f"feller      = {params.feller_value:.7f}")
+    print(f"kappa       = {params.kappa:.2f}")
+    print(f"theta       = {params.theta:.2f}")
+    print(f"gamma       = {params.gamma:.2f}")
+    print(f"rho         = {params.rho:.2f}")
+    print(f"v0          = {params.v0:.2f}")
+    print(f"objective   = {result.optimizer_result.fun:.2f}")
+    print(f"feller      = {params.feller_value:.2f}")
 
 
 if __name__ == "__main__":

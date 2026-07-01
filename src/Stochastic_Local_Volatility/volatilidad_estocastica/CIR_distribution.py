@@ -64,7 +64,7 @@ def Analysis():
     v_bar = 0.04
     gamma = 0.2
     q_F_satisfied = FellerCondition(kappa,v_bar,gamma)
-    print(q_F_satisfied)
+    print(f"{q_F_satisfied:.2f}")
     output_case_satisfied = CIR_PDF_CDF(x,gamma,kappa,t,s,v_bar,v_s)
     
     # Feller condition not satisfied
@@ -79,9 +79,9 @@ def Analysis():
 
     plt.figure(1)
     plt.plot(x, output_case_satisfied["pdf"],
-         label=f"Feller satisfecha (q_F = {q_F_satisfied:.4f})")
+         label=f"Feller satisfecha (q_F = {q_F_satisfied:.2f})")
     plt.plot(x, output_case_not_satisfied["pdf"], linestyle="--",
-         label=f"Feller no satisfecha (q_F = {q_F_not_satisfied:.4f})")
+         label=f"Feller no satisfecha (q_F = {q_F_not_satisfied:.2f})")
     plt.grid()
     plt.xlabel("x")
     plt.ylabel("f(x)")
@@ -90,9 +90,9 @@ def Analysis():
 
     plt.figure(2)
     plt.plot(x, output_case_satisfied["cdf"],
-         label=f"Feller satisfecha (q_F = {q_F_satisfied:.4f})")
+         label=f"Feller satisfecha (q_F = {q_F_satisfied:.2f})")
     plt.plot(x, output_case_not_satisfied["cdf"], linestyle="--",
-         label=f"Feller no satisfecha (q_F = {q_F_not_satisfied:.4f})")
+         label=f"Feller no satisfecha (q_F = {q_F_not_satisfied:.2f})")
     plt.grid()
     plt.xlabel("x")
     plt.ylabel("F(x)")

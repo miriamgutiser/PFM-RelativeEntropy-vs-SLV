@@ -107,7 +107,7 @@ def build_convergence_table(config: ConvergenceConfig = ConvergenceConfig()) -> 
 def main() -> None:
     table = build_convergence_table()
     table = table.drop(columns=["steps_per_year"])
-    print(table.to_string(index=False))
+    print(table.to_string(index=False, float_format=lambda value: f"{value:.2f}"))
 
 
 if __name__ == "__main__":

@@ -249,7 +249,7 @@ def compare_forward_smiles(
 def main() -> None:
     config = ForwardSmileConfig()
     comparison = compare_forward_smiles(config)
-    print(comparison.to_string(index=False))
+    print(comparison.to_string(index=False, float_format=lambda value: f"{value:.2f}"))
     plot_path = Path(__file__).resolve().with_name(config.plot_filename) if config.export_plot else None
     plot_forward_smile(comparison, output_path=plot_path)
     if config.show_plot:
