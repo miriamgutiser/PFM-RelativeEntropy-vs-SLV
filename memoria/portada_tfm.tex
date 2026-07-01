@@ -146,6 +146,21 @@ Curso -- 2025-26
 
 \enlargethispage{5cm} {\pagestyle{empty}\cleardoublepage }}
 
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+%                               Agradecimientos                         %
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+
+
+\newcommand{\agradecimientos}[1]{
+
+\vspace*{3cm}
+\noindent {\LARGE\bfseries Agradecimientos}\par
+\vspace*{2cm}
+
+\input{#1}
+
+\cleardoublepage }
+
 
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 %                               Resumen                                 %
@@ -196,13 +211,19 @@ Curso -- 2025-26
 
 
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+%                             Agradecimientos                          %
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+\addcontentsline{toc}{chapter}{Agradecimientos}
+\markboth{Agradecimientos}{ }
+\agradecimientos{agradecimientos.tex}
+
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 %                             Resumen                                   %
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 \addcontentsline{toc}{chapter}{Resumen}
 \markboth{Resumen}{ }
 \resumen{resumen.tex}
 % El argumento debe incluir la ruta del .tex del resumen
-
 
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 %                       Cuerpo del documento                            %

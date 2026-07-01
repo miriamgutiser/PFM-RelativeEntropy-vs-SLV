@@ -1,8 +1,0 @@
-\chapter{Notas}
-
-
-Como se vio en el capítulo de conceptos preliminares, en mercados incompletos la medida martingala equivalente no tiene por qué ser única. En este contexto, la valoración de derivados no replicables puede interpretarse como un problema de selección de medida. La metodología de Entropía Relativa Mínima, conocida como \textit{Minimum Relative Entropy} (MRE), proporciona un criterio para escoger, entre las medidas compatibles con cierta información de mercado, aquella que se mantiene más próxima a una medida previa.\medskip
-
-La idea del método es partir de una medida inicial, asociada a un modelo o \textit{prior}, y construir una nueva medida que reproduzca determinadas restricciones de calibración, alejándose lo mínimo posible de la distribución original. En la práctica, este enfoque se implementa mediante \textit{Weighted Monte Carlo} (WMC), donde no se modifican las trayectorias simuladas, sino las probabilidades asignadas a cada una de ellas.\medskip
-
-En este capítulo se presenta la formulación matemática del problema de Entropía Relativa Mínima, su aplicación en el contexto Monte Carlo y las formulaciones de calibración utilizadas. Finalmente, se explica cómo emplear la medida posterior obtenida para valorar nuevos derivados.
