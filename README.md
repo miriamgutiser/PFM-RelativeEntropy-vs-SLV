@@ -1,4 +1,4 @@
-# PFM-RelativeEntropy vs SLV
+# PFM - Entropía Relativa versus Volatilidad Local Estocástica
 
 Este repositorio contiene el trabajo de mi proyecto fin de master en Finanzas, realizado en colaboración con el banco Santander.
 
@@ -8,10 +8,10 @@ y modelos de Volatilidad Local Estocástica aplicados a la modelización y valor
 ## Estructura del repositorio
 
 - `docs/`: documentación del proyecto y artículos científicos de referencia.
-- `src/`: código fuente 
-- `data/`: conjuntos de datos utilizados en el trabajo
+- `src/`: código fuente (python)
 - `results/`: resultados numéricos, gráficos y tablas
-- `meetings/`: actas y notas de reuniones de seguimiento
+- `memoria/`: Proyecto latex junto con la memoria final
+
 
 ## Instalación
 
