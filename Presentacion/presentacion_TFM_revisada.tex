@@ -1,0 +1,943 @@
+\documentclass[8pt]{beamer}
+\usetheme{Madrid}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish, es-tabla]{babel}
+\usepackage{amsmath,amsfonts,amssymb,amsthm}
+\usepackage{mathrsfs}
+\usepackage{color}
+\usepackage{xcolor, colortbl}
+\usepackage{array, multirow, multicol}
+\usepackage{graphicx}
+\usepackage{epstopdf}
+\usepackage{comment}
+\usepackage{csquotes}
+\usepackage{makecell}
+\usepackage{booktabs}
+
+% Formato de bloques: mantiene el estilo Madrid, pero resalta mejor definiciones/resultados
+\setbeamertemplate{blocks}[rounded][shadow=true]
+
+% Bibliografía
+\usepackage[backend=biber,style=authoryear]{biblatex}
+\addbibresource{referencias_presentacion.bib}
+
+% Separador de secciones automático
+\AtBeginSection[]
+{
+\begin{frame}
+\begin{Large}
+\tableofcontents[sectionstyle=shaded,currentsection=show]
+\end{Large}
+\end{frame}
+}
+
+% Información de la presentación
+\title[Entropía Relativa versus SLV]{Entropía Relativa versus Volatilidad Local Estocástica:\newline[0.2cm]
+{\large Comparación de las dos estrategias dinámicas de cobertura}}
+\author[Miriam Gutiérrez Serrano]{{\bf Autora:} Miriam Gutiérrez Serrano\newline
+{\bf Tutor académico:} Carlos Vázquez Cendón (UDC)\newline
+{\bf Tutor empresa:} Daniel Arrieta Rodríguez y Cristina Arribas Francisco\newline
+\vspace{0.5cm} {\bf PFM Máster en Matemática Industrial}}
+
+\date{Julio 2026}
+
+%%%%%% INICIO PRESENTACIÓN %%%%%%%%%%%%
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%           PORTADA
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[plain]
+\vspace*{-0.3cm}
+\begin{center}
+\begin{minipage}{3cm}
+    \includegraphics[width=2.8cm]{../memoria/logo_m2i}
+\end{minipage}
+\end{center}
+
+\vspace{-0.1cm}
+\begin{center}
+\begin{minipage}{1.3cm}
+    \includegraphics[width=1.1cm]{../memoria/logo_ux}
+\end{minipage}\hspace{0.1cm}
+\begin{minipage}{2.2cm}
+    \includegraphics[width=2.2cm]{../memoria/logo_udc}
+\end{minipage}\hspace{0.1cm}
+\begin{minipage}{2cm}
+    \includegraphics[width=2cm]{../memoria/logo_uvigo}
+\end{minipage}\hspace{0.1cm}
+\begin{minipage}{2.4cm}
+    \includegraphics[width=2.4cm]{../memoria/logo_UC3M}
+\end{minipage}\hspace{0.1cm}
+\begin{minipage}{1.3cm}
+    \includegraphics[width=1.3cm]{../memoria/logo_UPM}
+\end{minipage}
+\end{center}
+
+\vspace{0.2cm}
+\begin{center}
+{\small\bf PFM Máster en Matemática Industrial}\\[0.3cm]
+{\large\bf Entropía Relativa versus Volatilidad Local Estocástica:}\\[0.1cm]
+{\normalsize\bf Comparación de las dos estrategias dinámicas de cobertura}\\[0.4cm]
+{\small Miriam Gutiérrez Serrano}\\[0.15cm]
+{\scriptsize Tutor académico: Carlos Vázquez Cendón (UDC)\\
+Tutor empresa: Daniel Arrieta Rodríguez y Cristina Arribas Francisco}\\[0.15cm]
+{\scriptsize \includegraphics[width=3cm]{../memoria/Banco_Santander_Logotipo}}
+\end{center}
+\end{frame}
+
+%%%%%%%%% INTRODUCCIÓN %%%%%%%%%%%
+\begin{Large}
+\begin{frame}{\bf {\LARGE {Introducción}}}
+\begin{itemize}
+    \item Valoración de productos derivados financieros.
+    \pause
+    \item {\bf Modelo de Black--Scholes} (1973): punto de partida clásico.
+    \pause
+    \item {\bf Black Monday} (1987): evidencia de colas más pesadas y smiles de volatilidad.
+    \pause
+    \item Necesidad de modelos más flexibles:
+    \vspace{0.2cm}
+    \begin{itemize}
+        \item {\large \bf Volatilidad Local Estocástica (SLV)}
+        \item {\large \bf Entropía Relativa Mínima (MRE)}
+    \end{itemize}
+\end{itemize}
+\end{frame}
+\end{Large}
+
+\begin{frame}{Índice}
+    \begin{Large}
+\tableofcontents
+\end{Large}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% SECCIÓN 1: CONCEPTOS PRELIMINARES Y BLACK--SCHOLES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conceptos preliminares y Black--Scholes}
+
+% Slide: Martingala y valoración neutral al riesgo
+\begin{frame}{Marco de valoración neutral al riesgo}
+    Consideramos un espacio de probabilidad filtrado
+    \[
+    (\Omega , \mathcal{F},\{\mathcal{F}_t\}_{t\geq 0}, \mathbb{P}).
+    \]
+    \pause
+    \begin{block}{Definición (Martingala)}
+    Un proceso estocástico $\{X(t)\}_{t \geq 0}$ es martingala respecto de $\{\mathcal F_t\}_{t\geq 0}$ y de $\mathbb P$ si es adaptado, integrable y verifica
+    \[
+        \mathbb{E}^{\mathbb{P}}[X(T) \mid \mathcal{F}_t] = X(t), \qquad t \leq T. 
+    \]
+    \end{block}
+    \pause
+
+    \begin{block}{Primer Teorema Fundamental de Valoración Financiera}
+Un mercado financiero está libre de arbitraje si y solo si existe una medida de probabilidad $\mathbb Q$, equivalente a $\mathbb P$, bajo la cual los precios descontados son martingalas:
+    \[
+        \frac{S^{(m)}(t)}{N(t)} = \mathbb{E}^{\mathbb Q}\left[ \frac{S^{(m)}(T)}{N(T)} \mid \mathcal{F}_t \right].
+    \]
+\end{block}
+\end{frame}
+
+% Slide: Completitud y cambio de medida
+\begin{frame}{Completitud, cambio de medida y motivación de MRE}
+\begin{block}{Segundo Teorema Fundamental de Valoración Financiera}
+Si el mercado está libre de arbitraje, entonces el mercado es completo si y solo si existe una única medida martingala equivalente.
+\end{block}
+\pause
+
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\textbf{Mercado completo}
+
+\begin{itemize}
+    \item Medida de valoración única.
+    \item Precio determinado por ausencia de arbitraje.
+\end{itemize}
+
+\end{column}
+\begin{column}{0.48\textwidth}
+\textbf{Mercado incompleto}
+
+\begin{itemize}
+    \item Varias medidas compatibles.
+    \item Hace falta un criterio de selección.
+\end{itemize}
+
+\end{column}
+\end{columns}
+\pause
+
+\begin{block}{Idea de cambio de medida}
+Permite pasar de la medida real $\mathbb P$ a una medida de valoración $\mathbb Q$. En procesos continuos, este cambio modifica la deriva del proceso.
+\end{block}
+\pause
+
+\begin{center}
+\textbf{Conexión con el trabajo:} MRE seleccionará una medida posterior cercana a una medida previa, pero compatible con restricciones de mercado.
+\end{center}
+\end{frame}
+
+% Slide: Modelo de Black--Scholes
+\begin{frame}{Black--Scholes: punto de partida y limitación}
+\begin{block}{Dinámica bajo la medida neutral al riesgo}
+\[
+    dS(t)=rS(t)\,dt+\sigma S(t)\,dW^{\mathbb Q}(t), \qquad \sigma>0 \text{ constante.}
+\]
+\end{block}
+\pause
+
+\begin{block}{Fórmula de Black--Scholes para una call europea}
+\[
+    C_{BS}=S_0\Phi(d_1)-Ke^{-rT}\Phi(d_2),
+\]
+\[
+    d_1=
+    \frac{\log(S_0/K)+(r+\frac{1}{2}\sigma^2)T}{\sigma\sqrt{T}},
+    \qquad
+    d_2=d_1-\sigma\sqrt{T}.
+\]
+\end{block}
+\pause
+
+\begin{alertblock}{Limitación clave}
+Toda la incertidumbre queda resumida en una única volatilidad constante $\sigma$. Esto no reproduce la estructura de volatilidad observada en mercado.
+\end{alertblock}
+\end{frame}
+
+% Slide: Volatilidad implícita y limitaciones
+\begin{frame}{Volatilidad implícita y superficie de mercado}
+\begin{block}{Definición (Volatilidad implícita)}
+Dado un precio de mercado $C^{mkt}(K,T)$, la volatilidad implícita 
+$\sigma_{imp}(K,T)$ es el valor que verifica
+\[
+    C_{BS}(S_0,K,T,r,\sigma_{imp}(K,T))=C^{mkt}(K,T).
+\]
+\end{block}
+\pause
+
+\begin{columns}[T]
+\begin{column}{0.45\textwidth}
+\textbf{Si Black--Scholes fuera exacto}
+
+\[
+\sigma_{imp}(K,T)=\sigma
+\]
+para todos los strikes y vencimientos.
+
+\end{column}
+\begin{column}{0.50\textwidth}
+\textbf{En mercado}
+
+\[
+\sigma_{imp}=\sigma_{imp}(K,T)
+\]
+Aparecen \textbf{smiles}, \textbf{skews} y una \textbf{superficie} de volatilidad implícita.
+
+\end{column}
+\end{columns}
+\pause
+
+\begin{center}
+\textbf{Motivación:} necesitamos modelos que incorporen la información contenida en toda la superficie.
+\end{center}
+\end{frame}
+
+%Slide: Opciones forward-start
+\begin{frame}{Opciones forward-start}
+    \begin{block}{Definición (opción forward-start)}
+        Una opción \textit{forward-start} es un derivado cuyo periodo de referencia comienza en una fecha futura $T_1$ y vence en una fecha posterior $T_2$, con $0<T_1<T_2$. Para strike relativo $K$, una call tiene payoff
+        \[
+            \max\{S(T_2)-K S(T_1),0\}.
+        \]
+    \end{block}
+    \pause
+
+    \begin{block}{Versión normalizada utilizada en la comparación}
+        \[
+            \max\left\{\frac{S(T_2)}{S(T_1)}-K,0\right\},
+        \]
+        con precio
+        \[
+            C_{FS}=e^{-rT_2}
+            \mathbb{E}^{\mathbb Q}\left[
+            \max\left\{\frac{S(T_2)}{S(T_1)}-K,0\right\}
+            \right].
+        \]
+    \end{block}
+    \pause
+
+    \textbf{Por qué son importantes en este trabajo}
+
+Son sensibles a la dinámica entre $T_1$ y $T_2$: no basta con reproducir bien precios vainilla en cada vencimiento.
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% SECCIÓN 2: VOLATILIDAD LOCAL ESTOCÁSTICA
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Volatilidad Local Estocástica}
+
+% Slide: Volatilidad local y Dupire
+\begin{frame}{Volatilidad Local: de $\sigma$ constante a $\sigma_{LV}(S,t)$}
+\begin{block}{Idea del modelo de volatilidad local}
+Reemplazar la volatilidad constante de Black--Scholes por una función que depende del nivel del subyacente y del tiempo:
+\[
+    dS(t) = rS(t)\,dt + \sigma_{LV}(S(t),t)S(t)\,dW(t).
+\]
+\end{block}
+\pause
+
+\begin{block}{Fórmula de Dupire}
+La varianza local se obtiene a partir de la superficie de precios de opciones europeas:
+\[
+    \sigma_{LV}^2(K,T) =
+    \frac{\dfrac{\partial V_c}{\partial T} + rK\dfrac{\partial V_c}{\partial K}}
+    {\dfrac{1}{2}K^2\dfrac{\partial^2 V_c}{\partial K^2}}.
+\]
+\end{block}
+\pause
+
+\textbf{Lectura financiera}
+
+La superficie de volatilidad implícita se transforma en una función local $\sigma_{LV}(K,T)$ que permite reproducir exactamente los precios vainilla de partida, si la superficie es suficientemente regular.
+
+\end{frame}
+
+% Slide: Interpretación y limitación de LV
+\begin{frame}{Volatilidad local: interpretación y limitación}
+\begin{columns}[T]
+\begin{column}{0.47\textwidth}
+\textbf{Ventaja}
+
+\begin{itemize}
+    \item Ajuste muy preciso a opciones vainilla.
+    \item Usa toda la superficie inicial de volatilidad.
+    \item Corrige la hipótesis de volatilidad constante.
+\end{itemize}
+
+\end{column}
+\begin{column}{0.47\textwidth}
+\textbf{Limitación}
+
+\begin{itemize}
+    \item La volatilidad es determinista.
+    \item Depende de $(S,t)$, pero no tiene ruido propio.
+    \item Puede ser pobre para productos sensibles a la dinámica futura.
+\end{itemize}
+
+\end{column}
+\end{columns}
+\pause
+
+\vspace{0.25cm}
+\begin{block}{Conclusión intermedia}
+La volatilidad local reproduce bien la superficie inicial, pero no introduce una evolución aleatoria de la volatilidad. Para eso se recurre a modelos de volatilidad estocástica.
+\end{block}
+\end{frame}
+
+% Slide: Modelo de Heston
+\begin{frame}{Volatilidad Estocástica: Modelo de Heston}
+    Bajo la medida neutral al riesgo $\mathbb{Q}$:
+    \begin{block}{Modelo de Heston}
+    \[
+    \begin{cases}
+    dS(t) = rS(t)\,dt+\sqrt{v(t)}S(t)\,dW^{S}(t), \\[0.15cm]
+    dv(t) = \kappa(\theta-v(t))\,dt+\gamma\sqrt{v(t)}\,dW^{v}(t),\\[0.15cm]
+    dW^{S}(t)\,dW^{v}(t)=\rho_{S,v}\,dt.
+    \end{cases}
+    \]
+    \end{block}
+    \pause
+
+    \begin{table}
+    \centering
+    \scriptsize
+    \begin{tabular}{c|p{7cm}}
+    \hline
+    \textbf{Parámetro} & \textbf{Interpretación} \\
+    \hline
+    $\kappa$ & velocidad de reversión de la varianza hacia su media \\
+    $\theta$ & nivel medio de largo plazo de la varianza \\
+    $\gamma$ & volatilidad de la volatilidad (\textit{vol-of-vol}) \\
+    $\rho_{S,v}$ & correlación entre el subyacente y la varianza \\
+    $v_0$ & varianza inicial \\
+    \hline
+    \end{tabular}
+    \end{table}
+    \pause
+
+    \textbf{Limitación}
+
+Heston genera smiles y skews, pero solo tiene cinco parámetros. Por sí solo no suele ajustar exactamente toda una superficie de volatilidad.
+
+\end{frame}
+
+% Slide: Condición de Feller
+\begin{frame}{Condición de Feller en el proceso CIR}
+    \begin{block}{Resultado importante}
+    En el proceso CIR de la varianza,
+    \[
+        dv(t)=\kappa(\theta-v(t))\,dt+\gamma\sqrt{v(t)}\,dW^v(t),
+    \]
+    la condición
+    \[
+        2\kappa\theta \geq \gamma^2
+    \]
+    evita que la frontera cero sea alcanzada por el proceso de varianza.
+    \end{block}
+    \pause
+
+    \begin{center}
+        \includegraphics[width=0.48\textwidth]{../results/cir_feller_density.png}
+    \end{center}
+    \vspace{-0.25cm}
+    \begin{center}
+    {\scriptsize Densidad de transición del proceso CIR bajo dos parametrizaciones respecto a la condición de Feller.}
+    \end{center}
+    \pause
+
+    \textbf{Lectura para la implementación}
+
+Es relevante porque $\sqrt{v(t)}$ aparece en la difusión. Si la varianza se aproxima a cero, la simulación debe tratar el comportamiento con cuidado.
+
+\end{frame}
+
+% Slide: Modelo Heston--SLV
+\begin{frame}{Modelo Heston--SLV: combinación local + estocástica}
+    \begin{block}{Modelo Heston--SLV}
+    \[
+    \begin{cases}
+    \dfrac{dS(t)}{S(t)} = r\,dt+\eta(S(t),t)\sqrt{v(t)}\,dW^S(t), \\[0.25cm]
+    dv(t) = \kappa(\theta-v(t))\,dt+\gamma\sqrt{v(t)}\,dW^v(t), \\[0.25cm]
+    dW^S(t)\,dW^v(t)=\rho_{S,v}\,dt.
+    \end{cases}
+    \]
+    \end{block}
+    \pause
+
+    \begin{columns}[T]
+    \begin{column}{0.47\textwidth}
+    \textbf{Componente local}
+
+La función $\eta(S,t)$ corrige localmente la difusión para ajustar la superficie inicial.
+
+    \end{column}
+    \begin{column}{0.47\textwidth}
+    \textbf{Componente estocástica}
+
+La varianza $v(t)$ mantiene la dinámica aleatoria de Heston.
+
+    \end{column}
+    \end{columns}
+    \pause
+
+    \textbf{Idea central}
+
+SLV busca conservar el ajuste a opciones vainilla de la volatilidad local, incorporando al mismo tiempo una dinámica futura de volatilidad más realista.
+
+\end{frame}
+
+% Slide: Función de apalancamiento
+\begin{frame}{Función de apalancamiento $\eta$}
+\begin{block}{Condición de proyección markoviana}
+La varianza local debe coincidir con la varianza efectiva del modelo SLV condicionada al nivel del subyacente:
+\[
+    \sigma_{LV}^2(K,t) = \eta^2(K,t)\cdot
+    \mathbb{E}^{\mathbb Q}\left[v(t) \mid S(t)=K\right].
+\]
+\end{block}
+\pause
+
+\textbf{Leverage function}
+
+\[
+    \boxed{
+    \eta(K,t) =
+    \frac{\sigma_{LV}(K,t)}
+    {\sqrt{\mathbb{E}^{\mathbb Q}\left[v(t) \mid S(t)=K\right]}}
+    }
+\]
+
+\pause
+
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\textbf{Numerador}
+
+$\sigma_{LV}(K,t)$ procede de Dupire y contiene la información de la superficie de mercado.
+
+\end{column}
+\begin{column}{0.48\textwidth}
+\textbf{Denominador}
+
+$\mathbb{E}[v(t)\mid S(t)=K]$ se estima por Monte Carlo agrupando trayectorias en \textit{bins}.
+
+\end{column}
+\end{columns}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% SECCIÓN 3: ENTROPÍA RELATIVA Y WMC
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Entropía Relativa y Weighted Monte Carlo}
+
+% Slide: Entropía relativa
+\begin{frame}{Entropía relativa (Divergencia de Kullback--Leibler)}
+    \begin{block}{Definición (Entropía relativa)}
+        Sean $\mathbb{P}$ y $\mathbb{Q}$ dos medidas de probabilidad sobre $(\Omega,\mathcal{F})$. La entropía relativa de $\mathbb{Q}$ respecto de $\mathbb{P}$ es:
+        \[
+            D(\mathbb{Q}\|\mathbb{P}) = \sum_{\omega\in\Omega} q(\omega)\log\left(\frac{q(\omega)}{p(\omega)}\right).
+        \]
+    \end{block}
+    \pause
+    
+    \textbf{Propiedades}
+
+$D \geq 0$, \, $D = 0 \Leftrightarrow \mathbb{Q} = \mathbb{P}$, y no es simétrica.
+
+    \pause
+    
+    \begin{alertblock}{Problema de Entropía Relativa Mínima (MRE)}
+        \[
+            \min_{\mathbb{Q}\in\mathcal{Q}} D(\mathbb{Q}\|\mathbb{P})
+            \quad \text{sujeto a} \quad
+            \mathbb{E}^{\mathbb Q}[g_j(\omega)] = c_j, \quad j=1,\ldots,m.
+        \]
+    \end{alertblock}
+    \pause
+    
+    \begin{center}
+    \textbf{Interpretación:} se elige la medida más cercana a la previa, entre las que reproducen las restricciones de mercado.
+    \end{center}
+\end{frame}
+
+% Slide: Weighted Monte Carlo
+\begin{frame}{Weighted Monte Carlo}
+    \begin{block}{Idea principal}
+    Mantener fijas las $N$ trayectorias simuladas y modificar sus probabilidades.
+    \end{block}
+    \pause
+    
+    \begin{itemize}
+        \item Monte Carlo estándar: $p_i = 1/N$ (pesos uniformes).
+        \item WMC: buscar nuevos pesos $q = (q_1,\ldots,q_N)$.
+    \end{itemize}
+    \pause
+    
+    \begin{block}{Restricciones de calibración}
+        \[
+            \sum_{i=1}^N q_i g_{ij} = C_j, \quad j=1,\ldots,m, \qquad
+            \sum_{i=1}^N q_i = 1, \quad q_i \geq 0.
+        \]
+    \end{block}
+    \pause
+    
+    \textbf{Pesos óptimos (forma de Boltzmann--Gibbs)}
+
+\[
+            q_i = \frac{p_i\exp\left(\sum_{j=1}^m \lambda_j g_{ij}\right)}{Z(\lambda)}, \qquad
+            Z(\lambda) = \sum_{i=1}^N p_i\exp\left(\sum_{j=1}^m \lambda_j g_{ij}\right).
+        \]
+
+    \pause
+    
+    Problema dual sin restricciones:
+    \[
+        \min_{\lambda\in\mathbb{R}^m} W(\lambda) = \log Z(\lambda) - \sum_{j=1}^m \lambda_j C_j.
+    \]
+\end{frame}
+
+% Slide: Ajuste exacto vs mínimos cuadrados ponderados
+\begin{frame}{Ajuste exacto vs. mínimos cuadrados ponderados}
+    \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+    \textbf{Ajuste exacto}
+    \begin{itemize}
+        \item Restricciones rígidas: $G^\top q = C$.
+        \item Máxima consistencia con los benchmark.
+        \item Puede ser inestable si hay muchas restricciones o mala condición numérica.
+    \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+    \textbf{Mínimos cuadrados ponderados}
+    \begin{itemize}
+        \item Regularización:
+        \[
+            H(\lambda) = W(\lambda) + \frac{1}{2}\lambda^\top\Omega\lambda.
+        \]
+        \item Tolerancia controlada.
+        \item Mayor estabilidad numérica.
+    \end{itemize}
+    \end{column}
+    \end{columns}
+    \pause
+    
+    \vspace{0.25cm}
+    \textbf{Resolución numérica:} método de Newton amortiguado
+    \[
+        \lambda^{(k+1)} = \lambda^{(k)} - \alpha\, d^{(k)}, \qquad
+        J(\lambda^{(k)})d^{(k)} = \nabla W(\lambda^{(k)}).
+    \]
+    \pause
+    
+    \textbf{Salvaguardas numéricas:}
+    \begin{itemize}
+        \item Evaluación estable de $\log Z(\lambda)$ mediante \textit{log-sum-exp}.
+        \item Regularización diagonal y mínimos cuadrados si el sistema está mal condicionado.
+        \item Amortiguación adaptativa: $\alpha_0 = 0.01$, $\alpha_{\max} = 1$.
+    \end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% SECCIÓN 4: IMPLEMENTACIÓN NUMÉRICA Y RESULTADOS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Implementación numérica y resultados}
+
+% Slide: Datos de entrada
+\begin{frame}{Datos de entrada}
+    \begin{itemize}
+        \item $S_0 = 100$, $r = 0$, $q = 0$.
+        \item Superficie de volatilidades implícitas de Oosterlee et al. (2021).
+    \end{itemize}
+    
+    \vspace{0.2cm}
+    \begin{table}
+    \centering
+    \scriptsize
+    \begin{tabular}{c|cccccccc}
+    \hline
+    \textbf{Strike/T} & \textbf{1w} & \textbf{1m} & \textbf{6m} & \textbf{1y} & \textbf{2y} & \textbf{5y} & \textbf{8y} & \textbf{10y} \\
+    \hline
+    40  & 22.62 & 22.37 & 20.71 & 18.54 & 18.04 & 16.40 & 14.49 & 13.14 \\
+    60  & 15.49 & 15.35 & 14.42 & 13.20 & 12.92 & 11.99 & 10.92 & 10.18 \\
+    80  & 9.93  & 9.88  & 9.56  & 9.15  & 9.07  & 8.79  & 8.46  & 8.25  \\
+    100 & 5.00  & 5.07  & 5.52  & 6.04  & 6.20  & 6.64  & 7.02  & 7.22  \\
+    120 & 4.54  & 4.60  & 4.96  & 5.43  & 5.65  & 6.28  & 6.78  & 7.04  \\
+    140 & 6.28  & 6.30  & 6.41  & 6.46  & 6.61  & 6.98  & 7.23  & 7.33  \\
+    160 & 7.75  & 7.75  & 7.71  & 7.52  & 7.62  & 7.81  & 7.82  & 7.75  \\
+    \hline
+    \end{tabular}
+    \caption{Superficie de volatilidades implícitas (\%).}
+    \end{table}
+    \pause
+    
+    \textbf{Construcción de benchmark}
+
+Los precios de referencia se obtienen aplicando Black--Scholes a cada punto de la superficie:
+    \[
+    C_{ij}^{mkt} = C^{BS}(S_0, K_j, T_i, r, \sigma_{imp}(T_i,K_j)).
+    \]
+
+\end{frame}
+
+% Slide: Flujo de implementación Heston-SLV
+\begin{frame}{Implementación Heston--SLV: flujo del algoritmo}
+\begin{enumerate}
+    \item \textbf{Calibrar Heston} a los precios de referencia mediante el método COS.
+    \pause
+    \item \textbf{Construir la volatilidad local} $\sigma_{LV}$ mediante Dupire:
+    \begin{itemize}
+        \item interpolación cúbica de Hermite;
+        \item malla refinada en strike, con $\Delta K=2.5$.
+    \end{itemize}
+    \pause
+    \item \textbf{Estimar la función de apalancamiento}:
+    \[
+        \eta(K,t)=\frac{\sigma_{LV}(K,t)}{\sqrt{\mathbb E[v(t)\mid S(t)=K]}}.
+    \]
+    \pause
+    \item \textbf{Simular trayectorias Monte Carlo} y estimar $\mathbb E[v(t)\mid S(t)=K]$ por \textit{binning}.
+    \pause
+    \item \textbf{Reescalar} para preservar la condición neutral al riesgo:
+    \[
+        \mathbb{E}[S(t)] = S_0e^{rt}.
+    \]
+\end{enumerate}
+\end{frame}
+
+% Slide: Calibración Heston-SLV
+\begin{frame}{Calibración de la componente Heston}
+    \begin{block}{Problema de calibración}
+    \[
+        \min_{\kappa,\theta,\gamma,\rho_{S,v},v_0}
+        \left(\sum_{i,j}\left(C_{ij}^{Heston} - C_{ij}^{mkt}\right)^2\right)^{1/2}.
+    \]
+    \end{block}
+    \pause
+    
+    \begin{table}
+    \centering
+    \begin{tabular}{ccccc}
+    \hline
+    $\kappa$ & $\theta$ & $\gamma$ & $\rho_{S,v}$ & $v_0$ \\
+    \hline
+    $2.12$ & $0.06$ & $0.16$ & $-0.71$ & $0.001$ \\
+    \hline
+    \end{tabular}
+    \caption{Parámetros calibrados de la componente Heston.}
+    \end{table}
+    \pause
+
+    \begin{block}{Simulación posterior}
+    \begin{itemize}
+        \item Se comparan esquemas Euler y AES.
+        \item La esperanza condicional $\mathbb E[v(t)\mid S(t)=K]$ se estima por \textit{bins}.
+        \item El reescalado conserva la media neutral al riesgo.
+    \end{itemize}
+    \end{block}
+\end{frame}
+
+% Slide: Comparación Euler vs AES
+\begin{frame}{Comparación Euler vs. AES}
+    \begin{center}
+        \includegraphics[width=0.47\textwidth]{../results/AES_vs_Euler_5y.png}
+    \end{center}
+    \vspace{-0.2cm}
+    \begin{center}
+    {\small Smile de volatilidad implícita para $T=5$ años: Euler vs. AES vs. mercado.}
+    \end{center}
+    
+    \textbf{Resultado}
+
+Ambos esquemas reproducen adecuadamente el smile de mercado y las diferencias son reducidas. Por ello, Euler se utiliza en los resultados finales.
+
+\end{frame}
+
+% Slide: Implementación MRE
+\begin{frame}{Implementación del método MRE/WMC}
+    \begin{block}{Configuración}
+    \begin{itemize}
+        \item $N = 20\,000$ trayectorias lognormales, semilla fija $12345$, variables antitéticas.
+        \item Volatilidad \textit{prior}: estructura temporal ATM.
+        \item Precios benchmark: los obtenidos con Heston--SLV.
+    \end{itemize}
+    \end{block}
+    \pause
+    
+    \begin{block}{Restricciones de calibración}
+    \begin{enumerate}
+        \item Precios de opciones call ($K \in \{40,60,80,100,120,140\}$, 8 vencimientos).
+        \item Restricciones forward: $\sum q_i S_i(T_j) = S_0$.
+        \item Restricciones sintéticas de martingala entre vencimientos.
+    \end{enumerate}
+    \end{block}
+    \pause
+    
+    \textbf{Resolución}
+
+Newton amortiguado, tolerancia de gradiente $10^{-8}$ y tolerancia de precios $5\cdot 10^{-4}$.
+
+    \pause
+    
+    \begin{table}
+    \centering
+    \begin{tabular}{c|ccc}
+    \hline
+     & Mínimo & Media & Máximo \\
+    \hline
+    $q_i$ & $2.62\cdot 10^{-25}$ & $5.00\cdot 10^{-5}$ & $1.79\cdot 10^{-3}$ \\
+    \hline
+    \end{tabular}
+    \caption{Pesos posteriores MRE.}
+    \end{table}
+\end{frame}
+
+% Slide: Comparación opciones vanilla
+\begin{frame}{Comparación: opciones europeas vanilla}
+    Strikes \textbf{no utilizados} como benchmark: $K \in \{70, 90, 110\}$.
+    
+    \begin{table}
+    \centering
+    \small
+    \begin{tabular}{|c|c|c|}
+    \hline
+     \textbf{Vencimiento} & \textbf{MAE} & \textbf{Dif. máxima} \\
+    \hline
+     0.02  & 0.0000 & 0.0000 \\
+     0.08  & 0.0000 & 0.0000 \\
+     0.50  & 0.0533 & 0.0900 \\
+     1.00  & 0.1567 & 0.2900 \\
+     2.00  & 0.1900 & 0.2800 \\
+     5.00  & 0.2933 & 0.4200 \\
+     8.00  & 0.3500 & 0.6600 \\
+     10.00 & 0.3300 & 0.6700 \\
+    \hline
+    \end{tabular}
+    \caption{MAE (WMC vs. Heston--SLV) por vencimiento.}
+    \end{table}
+    \pause
+    
+    \textbf{Resultado}
+
+MAE global $\approx 0.17$: MRE/WMC reproduce razonablemente los precios SLV en opciones vainilla, incluso en strikes no usados como benchmark.
+
+\end{frame}
+
+% Slide: Comparación forward-start
+\begin{frame}{Comparación: opciones forward-start}
+    $K \in \{70, 90, 110\}$, 10 pares $(T_1,T_2)$.
+    
+    \begin{table}
+    \centering
+    \small
+    \begin{tabular}{|c|c|c|c|}
+    \hline
+    $T_1$ & $T_2$ & \textbf{MAE} & \textbf{Dif. máxima} \\
+    \hline
+    0.50 & 1.00  & 0.0767 & 0.1400 \\
+    0.50 & 2.00  & 0.1967 & 0.3700 \\
+    0.50 & 5.00  & 0.3400 & 0.5500 \\
+    0.50 & 10.00 & 0.3767 & 0.7000 \\
+    1.00 & 2.00  & 0.1700 & 0.3800 \\
+    1.00 & 5.00  & 0.3933 & 0.6600 \\
+    1.00 & 10.00 & 0.3833 & 0.7300 \\
+    2.00 & 5.00  & 0.3400 & 0.5600 \\
+    2.00 & 10.00 & 0.3600 & 0.5900 \\
+    5.00 & 10.00 & 0.3067 & 0.3900 \\
+    \hline
+    \end{tabular}
+    \caption{MAE (WMC vs. Heston--SLV) por par $(T_1,T_2)$.}
+    \end{table}
+    \pause
+    
+    \textbf{Resultado}
+
+MAE global $\approx 0.29$: los precios siguen siendo próximos, pero las diferencias son mayores que en opciones vainilla porque aparece la dependencia dinámica entre vencimientos.
+
+\end{frame}
+
+% Slide: Smile forward-start
+\begin{frame}{Smile forward-start y formulación regularizada}
+    \begin{center}
+        \includegraphics[width=0.6\textwidth]{../results/wmc-slv_forward_start_WLS.png}
+    \end{center}
+    \vspace{-0.2cm}
+    \begin{center}
+    {\small Smile forward-start ($T_1=2$, $T_2=10$): WMC (mínimos cuadrados ponderados) vs. Heston--SLV.}
+    \end{center}
+    \pause
+    
+    \textbf{Comparación:}
+    \begin{itemize}
+        \item El ajuste exacto da precios relativamente próximos, pero puede ser menos estable para reproducir toda la estructura del smile.
+        \item Con mínimos cuadrados ponderados, usando $\omega = 10^{-7}$, se obtiene una estructura forward-start más estable.
+        \item La proximidad en precios no garantiza una buena reproducción de la estructura de volatilidad implícita.
+    \end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% SECCIÓN 5: CONCLUSIONES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conclusiones y líneas futuras}
+
+\begin{frame}{Conclusiones}
+    \begin{enumerate}
+        \item Ambas metodologías incorporan la información de la superficie de volatilidad, pero desde \textbf{perspectivas diferentes}:
+        \begin{itemize}
+            \item \textbf{Heston--SLV}: modifica la dinámica del subyacente mediante componente local + estocástica.
+            \item \textbf{MRE/WMC}: mantiene trayectorias fijas y redistribuye probabilidades.
+        \end{itemize}
+        \pause
+        
+        \item Para \textbf{opciones vanilla}, MRE reproduce razonablemente los precios SLV (MAE $\approx 0.17$), incluso en strikes no utilizados como benchmark.
+        \pause
+        
+        \item Para \textbf{opciones forward-start}:
+        \begin{itemize}
+            \item Los precios son relativamente próximos (MAE $\approx 0.29$).
+            \item La estructura del smile forward muestra diferencias más claras.
+            \item El ajuste exacto puede ser inestable; la formulación regularizada (WLS) es más robusta.
+        \end{itemize}
+    \end{enumerate}
+    \pause
+
+    \textbf{Conclusión principal}
+
+La proximidad en precios no garantiza una buena reproducción de la estructura de volatilidad implícita. Las opciones forward-start revelan diferencias dinámicas que no se aprecian con opciones vainilla.
+
+\end{frame}
+
+\begin{frame}{Líneas futuras de investigación}
+    \begin{enumerate}
+        \item \textbf{Datos reales de mercado}: aplicar ambas metodologías a superficies observadas en distintos activos y fechas.
+        \pause
+        
+        \item \textbf{Productos más complejos}: opciones asiáticas, opciones barrera y productos dependientes de la trayectoria.
+        \pause
+        
+        \item \textbf{Análisis de cobertura}: estudio de sensibilidades, griegas y estabilidad de estrategias de cobertura.
+        \pause
+        
+        \item \textbf{Extensiones del método MRE}: comparación con Generalized Weighted Monte Carlo u otros métodos de calibración basados en optimización.
+    \end{enumerate}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%% REFERENCIAS %%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\bf Referencias}
+\begin{thebibliography}{50}
+\scriptsize
+
+  \bibitem{ref:oosterlee} Oosterlee, C.W., Grzelak, L.A., Leitao, Á.
+  {\em Modelos matemáticos y métodos numéricos en finanzas cuantitativas}. Editorial Aula Magna, 2021.
+
+  \bibitem{ref:avellaneda} Avellaneda, M. et al.
+  {\em Weighted Monte Carlo: A New Technique for Calibrating Asset-Pricing Models}. IJTAF, 4(1), 2001.
+
+  \bibitem{ref:elices} Elices, A. y Giménez, E.
+  {\em Weighted Monte Carlo: Calibrating the Smile and Preserving Martingale Condition}. SSRN, 2011.
+
+  \bibitem{ref:arrieta} Arrieta, D.
+  {\em SLV vs Relative Entropy: Two Perfect Models Comparison}. Presentation, 2024.
+
+  \bibitem{ref:dupire} Dupire, B.
+  {\em Pricing with a smile}. Risk 7, 1994.
+
+  \bibitem{ref:vazquez} Vázquez, C.
+  {\em An Introduction to Black-Scholes Modeling}. MAT Serie A, 17, 2010.
+
+\end{thebibliography}
+\end{frame}
+
+%%%%%%%%%%%%%%%%% FIN %%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[plain]
+\vspace*{-0.3cm}
+\begin{center}
+\begin{minipage}{3cm}
+    \includegraphics[width=2.8cm]{../memoria/logo_m2i}
+\end{minipage}
+\end{center}
+
+\vspace{-0.1cm}
+\begin{center}
+\begin{minipage}{1.3cm}
+    \includegraphics[width=1.1cm]{../memoria/logo_ux}
+\end{minipage}\hspace{0.1cm}
+\begin{minipage}{2.2cm}
+    \includegraphics[width=2.2cm]{../memoria/logo_udc}
+\end{minipage}\hspace{0.1cm}
+\begin{minipage}{2cm}
+    \includegraphics[width=2cm]{../memoria/logo_uvigo}
+\end{minipage}\hspace{0.1cm}
+\begin{minipage}{2.4cm}
+    \includegraphics[width=2.4cm]{../memoria/logo_UC3M}
+\end{minipage}\hspace{0.1cm}
+\begin{minipage}{1.3cm}
+    \includegraphics[width=1.3cm]{../memoria/logo_UPM}
+\end{minipage}
+\end{center}
+
+\vspace{0.2cm}
+\begin{center}
+{\small\bf PFM Máster en Matemática Industrial}\\[0.3cm]
+{\large\bf Entropía Relativa versus Volatilidad Local Estocástica:}\\[0.1cm]
+{\normalsize\bf Comparación de las dos estrategias dinámicas de cobertura}\\[0.4cm]
+{\small Miriam Gutiérrez Serrano}\\[0.15cm]
+{\scriptsize Tutor académico: Carlos Vázquez Cendón (UDC)\\
+Tutor empresa: Daniel Arrieta Rodríguez y Cristina Arribas Francisco}\\[0.15cm]
+{\scriptsize \includegraphics[width=3cm]{../memoria/Banco_Santander_Logotipo}}
+\end{center}
+\end{frame}
+
+\end{document}

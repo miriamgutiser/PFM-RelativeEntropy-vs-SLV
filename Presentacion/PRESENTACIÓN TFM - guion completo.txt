@@ -1,0 +1,175 @@
+﻿PRESENTACIÓN TFM
+
+INTRODUCCIÓN
+
+Buenos días, soy Miriam Gutiérrez Serrano y voy a presentar mi Trabajo Fin de Máster, titulado Entropía Relativa versus Volatilidad Local Estocástica: comparación de dos estrategias dinámicas de cobertura.
+
+Este trabajo ha sido dirigido por Carlos Vázquez, de la Universidade da Coruña, y desarrollado en colaboración con Cristina Arribas y Daniel Arrieta, del Banco Santander.
+
+El trabajo se enmarca dentro de la valoración de productos derivados financieros, un área clave en los mercados actuales tanto para la gestión del riesgo como para la toma de decisiones.
+
+Históricamente, uno de los modelos de referencia en este ámbito ha sido el modelo de Black--Scholes, publicado en 1973, que supuso un gran avance en la valoración de opciones. Más adelante veremos con algo más de detalle su formulación y sus principales limitaciones.
+
+No obstante, con el paso del tiempo se observó que el comportamiento real del mercado no siempre quedaba bien recogido por este modelo. Un momento especialmente relevante fue el Black Monday de 1987, cuando los mercados bursátiles sufrieron una caída muy brusca en un solo día.
+
+A partir de ahí cobró especial importancia la necesidad de trabajar con modelos más flexibles, capaces de incorporar mejor la información contenida en los precios de mercado. En este trabajo estudiamos precisamente dos de estos enfoques: la Volatilidad Local Estocástica y la Entropía Relativa Mínima implementada mediante Weighted Monte Carlo.
+
+La idea principal será comparar ambas metodologías, primero desde el punto de vista teórico y después, sobre todo, a través de la implementación numérica y los resultados obtenidos.
+
+-----------------------------------------------------------------------------------------------------------------
+
+La presentación se estructura en cinco bloques prinicipales. En primer lugar, introducimos los conceptos preliminares necesarios y el modelo de Black--Scholes, que sirve como punto de partida para entender por qué aparecen modelos más avanzados. Después, presentamos las dos metodologías principales del trabajo: por un lado, la Volatilidad Local Estocástica, y por otro, la Entropía Relativa. A continuación, nos centraremos en la parte principal de la presentación, que es la implementación numérica y la comparación de resultados obtenidos con ambos métodos. Finalmente, cerraremos con las conclusiones principales y algunas posibles líneas futuras de investigación.
+
+Conceptos preliminares y Modelo de Black—Scholes
+
+Comenzamos con los conceptos preliminares y el modelo de Black--Scholes. El objetivo de esta parte es fijar el marco sobre el que se construyen después los dos métodos principales del trabajo.
+
+%Slide: Martingala y valoración neutral al riesgo
+
+Partimos de un espacio de probabilidad filtrado, donde Ω (Omega) representa los posibles estados del mercado, F es la sigma-álgebra, P es la medida de probabilidad real y la filtración {F} recoge la información disponible hasta cada instante.
+
+En este contexto, los precios de los activos financieros se modelan mediante procesos estocásticos adaptados a la filtración, es decir, procesos que solo dependen de la información disponible hasta ese momento. A partir de aquí aparece el concepto de martingala. Un proceso es martingala si la esperanza condicionada de su valor futuro, dada la información actual, coincide con su valor presente.
+
+Esta idea es fundamental en valoración financiera porque el Primer Teorema Fundamental establece que un mercado está libre de arbitraje si y solo si existe una medida de probabilidad equivalente, que denotamos Q, bajo la cual los precios descontados son martingalas. Esta medida es la que normalmente se conoce como medida neutral al riesgo, y es la que permite valorar derivados como esperanzas descontadas de sus payoffs futuros.
+
+A partir de aquí, el precio de un derivado con pago final puede escribirse como una esperanza descontada bajo esa medida . Esta es la idea que utilizaremos en todo el trabajo: valorar derivados como esperanzas bajo una medida de valoración adecuada.
+
+%Slide: Completitud y cambio de medida
+
+El Primer Teorema Fundamental garantiza la existencia de una medida de valoración en ausencia de arbitraje, pero no nos dice que esa medida sea única. Para eso se introduce el Segundo Teorema Fundamental.
+
+Este resultado establece que, suponiendo que el mercado está libre de arbitraje, el mercado es completo si y solo si existe una única medida martingala equivalente. Por tanto, en un mercado completo, el precio de cualquier derivado replicable queda determinado de forma única por ausencia de arbitraje.
+
+En cambio, en un mercado incompleto, como con el que trabajamos, pueden existir varias medidas martingala equivalentes. Esto significa que, para un derivado que no sea perfectamente replicable, pueden existir distintos precios compatibles con ausencia de arbitraje. Por eso aparece la necesidad de elegir una medida de valoración adecuada.
+
+Aquí entra la idea de cambio de medida. De forma general, consiste en pasar de la medida real , que describe la dinámica observada del mercado, a una medida de valoración . En el caso de procesos continuos, este cambio se puede interpretar como una modificación del término de deriva del proceso.
+
+Esta idea será importante por dos motivos. Por un lado, en Black--Scholes justifica el paso de la dinámica real del subyacente a la dinámica bajo la medida neutral al riesgo. Por otro lado, más adelante nos permitirá interpretar la Entropía Relativa Mínima como un método de selección de medida en un mercado incompleto.
+
+% Slide: Modelo de Black--Scholes
+
+Con esto ya tenemos el marco necesario para introducir el modelo de Black-Scholes, que es el ejemplo clásico donde estas ideas se concretan de forma explícita.
+
+En el modelo se considera un mercado formado por una cuenta bancaria libre de riesgo y un activo con riesgo. Bajo la medida real , el activo sigue una dinámica lognormal, donde representa la rentabilidad esperada del activo y es la volatilidad, que se supone constante.
+
+Sin embargo, para valorar derivados no trabajamos directamente con esta medida real, sino con la medida neutral al riesgo . Bajo esta nueva medida, el término de deriva del subyacente deja de ser y pasa a ser el tipo libre de riesgo . Esta es precisamente la idea que veníamos comentando: el cambio de medida permite pasar de la dinámica real a una dinámica de valoración.
+
+Bajo estas hipótesis, el modelo de Black--Scholes permite obtener una fórmula cerrada para el precio de opciones europeas. Aquí mostramos la fórmula para una call europea, donde el precio depende del valor inicial del subyacente, el strike, el vencimiento, el tipo de interés y la volatilidad.
+
+La importancia del modelo es que proporciona un marco matemático coherente y explícito para valorar opciones. Sin embargo, como veremos ahora, algunas de sus hipótesis son demasiado restrictivas para reproducir los precios observados en mercado.
+
+% Slide: Volatilidad implícita y limitaciones
+
+La principal limitación del modelo de Black--Scholes para este trabajo es la hipótesis de volatilidad constante.
+
+Para verlo, introducimos el concepto de volatilidad implícita. Dado un precio de mercado de una opción, la volatilidad implícita es el valor de que, al introducirlo en la fórmula de Black--Scholes, reproduce exactamente ese precio observado.
+
+Si Black--Scholes describiera perfectamente el comportamiento del mercado, la volatilidad implícita debería ser la misma para todos los strikes y vencimientos. Es decir, habría una única volatilidad constante que permitiría reproducir todos los precios.
+
+Sin embargo, en la práctica esto no ocurre. La volatilidad implícita depende del strike y del vencimiento. Para un vencimiento fijo, esta dependencia da lugar al llamado smile o skew de volatilidad. Y cuando consideramos varios vencimientos, obtenemos una superficie de volatilidad implícita.
+
+Por tanto, aunque Black--Scholes proporciona un marco teórico muy importante, la hipótesis de volatilidad constante resulta demasiado restrictiva para capturar toda la información contenida en los precios de mercado. Esta limitación es la que motiva el estudio de modelos más flexibles, como los modelos de Volatilidad Local Estocástica y el enfoque de Entropía Relativa Mínima.
+
+%Slide: Opciones forward-start
+
+Para el estudio de estos modelos, además de valorar opciones europeas vainilla, en la comparación numérica del trabajo se utilizan opciones de tipo forward-start.
+
+Una opción forward-start es una opción cuyo periodo de referencia no comienza en el instante inicial, sino en una fecha futura , y vence en una fecha posterior . Por tanto, a diferencia de una opción europea vainilla, cuyo payoff depende únicamente del valor del subyacente en el vencimiento, una opción forward-start depende de la evolución del subyacente entre dos fechas futuras.
+
+En este trabajo se utiliza la versión normalizada por el valor del subyacente en , como se puede ver en la diapositiva.
+
+Estas opciones serán especialmente importantes en la parte de resultados, porque son más exigentes que las opciones vainilla. No basta con que el modelo reproduzca bien la distribución del subyacente en un vencimiento concreto, sino que también importa la dinámica entre fechas. Por eso permiten ver diferencias entre SLV y MRE/WMC que quizá no se aprecian tan claramente al comparar solo opciones europeas vainilla.
+
+Volatilidad Local Estocástica
+
+% Slide: Volatilidad Local: Fórmula de Dupire
+
+Entramos ahora en el primer bloque metodológico: la Volatilidad Local Estocástica. Para llegar a ella empezamos por la volatilidad local. La idea es sustituir la volatilidad constante de Black--Scholes por una función que depende del nivel del subyacente y del tiempo. Así, en vez de tener un único parámetro sigma, trabajamos con una función sigma LV de S y t.
+
+La fórmula de Dupire permite obtener esa varianza local a partir de una superficie de precios de opciones europeas. Por tanto, si la superficie de partida es suficientemente regular, el modelo puede ajustarse exactamente a las opciones vainilla observadas. La limitación es que la volatilidad sigue siendo determinista: depende de S y de t, pero no tiene una dinámica aleatoria propia.
+
+% Slide: Volatilidad Estocástica: Modelo de Heston
+
+Para incorporar una dinámica aleatoria de la volatilidad introducimos el modelo de Heston. Bajo la medida neutral al riesgo, el subyacente se mueve con volatilidad raíz de v, y la varianza v sigue un proceso CIR. Sus parámetros tienen una interpretación financiera: kappa mide la reversión a la media, theta el nivel de largo plazo, gamma la volatilidad de la volatilidad, rho la correlación entre activo y varianza, y v cero la varianza inicial.
+
+Heston permite generar smiles y skews, y por eso es más flexible que Black--Scholes. Aun así, al tener solo cinco parámetros, no suele ser suficiente para reproducir exactamente toda una superficie de volatilidad.
+
+% Slide: Condición de Feller en el proceso CIR
+
+En esta diapositiva se ilustra el papel de la condición de Feller en el proceso CIR que modela la varianza. Lo que nos interesa es el comportamiento cerca de cero: cuando la parametrización permite que la densidad tenga más masa cerca del origen, la simulación de la varianza puede ser más delicada. Por eso esta condición es relevante al usar Heston como componente estocástica dentro de Heston--SLV.
+
+% Slide: Modelo Heston--SLV
+
+El modelo Heston--SLV combina las dos ideas anteriores. Mantiene la varianza estocástica de Heston, pero añade una función de apalancamiento eta de S y t. Esta función corrige localmente la difusión del subyacente para que el modelo sea consistente con la superficie de volatilidad local.
+
+La relación clave es la proyección markoviana que aparece en la diapositiva: la varianza local debe coincidir con la varianza efectiva del modelo SLV condicionada a que el subyacente valga K. Así, eta se obtiene como el cociente entre la volatilidad local y la raíz de la esperanza condicional de la varianza. En términos intuitivos, la parte local da ajuste a mercado y la parte Heston aporta dinámica futura.
+
+Entropía Relativa y Weighted Monte Carlo
+
+% Slide: Entropía relativa
+
+Pasamos ahora a la segunda metodología: la Entropía Relativa Mínima. La entropía relativa mide la discrepancia entre dos medidas de probabilidad. En el problema MRE buscamos, entre todas las medidas que cumplen unas restricciones de mercado, aquella que está más cerca de una medida previa.
+
+Esta idea encaja con mercados incompletos: puede haber varias medidas compatibles con ausencia de arbitraje, y necesitamos un criterio para seleccionar una. Aquí el criterio es alterar lo mínimo posible la medida inicial, pero obligándola a reproducir la información de calibración.
+
+% Slide: Weighted Monte Carlo
+
+En la práctica lo implementamos con Weighted Monte Carlo. Partimos de trayectorias simuladas y no cambiamos esas trayectorias; cambiamos sus probabilidades. En Monte Carlo estándar todos los pesos son uno partido por N. En WMC buscamos nuevos pesos q_i que reproduzcan precios benchmark y otras restricciones de consistencia.
+
+Al resolver el problema de mínima entropía, los pesos óptimos tienen una forma exponencial, parametrizada por multiplicadores de Lagrange. Por eso la calibración se reduce a resolver un problema dual en esos multiplicadores. Después, con los pesos ya calibrados, cualquier derivado se valora como una media ponderada de sus payoffs.
+
+% Slide: Ajuste exacto vs. Mínimos cuadrados ponderados
+
+Se consideran dos formulaciones. En el ajuste exacto, las restricciones se imponen de manera rígida. Es fiel a los benchmark, pero puede ser inestable cuando hay muchas restricciones. En mínimos cuadrados ponderados se introduce una regularización: se permite una tolerancia pequeña y controlada, ganando estabilidad numérica.
+
+El problema dual se resuelve con Newton amortiguado, usando evaluaciones estables mediante log-sum-exp, regularización diagonal y control adaptativo del paso. Estos detalles son importantes porque el problema puede estar mal condicionado.
+
+Implementación numérica y resultados
+
+% Slide: Datos de entrada
+
+En la parte numérica fijamos S cero igual a 100, con tipo de interés y dividendos nulos. La superficie de volatilidad implícita procede de Oosterlee, Grzelak y Leitao, y contiene varios strikes y vencimientos. A partir de ella se construyen precios de referencia mediante Black--Scholes.
+
+% Slide: Calibración del modelo Heston--SLV
+
+La implementación de Heston--SLV tiene tres pasos. Primero se calibra la componente Heston usando el método COS. Los parámetros obtenidos son kappa 2.12, theta 0.06, gamma 0.16, rho menos 0.71 y varianza inicial 0.001. Después se construye la volatilidad local aplicando Dupire sobre una malla refinada en strike, para estabilizar las derivadas numéricas.
+
+Finalmente se simulan trayectorias Monte Carlo bajo Heston--SLV. La esperanza condicional de la varianza, que aparece en la función eta, se estima agrupando trayectorias por bins según el valor del subyacente.
+
+% Slide: Comparación Euler vs. AES
+
+Para la simulación se compararon Euler y Almost Exact Simulation. En la figura, para vencimiento cinco años, ambas curvas son prácticamente coincidentes y siguen razonablemente el smile de mercado. Por eso se utiliza Euler en los resultados finales, manteniendo además un reescalado de las trayectorias para conservar la esperanza neutral al riesgo.
+
+% Slide: Implementación del método MRE/WMC
+
+En MRE/WMC se simulan veinte mil trayectorias lognormales, con semilla fija y variables antitéticas. La calibración utiliza precios de opciones call, restricciones forward y restricciones sintéticas de martingala entre vencimientos. Tras resolver el problema dual, los pesos dejan de ser uniformes: algunos se hacen muy pequeños y otros aumentan, reflejando cómo la medida posterior incorpora la información de mercado.
+
+% Slide: Comparación: opciones europeas vanilla
+
+La primera comparación usa opciones vainilla con strikes 70, 90 y 110, que no se utilizaron como benchmark. El objetivo es comprobar si WMC reproduce los precios Heston--SLV fuera del conjunto directo de calibración. El resultado es positivo: para vencimientos cortos las diferencias son prácticamente nulas, y el MAE global es aproximadamente 0.17.
+
+% Slide: Comparación: opciones forward-start
+
+Después se analizan opciones forward-start. Estas opciones son más exigentes porque dependen de la evolución entre T uno y T dos, no solo del valor final del subyacente. Los errores siguen siendo moderados, pero aumentan respecto al caso vainilla: el MAE global está alrededor de 0.29. Esto muestra que las forward-start revelan diferencias dinámicas entre los dos enfoques.
+
+% Slide: Smile forward-start y formulación regularizada
+
+La comparación del smile forward-start es el punto clave. Aunque el ajuste exacto da precios próximos, no reproduce de forma estable toda la estructura de volatilidad implícita. Con mínimos cuadrados ponderados, WMC recupera mejor la forma del smile frente a Heston--SLV para T uno igual a 2 y T dos igual a 10.
+
+La conclusión es que proximidad en precios no significa necesariamente proximidad en volatilidad implícita. Por eso las forward-start son útiles: hacen visibles diferencias que no aparecen tan claramente al mirar solo opciones vainilla.
+
+Conclusiones y líneas futuras
+
+% Slide: Conclusiones
+
+En resumen, Heston--SLV y MRE/WMC incorporan la superficie de volatilidad desde perspectivas distintas. Heston--SLV modifica la dinámica del subyacente mediante una componente local y otra estocástica. MRE/WMC mantiene las trayectorias y modifica la medida de probabilidad mediante pesos.
+
+Para opciones vainilla, MRE reproduce razonablemente los precios SLV. Para forward-start, los precios siguen siendo cercanos, pero la estructura del smile muestra diferencias relevantes. La conclusión principal es que comparar solo precios puede ocultar diferencias estructurales entre modelos.
+
+% Slide: Líneas futuras de investigación
+
+Como líneas futuras, sería interesante aplicar las dos metodologías a datos reales de mercado, estudiar productos más complejos como asiáticas o barrera, analizar estrategias de cobertura y comparar MRE/WMC con extensiones como Generalized Weighted Monte Carlo.
+
+% Slide: Referencias y cierre
+
+Con esto cierro la presentación. Las referencias principales son las que aparecen en la diapositiva, especialmente el texto de Oosterlee, Grzelak y Leitao, el trabajo de Avellaneda sobre Weighted Monte Carlo y las referencias sobre SLV y Black--Scholes. Muchas gracias por vuestra atención.
